@@ -47,6 +47,21 @@ int main(int argc, char *argv[]) {
         mpos.x = float(e.mouseMove.x / scale);
         mpos.y = float(e.mouseMove.y / scale);
       }
+
+      IF_KEY_PRESSED({
+        if (is_key(Space)) {
+          std::cout << "Space\n";
+        }
+        if (is_key(Enter)) {
+          std::cout << "Enter\n";
+        }
+      });
+
+      IF_KEY_RELEASED({
+        if (is_key(Space)) {
+          std::cout << "Space Released\n";
+        }
+      });
     }
 
     // clear
