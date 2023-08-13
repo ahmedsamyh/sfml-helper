@@ -2,9 +2,8 @@
 #include <format>
 #include <iostream>
 #include <string>
-
 #define SFML_HELPER_IMPLEMENTATION
-#include "sfml-helper.hpp"
+#include <sfml-helper.hpp>
 
 static const int s_width = 1280, s_height = 720;
 static const int scale = 1;
@@ -19,8 +18,14 @@ int main(int argc, char *argv[]) {
   sf::RenderTexture ren_tex;
   sf::RectangleShape ren_rect;
   const std::string title = "sfml-helper";
+  sf::Vector2f mpos;
+
+  Data d;
 
   init(win, ren_tex, title, s_width, s_height, width, height);
+
+  // variables --------------------------------------------------
+  float thicc = 1.f;
 
   // game loop
   while (win.isOpen()) {
@@ -37,12 +42,27 @@ int main(int argc, char *argv[]) {
       if (e.type == sf::Event::Closed) {
         win.close();
       }
+
+      if (e.type == sf::Event::MouseMoved) {
+        mpos.x = float(e.mouseMove.x / scale);
+        mpos.y = float(e.mouseMove.y / scale);
+      }
     }
 
     // clear
     clear(ren_tex, win);
 
+    // update
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X)) {
+      thicc += 1.f;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)) {
+      thicc -= 1.f;
+    }
     // draw
+    sf::Vector2f size = {100.f, 100.f};
+    draw_rect(d, ren_tex, mpos, size, sf::Color::Transparent, sf::Color::White,
+              thicc);
 
     // display
     display(ren_tex, ren_rect, win, s_width, s_height);
