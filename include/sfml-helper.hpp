@@ -3,6 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 
+// macros ==================================================
+#define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
+
 // data --------------------------------------------------
 struct Data {
   sf::RectangleShape rect;

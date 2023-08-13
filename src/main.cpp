@@ -53,10 +53,10 @@ int main(int argc, char *argv[]) {
     clear(ren_tex, win);
 
     // update
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X)) {
+    if (is_key_held(X)) {
       thicc += 1.f;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)) {
+    if (is_key_held(Z)) {
       thicc -= 1.f;
     }
     // draw
