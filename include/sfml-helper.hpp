@@ -2,6 +2,8 @@
 #define _SFML_HELPER_H_
 
 #include <SFML/Graphics.hpp>
+#include <string>
+#include <unordered_map>
 
 // macros ==================================================
 #define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
@@ -19,6 +21,17 @@
 struct Data {
   sf::RectangleShape rect;
   sf::CircleShape circle;
+};
+
+// texture_manager --------------------------------------------------
+struct Texture_manager {
+  std::unordered_map<std::string, sf::Texture> textures;
+
+  sf::Texture &load_texture(const std::string &filename);
+
+  sf::Texture &get_texture(const std::string &filename);
+
+  static std::string texture_path;
 };
 
 // math -------------------------
@@ -63,6 +76,37 @@ void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SFML_HELPER_IMPLEMENTATION
+
+// texture_manager --------------------------------------------------
+std::string Texture_manager::texture_path = "res/gfx/";
+
+sf::Texture &Texture_manager::load_texture(const std::string &filename) {
+  // return the texture if it already exists
+  if (textures.contains(filename)) {
+    return textures.at(filename);
+  }
+
+  // load new texture
+  sf::Texture tex;
+  if (!tex.loadFromFile(Texture_manager::texture_path + filename)) {
+    sf::err() << "ERROR: could not load texture '" << filename << "'\n";
+    exit(1);
+  }
+  textures.insert({filename, tex});
+  return textures.at(filename);
+}
+
+sf::Texture &Texture_manager::get_texture(const std::string &filename) {
+  // return the texture if it already exists
+  if (!textures.contains(filename)) {
+    sf::err() << "ERROR: the texture '" << filename
+              << "' doesn't exist or isn't loaded!\n";
+    exit(1);
+  }
+
+  return textures.at(filename);
+}
+
 // math -------------------------
 namespace math {
 #define PI 3.14159265359

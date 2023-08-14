@@ -21,11 +21,16 @@ int main(int argc, char *argv[]) {
   sf::Vector2f mpos;
 
   Data d;
+  Texture_manager tex_man;
 
   init(win, ren_tex, title, s_width, s_height, width, height);
 
   // variables --------------------------------------------------
   float thicc = 1.f;
+  sf::Sprite spr;
+
+  tex_man.load_texture("momo.png");
+  spr.setTexture(tex_man.get_texture("momo.png"));
 
   // game loop
   while (win.isOpen()) {
@@ -68,16 +73,10 @@ int main(int argc, char *argv[]) {
     clear(ren_tex, win);
 
     // update
-    if (is_key_held(X)) {
-      thicc += 1.f;
-    }
-    if (is_key_held(Z)) {
-      thicc -= 1.f;
-    }
+
     // draw
-    sf::Vector2f size = {100.f, 100.f};
-    draw_rect(d, ren_tex, mpos, size, sf::Color::Transparent, sf::Color::White,
-              thicc);
+    spr.setPosition(mpos);
+    ren_tex.draw(spr);
 
     // display
     display(ren_tex, ren_rect, win, s_width, s_height);
