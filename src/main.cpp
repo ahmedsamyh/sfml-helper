@@ -29,7 +29,25 @@ int main(int argc, char *argv[]) {
   float thicc = 1.f;
   sf::Sprite spr;
 
+  sf::Vertex q[4];
+
   tex_man.load_texture("momo.png");
+
+  const float size = 100.f;
+  const sf::Vector2f tex_size = {
+      float(tex_man.get_texture("momo.png").getSize().x),
+      float(tex_man.get_texture("momo.png").getSize().y)};
+
+  q[0].position = {0.f, 0.f};
+  q[1].position = {size, 0.f};
+  q[2].position = {size, size};
+  q[3].position = {0.f, size};
+
+  q[0].texCoords = {0.f, 0.f};
+  q[1].texCoords = {tex_size.x, 0.f};
+  q[2].texCoords = {tex_size.x, tex_size.y};
+  q[3].texCoords = {0.f, tex_size.y};
+
   spr.setTexture(tex_man.get_texture("momo.png"));
 
   // game loop
@@ -75,8 +93,20 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
-    spr.setPosition(mpos);
-    ren_tex.draw(spr);
+    // spr.setPosition(mpos);
+    // ren_tex.draw(spr);
+
+    sf::Vertex qq[4];
+
+    sf::Vector2f q_pos = mpos;
+
+    for (size_t i = 0; i < 4; ++i) {
+      qq[i] = q[i];
+      qq[i].position += q_pos;
+    }
+    sf::RenderStates states;
+    states.texture = &tex_man.get_texture("momo.png");
+    ren_tex.draw(qq, 4, sf::PrimitiveType::Quads, states);
 
     // display
     display(ren_tex, ren_rect, win, s_width, s_height);

@@ -17,12 +17,6 @@
     block                                                                      \
   }
 
-// data --------------------------------------------------
-struct Data {
-  sf::RectangleShape rect;
-  sf::CircleShape circle;
-};
-
 // texture_manager --------------------------------------------------
 struct Texture_manager {
   std::unordered_map<std::string, sf::Texture> textures;
@@ -32,6 +26,19 @@ struct Texture_manager {
   sf::Texture &get_texture(const std::string &filename);
 
   static std::string texture_path;
+};
+// data --------------------------------------------------
+struct Data {
+  sf::RectangleShape rect;
+  sf::CircleShape circle;
+  sf::RenderWindow win;
+  sf::RenderTexture ren_tex;
+  sf::RectangleShape ren_rect;
+  sf::Clock clock;
+  float delta = 0.f;
+  std::string title = "sfml-helper";
+  sf::Vector2f mpos;
+  Texture_manager tex_man;
 };
 
 // math -------------------------
