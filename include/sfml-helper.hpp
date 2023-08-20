@@ -67,11 +67,9 @@ sf::Vector2f from_radians(float rad);
 } // namespace v2f
 
 // Main sfml functions
-void display(sf::RenderTexture &ren_tex, sf::RectangleShape &ren_rect,
-             sf::RenderWindow &win, int s_width, int s_height);
-void clear(sf::RenderTexture &ren_tex, sf::RenderWindow &win);
-void init(sf::RenderWindow &win, sf::RenderTexture &ren_tex,
-          const std::string &title, int s_w, int s_h, int w, int h);
+void display(Data *d, int s_width, int s_height);
+void clear(Data *d);
+void init(Data *data, int s_w, int s_h, int w, int h, const std::string &title);
 
 // drawing functions
 void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
@@ -204,31 +202,31 @@ sf::Vector2f from_radians(float rad) {
 } // namespace v2f
 
 // Main sfml functions
-void display(sf::RenderTexture &ren_tex, sf::RectangleShape &ren_rect,
-             sf::RenderWindow &win, int s_width, int s_height) {
-  ren_tex.display();
+void display(Data *d, int s_width, int s_height) {
+  d->ren_tex.display();
 
-  ren_rect.setSize(sf::Vector2f((float)s_width, (float)s_height));
-  ren_rect.setTexture(&ren_tex.getTexture());
+  d->ren_rect.setSize(sf::Vector2f((float)s_width, (float)s_height));
+  d->ren_rect.setTexture(&d->ren_tex.getTexture());
 
-  win.draw(ren_rect);
-  win.display();
+  d->win.draw(d->ren_rect);
+  d->win.display();
 }
 
-void clear(sf::RenderTexture &ren_tex, sf::RenderWindow &win) {
-  win.clear();
-  ren_tex.clear();
+void clear(Data *d) {
+  d->win.clear();
+  d->ren_tex.clear();
 }
 
-void init(sf::RenderWindow &win, sf::RenderTexture &ren_tex,
-          const std::string &title, int s_w, int s_h, int w, int h) {
+void init(Data *d, int s_w, int s_h, int w, int h, const std::string &title) {
+  d->title = title;
+
   // create window
-  win.create(sf::VideoMode(s_w, s_h), title,
-             sf::Style::Close | sf::Style::Titlebar);
-  win.setVerticalSyncEnabled(true);
+  d->win.create(sf::VideoMode(s_w, s_h), title,
+                sf::Style::Close | sf::Style::Titlebar);
+  d->win.setVerticalSyncEnabled(true);
 
   // create render texture
-  if (!ren_tex.create(w, h)) {
+  if (!d->ren_tex.create(w, h)) {
     sf::err() << "ERROR: Could not create render texture!\n";
   }
 }

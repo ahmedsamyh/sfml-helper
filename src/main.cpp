@@ -12,18 +12,9 @@ static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
   // global
-  sf::Clock clock;
-  float delta = 0.f;
-  sf::RenderWindow win;
-  sf::RenderTexture ren_tex;
-  sf::RectangleShape ren_rect;
-  const std::string title = "sfml-helper";
-  sf::Vector2f mpos;
 
-  Data d;
-  Texture_manager tex_man;
-
-  init(win, ren_tex, title, s_width, s_height, width, height);
+  Data *d = new Data();
+  init(d, s_width, s_height, width, height, "sfml-helper");
 
   // variables --------------------------------------------------
   float thicc = 1.f;
@@ -31,12 +22,12 @@ int main(int argc, char *argv[]) {
 
   sf::Vertex q[4];
 
-  tex_man.load_texture("momo.png");
+  d->tex_man.load_texture("momo.png");
 
   const float size = 100.f;
   const sf::Vector2f tex_size = {
-      float(tex_man.get_texture("momo.png").getSize().x),
-      float(tex_man.get_texture("momo.png").getSize().y)};
+      float(d->tex_man.get_texture("momo.png").getSize().x),
+      float(d->tex_man.get_texture("momo.png").getSize().y)};
 
   q[0].position = {0.f, 0.f};
   q[1].position = {size, 0.f};
@@ -48,27 +39,28 @@ int main(int argc, char *argv[]) {
   q[2].texCoords = {tex_size.x, tex_size.y};
   q[3].texCoords = {0.f, tex_size.y};
 
-  spr.setTexture(tex_man.get_texture("momo.png"));
+  spr.setTexture(d->tex_man.get_texture("momo.png"));
 
   // game loop
-  while (win.isOpen()) {
+  while (d->win.isOpen()) {
     // calculate delta time
-    delta = clock.restart().asSeconds();
+    d->delta = d->clock.restart().asSeconds();
+    float delta = d->delta;
 
     // update window title
     const int fps = int(1 / delta);
-    win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
+    d->win.setTitle(std::format("{} | {:.2f}s | {}fps", d->title, delta, fps));
 
     // event loop
     sf::Event e;
-    while (win.pollEvent(e)) {
+    while (d->win.pollEvent(e)) {
       if (e.type == sf::Event::Closed) {
-        win.close();
+        d->win.close();
       }
 
       if (e.type == sf::Event::MouseMoved) {
-        mpos.x = float(e.mouseMove.x / scale);
-        mpos.y = float(e.mouseMove.y / scale);
+        d->mpos.x = float(e.mouseMove.x / scale);
+        d->mpos.y = float(e.mouseMove.y / scale);
       }
 
       IF_KEY_PRESSED({
@@ -88,7 +80,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clear
-    clear(ren_tex, win);
+    clear(d);
 
     // update
 
@@ -98,19 +90,21 @@ int main(int argc, char *argv[]) {
 
     sf::Vertex qq[4];
 
-    sf::Vector2f q_pos = mpos;
+    sf::Vector2f q_pos = d->mpos;
 
     for (size_t i = 0; i < 4; ++i) {
       qq[i] = q[i];
       qq[i].position += q_pos;
     }
     sf::RenderStates states;
-    states.texture = &tex_man.get_texture("momo.png");
-    ren_tex.draw(qq, 4, sf::PrimitiveType::Quads, states);
+    states.texture = &d->tex_man.get_texture("momo.png");
+    d->ren_tex.draw(qq, 4, sf::PrimitiveType::Quads, states);
 
     // display
-    display(ren_tex, ren_rect, win, s_width, s_height);
+    display(d, s_width, s_height);
   }
+
+  delete d;
 
   return 0;
 }
