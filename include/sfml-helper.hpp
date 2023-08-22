@@ -24,49 +24,56 @@ std::vector<std::string> list_of_names_in_data() {
   std::vector<std::string> names;
   ifs.open("data.dat", std::ios::binary | std::ios::in);
   if (ifs.is_open()) {
-    size_t looped = 0;
-    while (ifs.rdstate() != std::ios::eofbit) {
-      // read data type
-      Data_type type = (Data_type)0;
-      ifs.read((char *)&type, 1);
+    // ifs.seekg(0, std::ios::end);
+    // std::cout << "Total size: " << ifs.tellg() << "\n";
+    // ifs.seekg(0, std::ios::beg);
 
-      VAR(type);
+    while (!ifs.eof()) {
+      // read data type
+      Data_type type = Data_type::Font;
+      ifs.read((char *)&type, sizeof(type));
+
+      // VAR(ifs.gcount());
+      // VAR(type);
 
       // read data size
-      size_t size = 0;
-      ifs.read((char *)&size, 8);
+      size_t data_size = 0;
+      ifs.read((char *)&data_size, sizeof(data_size));
 
-      VAR(size);
+      // VAR(ifs.gcount());
+      // VAR(data_size);
 
       // read name size
       size_t name_size = 0;
-      ifs.read((char *)&name_size, 8);
+      ifs.read((char *)&name_size, sizeof(name_size));
 
-      VAR(name_size);
+      // VAR(ifs.gcount());
+      // VAR(name_size);
 
       // read name
-      char *name = nullptr;
-      name = new char[name_size];
-      ifs.read(name, name_size);
-      std::string name_str = name;
+      std::string name;
+      name.resize(name_size);
+      ifs.read((char *)name.c_str(), name_size);
 
-      // add to names
-      names.push_back(name_str);
-      delete name;
+      // VAR(ifs.gcount());
+      // VAR(name);
 
       // read data
+      unsigned char *data = new unsigned char[data_size];
+      ifs.read((char *)data, data_size);
 
-      looped++;
-      std::cout << "looped: " << looped << "\n\n";
+      // VAR(ifs.gcount());
 
-      if (looped >= 1000) {
-        exit(1);
+      if (name_size > 0) {
+        names.push_back(name);
       }
     }
-    ifs.close();
+  } else {
+    sf::err() << "ERROR: Could not open `data.dat`!\n";
     return names;
   }
-  sf::err() << "ERROR: Could not open `data.dat`!\n";
+
+  ifs.close();
   return names;
 }
 
@@ -131,54 +138,44 @@ bool read_font_from_data(const std::string &font_name,
       Data_type type = Data_type::Font;
       ifs.read((char *)&type, sizeof(type));
 
-      VAR(ifs.tellg());
+      // VAR(ifs.gcount());
+      // VAR(type);
 
-      VAR(type);
+      // read data size
+      size_t data_size = 0;
+      ifs.read((char *)&data_size, sizeof(data_size));
 
-      switch (type) {
-      case Data_type::Font: {
+      // VAR(ifs.gcount());
+      // VAR(data_size);
 
-        // read data size
-        size_t size = 0;
-        ifs.read((char *)&size, sizeof(size));
-        *font_data_size = size;
+      // read name size
+      size_t name_size = 0;
+      ifs.read((char *)&name_size, sizeof(name_size));
 
-        VAR(size);
+      // VAR(ifs.gcount());
+      // VAR(name_size);
 
-        // read name size
-        size_t name_size = 0;
-        ifs.read((char *)&name_size, sizeof(name_size));
+      // read name
+      std::string name;
+      name.resize(name_size);
+      ifs.read((char *)name.c_str(), name_size);
 
-        VAR(name_size);
+      // VAR(ifs.gcount());
+      // VAR(name);
 
-        // TODO: Name buffer size is 1024, maybe make it a macro
-        // read name
-        char name[1024];
-        ifs.read((char *)&name, name_size);
-        name[name_size] = '\0';
-        std::string name_str = name;
+      // read data
+      *font_data = new unsigned char[data_size];
+      ifs.read((char *)*font_data, data_size);
 
-        // read data
-        ifs.read((char *)*font_data, size);
+      // VAR(ifs.gcount());
 
-        if (name == font_name) {
-          return true;
-        }
-
-      } break;
-      case Data_type::Texture: {
-        std::cerr << "ERROR: Unimplemented `read_font_from_data`!\n";
-        exit(1);
-      } break;
-      case Data_type::Sound: {
-        std::cerr << "ERROR: Unimplemented `read_font_from_data`!\n";
-        exit(1);
-      } break;
-      default: {
-        std::cerr << "ERROR: Data type is invalid in `read_font_from_data`!\n";
-        exit(1);
-      } break;
+      if (type == Data_type::Font && name == font_name) {
+        *font_data_size = data_size;
+        return true;
       }
+      *font_data = nullptr;
+      delete *font_data;
+      *font_data_size = 0;
     }
     ifs.close();
     std::cerr << "ERROR: Could not find font `" << font_name

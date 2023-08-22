@@ -66,13 +66,17 @@ int main(int argc, char *argv[]) {
   // //////////////////////////////////////////////////
   // write_font_to_data("PressStart2P-Regular.ttf");
 
-  unsigned char *font_data = nullptr;
-  size_t font_data_size = 0;
+  // unsigned char *font_data = nullptr;
+  // size_t font_data_size = 0;
 
-  read_font_from_data("PressStart2P-Regular.ttf", &font_data, &font_data_size);
+  // read_font_from_data("PressStart2P-Regular.ttf", &font_data,
+  // &font_data_size);
 
-  for (auto &name : list_of_names_in_data()) {
-    std::cout << name << "\n";
+  // for (auto &name : list_of_names_in_data()) {
+  // std::cout << name << "\n";
+  // }
+  for (auto name : list_of_names_in_data()) {
+    VAR(name);
   }
   exit(0);
   //////////////////////////////////////////////////
