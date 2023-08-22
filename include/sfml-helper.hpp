@@ -30,7 +30,11 @@
 #ifdef DEBUG
 #define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << "\n"
 #endif
-void dmsg(const std::string &_msg);
+void d_msg(const std::string &_msg);
+#ifdef DEBUG
+#define DEBUG_WARNING(msg) std::cout << "WARNING: " << msg << "\n"
+#endif
+void d_warn(const std::string &_msg);
 
 // data.dat ==================================================
 enum Data_type { Font, Texture, Sound };
@@ -192,7 +196,7 @@ bool remove_data_from_data(const std::string &_name) {
       // output new data to data.dat
       if (new_data_file != nullptr) {
 
-        // WARNING: overwrites the data.dat file!!!
+        d_warn("Overwriting the data.dat file!");
         std::ofstream ofs;
         ofs.open("data.dat", std::ios::binary);
         if (ofs.is_open()) {
@@ -202,7 +206,8 @@ bool remove_data_from_data(const std::string &_name) {
           delete new_data_file;
           delete previous_data_file;
 
-          dmsg(std::format("Successfully removed `{}` from `data.dat`", _name));
+          d_msg(
+              std::format("Successfully removed `{}` from `data.dat`", _name));
           return true;
           ofs.close();
         } else {
@@ -223,7 +228,7 @@ bool remove_data_from_data(const std::string &_name) {
 bool write_font_to_data(const std::string &font_filename) {
   for (auto &name : list_of_names_in_data()) {
     if (name == font_filename) {
-      // TODO: warn
+      d_warn(std::format("Trying to add duplicate data {}", font_filename));
       return true;
     }
   }
@@ -274,7 +279,7 @@ bool write_font_to_data(const std::string &font_filename) {
     sf::err() << "ERROR: Could not open `data.dat`\n";
     return false;
   }
-  dmsg(std::format("Successfully written `{}` to `data.dat`", font_filename));
+  d_msg(std::format("Successfully written `{}` to `data.dat`", font_filename));
   return true;
 }
 
@@ -387,9 +392,15 @@ void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SFML_HELPER_IMPLEMENTATION
 // macro functions
-void dmsg(const std::string &_msg) {
+void d_msg(const std::string &_msg) {
 #ifdef DEBUG
   DEBUG_MSG(_msg);
+#endif
+}
+
+void d_warn(const std::string &_msg) {
+#ifdef DEBUG
+  DEBUG_WARNING(_msg);
 #endif
 }
 
