@@ -138,36 +138,22 @@ bool read_font_from_data(const std::string &font_name,
       Data_type type = Data_type::Font;
       ifs.read((char *)&type, sizeof(type));
 
-      // VAR(ifs.gcount());
-      // VAR(type);
-
       // read data size
       size_t data_size = 0;
       ifs.read((char *)&data_size, sizeof(data_size));
 
-      // VAR(ifs.gcount());
-      // VAR(data_size);
-
       // read name size
       size_t name_size = 0;
       ifs.read((char *)&name_size, sizeof(name_size));
-
-      // VAR(ifs.gcount());
-      // VAR(name_size);
 
       // read name
       std::string name;
       name.resize(name_size);
       ifs.read((char *)name.c_str(), name_size);
 
-      // VAR(ifs.gcount());
-      // VAR(name);
-
       // read data
       *font_data = new unsigned char[data_size];
       ifs.read((char *)*font_data, data_size);
-
-      // VAR(ifs.gcount());
 
       if (type == Data_type::Font && name == font_name) {
         *font_data_size = data_size;

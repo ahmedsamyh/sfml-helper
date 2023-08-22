@@ -12,57 +12,6 @@ static const int width = s_width / scale;
 static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
-
-  // std::ofstream ofs;
-  // ofs.open("test.txt", std::ios::binary);
-
-  // Data_type type = Data_type::Texture;
-  // const std::string name = "PressStart2P-Regular.ttf";
-  // if (ofs.is_open()) {
-  //   // write data type
-  //   ofs.write((char *)&type, sizeof(type));
-
-  //   // write name size
-  //   size_t name_size = name.size();
-  //   ofs.write((char *)&name_size, sizeof(name_size));
-
-  //   // write name
-  //   ofs.write((char *)name.c_str(), name_size);
-
-  //   ofs.close();
-  // }
-
-  // std::ifstream ifs;
-  // ifs.open("test.txt", std::ios::binary);
-
-  // if (ifs.is_open()) {
-  //   // read type
-  //   Data_type t = Data_type::Font;
-  //   ifs.read((char *)&t, sizeof(t));
-
-  //   VAR(ifs.tellg());
-
-  //   VAR(t);
-
-  //   // read name size
-  //   size_t name_size = 0;
-  //   ifs.read((char *)&name_size, sizeof(name_size));
-
-  //   VAR(ifs.tellg());
-
-  //   VAR(name_size);
-
-  //   // // read name
-  //   char n[1024];
-  //   ifs.read(n, name_size);
-  //   n[name_size] = '\0';
-
-  //   VAR(n);
-
-  //   ifs.close();
-  // }
-
-  // exit(0);
   // //////////////////////////////////////////////////
   // write_font_to_data("PressStart2P-Regular.ttf");
 
@@ -75,16 +24,18 @@ int main(int argc, char *argv[]) {
   // for (auto &name : list_of_names_in_data()) {
   // std::cout << name << "\n";
   // }
-  for (auto name : list_of_names_in_data()) {
-    VAR(name);
-  }
-  exit(0);
-  //////////////////////////////////////////////////
+  // for (auto name : list_of_names_in_data()) {
+  //   VAR(name);
+  // }
+  // exit(0);
+  // //////////////////////////////////////////////////
   //  global
   sf::Font font;
-  // unsigned char *font_data = nullptr;
-  // size_t font_data_size = 0;
-  // font.loadFromMemory(font_data, font_data_size);
+  unsigned char *font_data = nullptr;
+  size_t font_data_size = 0;
+  if (read_font_from_data("PressStart2P-Regular.ttf", &font_data,
+                          &font_data_size))
+    font.loadFromMemory(font_data, font_data_size);
   sf::Text text;
   text.setFont(font);
 
