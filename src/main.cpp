@@ -12,26 +12,14 @@ static const int width = s_width / scale;
 static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
-  //////////////////////////////////////////////////
-  for (size_t i = 0; i < 2; ++i) {
-    write_font_to_data("PressStart2P-Regular.ttf");
-  }
-  PRINT("-------------------------------------------------------------------");
-  for (auto &name : list_of_names_in_data()) {
-    if (name == "PressStart2P-Regular.ttf") {
-      remove_data_from_data(name);
-    }
-  }
-
-  exit(0);
-  //////////////////////////////////////////////////
   //  global
   sf::Font font;
   char *font_data = nullptr;
   size_t font_data_size = 0;
   if (read_font_from_data("PressStart2P-Regular.ttf", &font_data,
-                          &font_data_size))
+                          &font_data_size)) {
     font.loadFromMemory(font_data, font_data_size);
+  }
   sf::Text text;
   text.setFont(font);
 
