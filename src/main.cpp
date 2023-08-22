@@ -12,26 +12,23 @@ static const int width = s_width / scale;
 static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
-  // //////////////////////////////////////////////////
-  // write_font_to_data("PressStart2P-Regular.ttf");
+  //////////////////////////////////////////////////
+  write_font_to_data("PressStart2P-Regular.ttf");
+  for (auto &name : list_of_names_in_data()) {
+    if (name == "PressStart2P-Regular.ttf") {
+      if (remove_data_from_data(name)) {
+        std::cout << "Successfully removed `" << name
+                  << "` from "
+                     "`data.dat`\n";
+      }
+    }
+  }
 
-  // unsigned char *font_data = nullptr;
-  // size_t font_data_size = 0;
-
-  // read_font_from_data("PressStart2P-Regular.ttf", &font_data,
-  // &font_data_size);
-
-  // for (auto &name : list_of_names_in_data()) {
-  // std::cout << name << "\n";
-  // }
-  // for (auto name : list_of_names_in_data()) {
-  //   VAR(name);
-  // }
-  // exit(0);
-  // //////////////////////////////////////////////////
+  exit(0);
+  //////////////////////////////////////////////////
   //  global
   sf::Font font;
-  unsigned char *font_data = nullptr;
+  char *font_data = nullptr;
   size_t font_data_size = 0;
   if (read_font_from_data("PressStart2P-Regular.ttf", &font_data,
                           &font_data_size))
