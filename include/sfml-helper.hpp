@@ -2,10 +2,12 @@
 #define _SFML_HELPER_H_
 
 #include <SFML/Graphics.hpp>
+#include <format>
 #include <string>
 #include <unordered_map>
 
 #define VAR(name) std::cout << #name << ": " << name << "\n"
+#define VAR_STR(name) std::format("{}: {}", #name, name)
 #define NL() std::cout << "\n"
 #define ASSERT(condition)                                                      \
   if (!(condition)) {                                                          \
@@ -14,6 +16,15 @@
     exit(1);                                                                   \
   }
 
+#ifdef DEBUG
+#define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << "\n"
+#endif
+
+void dmsg(const std::string &_msg) {
+#ifdef DEBUG
+  DEBUG_MSG(_msg);
+#endif
+}
 // data.dat ==================================================
 enum Data_type { Font, Texture, Sound };
 
@@ -39,9 +50,6 @@ std::vector<std::string> list_of_names_in_data() {
       // read data type
       Data_type type = Data_type::Font;
       ifs.read((char *)&type, sizeof(type));
-
-      // VAR(ifs.gcount());
-      // VAR(type);
 
       // read data size
       size_t data_size = 0;
