@@ -1,55 +1,101 @@
 #include <SFML/Graphics.hpp>
 #include <format>
+#include <fstream>
 #include <iostream>
 #include <string>
 #define SFML_HELPER_IMPLEMENTATION
 #include <sfml-helper.hpp>
 
 static const int s_width = 1280, s_height = 720;
-static const int scale = 1;
+static const int scale = 2;
 static const int width = s_width / scale;
 static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
-  // global
+
+  // std::ofstream ofs;
+  // ofs.open("test.txt", std::ios::binary);
+
+  // Data_type type = Data_type::Texture;
+  // const std::string name = "PressStart2P-Regular.ttf";
+  // if (ofs.is_open()) {
+  //   // write data type
+  //   ofs.write((char *)&type, sizeof(type));
+
+  //   // write name size
+  //   size_t name_size = name.size();
+  //   ofs.write((char *)&name_size, sizeof(name_size));
+
+  //   // write name
+  //   ofs.write((char *)name.c_str(), name_size);
+
+  //   ofs.close();
+  // }
+
+  // std::ifstream ifs;
+  // ifs.open("test.txt", std::ios::binary);
+
+  // if (ifs.is_open()) {
+  //   // read type
+  //   Data_type t = Data_type::Font;
+  //   ifs.read((char *)&t, sizeof(t));
+
+  //   VAR(ifs.tellg());
+
+  //   VAR(t);
+
+  //   // read name size
+  //   size_t name_size = 0;
+  //   ifs.read((char *)&name_size, sizeof(name_size));
+
+  //   VAR(ifs.tellg());
+
+  //   VAR(name_size);
+
+  //   // // read name
+  //   char n[1024];
+  //   ifs.read(n, name_size);
+  //   n[name_size] = '\0';
+
+  //   VAR(n);
+
+  //   ifs.close();
+  // }
+
+  // exit(0);
+  // //////////////////////////////////////////////////
+  // write_font_to_data("PressStart2P-Regular.ttf");
+
+  unsigned char *font_data = nullptr;
+  size_t font_data_size = 0;
+
+  read_font_from_data("PressStart2P-Regular.ttf", &font_data, &font_data_size);
+
+  for (auto &name : list_of_names_in_data()) {
+    std::cout << name << "\n";
+  }
+  exit(0);
+  //////////////////////////////////////////////////
+  //  global
+  sf::Font font;
+  // unsigned char *font_data = nullptr;
+  // size_t font_data_size = 0;
+  // font.loadFromMemory(font_data, font_data_size);
+  sf::Text text;
+  text.setFont(font);
 
   Data *d = new Data();
   init(d, s_width, s_height, width, height, "sfml-helper");
-
-  // variables --------------------------------------------------
-  float thicc = 1.f;
-  sf::Sprite spr;
-
-  sf::Vertex q[4];
-
-  d->tex_man.load_texture("momo.png");
-
-  const float size = 100.f;
-  const sf::Vector2f tex_size = {
-      float(d->tex_man.get_texture("momo.png").getSize().x),
-      float(d->tex_man.get_texture("momo.png").getSize().y)};
-
-  q[0].position = {0.f, 0.f};
-  q[1].position = {size, 0.f};
-  q[2].position = {size, size};
-  q[3].position = {0.f, size};
-
-  q[0].texCoords = {0.f, 0.f};
-  q[1].texCoords = {tex_size.x, 0.f};
-  q[2].texCoords = {tex_size.x, tex_size.y};
-  q[3].texCoords = {0.f, tex_size.y};
-
-  spr.setTexture(d->tex_man.get_texture("momo.png"));
 
   // game loop
   while (d->win.isOpen()) {
     // calculate delta time
     d->delta = d->clock.restart().asSeconds();
-    float delta = d->delta;
 
     // update window title
-    const int fps = int(1 / delta);
-    d->win.setTitle(std::format("{} | {:.2f}s | {}fps", d->title, delta, fps));
+    const int fps = int(1.f / d->delta);
+    d->win.setTitle(
+        std::format("{} | {:.2f}s | {}fps", d->title, d->delta, fps));
 
     // event loop
     sf::Event e;
@@ -57,48 +103,14 @@ int main(int argc, char *argv[]) {
       if (e.type == sf::Event::Closed) {
         d->win.close();
       }
-
-      if (e.type == sf::Event::MouseMoved) {
-        d->mpos.x = float(e.mouseMove.x / scale);
-        d->mpos.y = float(e.mouseMove.y / scale);
-      }
-
-      IF_KEY_PRESSED({
-        if (is_key(Space)) {
-          std::cout << "Space\n";
-        }
-        if (is_key(Enter)) {
-          std::cout << "Enter\n";
-        }
-      });
-
-      IF_KEY_RELEASED({
-        if (is_key(Space)) {
-          std::cout << "Space Released\n";
-        }
-      });
     }
 
     // clear
     clear(d);
 
-    // update
-
     // draw
-    // spr.setPosition(mpos);
-    // ren_tex.draw(spr);
-
-    sf::Vertex qq[4];
-
-    sf::Vector2f q_pos = d->mpos;
-
-    for (size_t i = 0; i < 4; ++i) {
-      qq[i] = q[i];
-      qq[i].position += q_pos;
-    }
-    sf::RenderStates states;
-    states.texture = &d->tex_man.get_texture("momo.png");
-    d->ren_tex.draw(qq, 4, sf::PrimitiveType::Quads, states);
+    text.setString("Hello, World");
+    d->ren_tex.draw(text);
 
     // display
     display(d, s_width, s_height);

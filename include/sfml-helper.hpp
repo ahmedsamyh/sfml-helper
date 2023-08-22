@@ -5,6 +5,190 @@
 #include <string>
 #include <unordered_map>
 
+#define VAR(name) std::cout << #name << ": " << name << "\n"
+
+// data.dat ==================================================
+enum Data_type { Font, Texture, Sound };
+
+/* data.dat format
+   [data_type]
+   [data_size]
+   [name_size]
+   [name]
+   [data]
+   ...
+ */
+
+std::vector<std::string> list_of_names_in_data() {
+  std::ifstream ifs;
+  std::vector<std::string> names;
+  ifs.open("data.dat", std::ios::binary | std::ios::in);
+  if (ifs.is_open()) {
+    size_t looped = 0;
+    while (ifs.rdstate() != std::ios::eofbit) {
+      // read data type
+      Data_type type = (Data_type)0;
+      ifs.read((char *)&type, 1);
+
+      VAR(type);
+
+      // read data size
+      size_t size = 0;
+      ifs.read((char *)&size, 8);
+
+      VAR(size);
+
+      // read name size
+      size_t name_size = 0;
+      ifs.read((char *)&name_size, 8);
+
+      VAR(name_size);
+
+      // read name
+      char *name = nullptr;
+      name = new char[name_size];
+      ifs.read(name, name_size);
+      std::string name_str = name;
+
+      // add to names
+      names.push_back(name_str);
+      delete name;
+
+      // read data
+
+      looped++;
+      std::cout << "looped: " << looped << "\n\n";
+
+      if (looped >= 1000) {
+        exit(1);
+      }
+    }
+    ifs.close();
+    return names;
+  }
+  sf::err() << "ERROR: Could not open `data.dat`!\n";
+  return names;
+}
+
+bool write_font_to_data(const std::string &font_filename) {
+  std::ifstream ifs;
+  ifs.open(font_filename, std::ios::binary);
+
+  unsigned char *bytes = nullptr;
+  size_t bytes_size = 0;
+
+  if (ifs.is_open()) {
+    ifs.seekg(0, std::ios::end);
+    bytes_size = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+    bytes = new unsigned char[bytes_size];
+
+    ifs.read((char *)bytes, bytes_size);
+
+    ifs.close();
+  } else {
+
+    return false;
+  }
+
+  std::ofstream ofs;
+  ofs.open("data.dat", std::ios::binary | std::ios::app);
+
+  if (ofs.is_open()) {
+    // write data type {1 byte(s)}
+    Data_type type = Data_type::Font;
+    ofs.write((char *)&type, sizeof(type));
+
+    // write data size {8 byte(s)}
+    ofs.write((char *)&bytes_size, sizeof(bytes_size));
+
+    // write name size {8 byte(s)}
+    size_t name_size = font_filename.size();
+    ofs.write((char *)&name_size, sizeof(name_size));
+
+    // write name
+    ofs.write(font_filename.c_str(), name_size);
+
+    // write data
+    ofs.write((char *)bytes, bytes_size);
+
+    ofs.close();
+  } else {
+    sf::err() << "ERROR: Could not open `data.dat`\n";
+    return false;
+  }
+  std::cout << "Successfully written `" << font_filename << "` to `data.dat`\n";
+  return true;
+}
+
+bool read_font_from_data(const std::string &font_name,
+                         unsigned char **font_data, size_t *font_data_size) {
+  std::ifstream ifs;
+  ifs.open("data.dat", std::ios::binary);
+  if (ifs.is_open()) {
+    while (!ifs.eof()) {
+      // read data type
+      Data_type type = Data_type::Font;
+      ifs.read((char *)&type, sizeof(type));
+
+      VAR(ifs.tellg());
+
+      VAR(type);
+
+      switch (type) {
+      case Data_type::Font: {
+
+        // read data size
+        size_t size = 0;
+        ifs.read((char *)&size, sizeof(size));
+        *font_data_size = size;
+
+        VAR(size);
+
+        // read name size
+        size_t name_size = 0;
+        ifs.read((char *)&name_size, sizeof(name_size));
+
+        VAR(name_size);
+
+        // TODO: Name buffer size is 1024, maybe make it a macro
+        // read name
+        char name[1024];
+        ifs.read((char *)&name, name_size);
+        name[name_size] = '\0';
+        std::string name_str = name;
+
+        // read data
+        ifs.read((char *)*font_data, size);
+
+        if (name == font_name) {
+          return true;
+        }
+
+      } break;
+      case Data_type::Texture: {
+        std::cerr << "ERROR: Unimplemented `read_font_from_data`!\n";
+        exit(1);
+      } break;
+      case Data_type::Sound: {
+        std::cerr << "ERROR: Unimplemented `read_font_from_data`!\n";
+        exit(1);
+      } break;
+      default: {
+        std::cerr << "ERROR: Data type is invalid in `read_font_from_data`!\n";
+        exit(1);
+      } break;
+      }
+    }
+    ifs.close();
+    std::cerr << "ERROR: Could not find font `" << font_name
+              << "` in `data.dat`!!!\n";
+    return false;
+  }
+  std::cerr << "ERROR: Could not open `data.dat`\n";
+  return false;
+}
+
 // macros ==================================================
 #define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
 #define IF_KEY_PRESSED(block)                                                  \
@@ -94,7 +278,7 @@ sf::Texture &Texture_manager::load_texture(const std::string &filename) {
   // load new texture
   sf::Texture tex;
   if (!tex.loadFromFile(Texture_manager::texture_path + filename)) {
-    sf::err() << "ERROR: could not load texture '" << filename << "'\n";
+    std::cerr << "ERROR: could not load texture '" << filename << "'\n";
     exit(1);
   }
   textures.insert({filename, tex});
@@ -104,7 +288,7 @@ sf::Texture &Texture_manager::load_texture(const std::string &filename) {
 sf::Texture &Texture_manager::get_texture(const std::string &filename) {
   // return the texture if it already exists
   if (!textures.contains(filename)) {
-    sf::err() << "ERROR: the texture '" << filename
+    std::cerr << "ERROR: the texture '" << filename
               << "' doesn't exist or isn't loaded!\n";
     exit(1);
   }
@@ -227,7 +411,7 @@ void init(Data *d, int s_w, int s_h, int w, int h, const std::string &title) {
 
   // create render texture
   if (!d->ren_tex.create(w, h)) {
-    sf::err() << "ERROR: Could not create render texture!\n";
+    std::cerr << "ERROR: Could not create render texture!\n";
   }
 }
 
