@@ -6,6 +6,13 @@
 #include <unordered_map>
 
 #define VAR(name) std::cout << #name << ": " << name << "\n"
+#define NL() std::cout << "\n"
+#define ASSERT(condition)                                                      \
+  if (!(condition)) {                                                          \
+    std::cerr << __FILE__ << ":" << __LINE__ << ":0"                           \
+              << " ASSERTION_FAILED: " << #condition << "\n";                  \
+    exit(1);                                                                   \
+  }
 
 // data.dat ==================================================
 enum Data_type { Font, Texture, Sound };
