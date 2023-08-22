@@ -163,7 +163,6 @@ bool remove_data_from_data(const std::string &_name) {
       found_size += ifs.gcount();
 
       // break if name is found
-      // TODO: only removes the first occurence of the data
       found = (name_size > 0 ? name == _name : false);
       if (found)
         break;
@@ -221,8 +220,14 @@ bool remove_data_from_data(const std::string &_name) {
   }
 }
 
-// TODO: avoid writing repeating data
 bool write_font_to_data(const std::string &font_filename) {
+  for (auto &name : list_of_names_in_data()) {
+    if (name == font_filename) {
+      // TODO: warn
+      return true;
+    }
+  }
+
   std::ifstream ifs;
   ifs.open(font_filename, std::ios::binary);
 
