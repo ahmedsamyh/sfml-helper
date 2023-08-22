@@ -6,25 +6,32 @@
 #include <string>
 #include <unordered_map>
 
+// macros ==================================================
+#define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
+#define IF_KEY_PRESSED(block)                                                  \
+  if (e.type == sf::Event::KeyPressed) {                                       \
+    block                                                                      \
+  }
+#define is_key(k) e.key.code == sf::Keyboard::k
+#define IF_KEY_RELEASED(block)                                                 \
+  if (e.type == sf::Event::KeyReleased) {                                      \
+    block                                                                      \
+  }
 #define VAR(name) std::cout << #name << ": " << name << "\n"
 #define VAR_STR(name) std::format("{}: {}", #name, name)
 #define NL() std::cout << "\n"
+#define PRINT(msg) std::cout << msg << "\n"
 #define ASSERT(condition)                                                      \
   if (!(condition)) {                                                          \
     std::cerr << __FILE__ << ":" << __LINE__ << ":0"                           \
               << " ASSERTION_FAILED: " << #condition << "\n";                  \
     exit(1);                                                                   \
   }
-
 #ifdef DEBUG
 #define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << "\n"
 #endif
+void dmsg(const std::string &_msg);
 
-void dmsg(const std::string &_msg) {
-#ifdef DEBUG
-  DEBUG_MSG(_msg);
-#endif
-}
 // data.dat ==================================================
 enum Data_type { Font, Texture, Sound };
 
@@ -196,6 +203,7 @@ bool remove_data_from_data(const std::string &_name) {
           delete new_data_file;
           delete previous_data_file;
 
+          dmsg(std::format("Successfully removed `{}` from `data.dat`", _name));
           return true;
           ofs.close();
         } else {
@@ -261,7 +269,7 @@ bool write_font_to_data(const std::string &font_filename) {
     sf::err() << "ERROR: Could not open `data.dat`\n";
     return false;
   }
-  std::cout << "Successfully written `" << font_filename << "` to `data.dat`\n";
+  dmsg(std::format("Successfully written `{}` to `data.dat`", font_filename));
   return true;
 }
 
@@ -308,18 +316,6 @@ bool read_font_from_data(const std::string &font_name, char **font_data,
   std::cerr << "ERROR: Could not open `data.dat`\n";
   return false;
 }
-
-// macros ==================================================
-#define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
-#define IF_KEY_PRESSED(block)                                                  \
-  if (e.type == sf::Event::KeyPressed) {                                       \
-    block                                                                      \
-  }
-#define is_key(k) e.key.code == sf::Keyboard::k
-#define IF_KEY_RELEASED(block)                                                 \
-  if (e.type == sf::Event::KeyReleased) {                                      \
-    block                                                                      \
-  }
 
 // texture_manager --------------------------------------------------
 struct Texture_manager {
@@ -385,6 +381,12 @@ void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SFML_HELPER_IMPLEMENTATION
+// macro functions
+void dmsg(const std::string &_msg) {
+#ifdef DEBUG
+  DEBUG_MSG(_msg);
+#endif
+}
 
 // texture_manager --------------------------------------------------
 std::string Texture_manager::texture_path = "res/gfx/";

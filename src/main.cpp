@@ -13,14 +13,13 @@ static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
   //////////////////////////////////////////////////
-  write_font_to_data("PressStart2P-Regular.ttf");
+  for (size_t i = 0; i < 2; ++i) {
+    write_font_to_data("PressStart2P-Regular.ttf");
+  }
+  PRINT("-------------------------------------------------------------------");
   for (auto &name : list_of_names_in_data()) {
     if (name == "PressStart2P-Regular.ttf") {
-      if (remove_data_from_data(name)) {
-        std::cout << "Successfully removed `" << name
-                  << "` from "
-                     "`data.dat`\n";
-      }
+      remove_data_from_data(name);
     }
   }
 
