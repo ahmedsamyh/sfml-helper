@@ -100,6 +100,19 @@ struct Resource_manager {
   static std::string texture_path;
 };
 
+// text_aligment --------------------------------------------------
+enum Text_align {
+  TopLeft,
+  TopCenter,
+  TopRight,
+  CenterLeft,
+  CenterCenter,
+  CenterRight,
+  BottomLeft,
+  BottomCenter,
+  BottomRight
+};
+
 // data --------------------------------------------------
 struct Data {
   sf::RectangleShape rect;
@@ -140,6 +153,7 @@ struct Data {
                    sf::Color fill_col = sf::Color::Transparent,
                    sf::Color out_col = sf::Color::White, float out_thic = 1);
   void draw_text(const sf::Vector2f &pos, const std::string &str,
+                 const Text_align &align = Text_align::TopLeft,
                  int character_size = 16, sf::Color fill_col = sf::Color::White,
                  sf::Color out_col = sf::Color::White, float out_thic = 0.f);
 
@@ -710,14 +724,48 @@ void Data::draw_circle(const sf::Vector2f &pos, float radius,
 }
 
 void Data::draw_text(const sf::Vector2f &pos, const std::string &str,
-                     int character_size, sf::Color fill_col, sf::Color out_col,
-                     float out_thic) {
+                     const Text_align &align, int character_size,
+                     sf::Color fill_col, sf::Color out_col, float out_thic) {
   text.setPosition(pos);
   text.setString(str);
   text.setCharacterSize(character_size - uint64_t(out_thic));
   text.setFillColor(fill_col);
   text.setOutlineColor(out_col);
   text.setOutlineThickness(out_thic);
+
+  sf::FloatRect bound = text.getLocalBounds();
+
+  switch (align) {
+  case TopLeft:
+    text.setOrigin({0.f, 0.f});
+    break;
+  case TopCenter:
+    text.setOrigin({bound.width / 2.f, 0.f});
+    break;
+  case TopRight:
+    text.setOrigin({bound.width, 0.f});
+    break;
+  case CenterLeft:
+    text.setOrigin({0.f, bound.height / 2.f});
+    break;
+  case CenterCenter:
+    text.setOrigin({bound.width / 2.f, bound.height / 2.f});
+    break;
+  case CenterRight:
+    text.setOrigin({bound.width, bound.height / 2.f});
+    break;
+  case BottomLeft:
+    text.setOrigin({0.f, bound.height});
+    break;
+  case BottomCenter:
+    text.setOrigin({bound.width / 2.f, bound.height});
+    break;
+  case BottomRight:
+    text.setOrigin({bound.width, bound.height});
+    break;
+  default:
+    ASSERT_MSG(0, "Unreachable state reached in `draw_text`");
+  }
 
   draw(text);
 }
