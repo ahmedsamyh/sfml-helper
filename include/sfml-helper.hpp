@@ -100,6 +100,9 @@ struct Data {
   int s_width, s_height, width, height, scale;
 
   // main functions
+  void clear(const sf::Color &col = sf::Color(0, 0, 0, 255));
+  bool init(int s_w, int s_h, int scl, const std::string &title);
+
   void display();
 
   // drawing functions {calls ren_tex.draw()}
@@ -142,10 +145,6 @@ sf::Vector2f limit(const sf::Vector2f &v, float min, float max);
 sf::Vector2f from_degrees(float deg);
 sf::Vector2f from_radians(float rad);
 } // namespace v2f
-
-// Main sfml functions
-void clear(Data *d);
-void init(Data *data, int s_w, int s_h, int scale, const std::string &title);
 
 // drawing functions
 void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
@@ -604,6 +603,33 @@ bool read_sound_from_data(Data_chunk &chunk, const std::string &name) {
 
 // data --------------------------------------------------
 
+void Data::clear(const sf::Color &col) {
+  win.clear(col);
+  ren_tex.clear(col);
+}
+
+bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
+  title = _title;
+  s_width = s_w;
+  s_height = s_h;
+  scale = scl;
+  width = s_width / scale;
+  height = s_height / scale;
+
+  // create window
+  win.create(sf::VideoMode(s_width, s_height), title,
+             sf::Style::Close | sf::Style::Titlebar);
+  win.setVerticalSyncEnabled(true);
+
+  // create render texture
+  if (!ren_tex.create(width, height)) {
+    std::cerr << "ERROR: Could not create render texture!\n";
+    return false;
+  }
+
+  return tex_man.load_all_textures();
+}
+
 void Data::display() {
   ren_tex.display();
 
@@ -771,34 +797,6 @@ sf::Vector2f from_radians(float rad) {
 }
 
 } // namespace v2f
-
-// Main sfml functions
-
-void clear(Data *d) {
-  d->win.clear();
-  d->ren_tex.clear();
-}
-
-void init(Data *d, int s_w, int s_h, int scale, const std::string &title) {
-  d->title = title;
-  d->s_width = s_w;
-  d->scale = scale;
-  d->s_height = s_h;
-  d->width = d->s_width / scale;
-  d->height = d->s_height / scale;
-
-  // create window
-  d->win.create(sf::VideoMode(s_w, s_h), title,
-                sf::Style::Close | sf::Style::Titlebar);
-  d->win.setVerticalSyncEnabled(true);
-
-  // create render texture
-  if (!d->ren_tex.create(d->width, d->height)) {
-    std::cerr << "ERROR: Could not create render texture!\n";
-  }
-
-  d->tex_man.load_all_textures();
-}
 
 // drawing function
 void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,

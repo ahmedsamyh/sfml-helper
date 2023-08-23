@@ -13,45 +13,42 @@ static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
   //  global
-  Data *d = new Data();
-  init(d, 1280, 720, 2, "sfml-helper");
+  Data d;
+  d.init(1280, 720, 2, "sfml-helper");
 
   sf::Sprite spr;
-  spr.setTexture(d->tex_man.get_texture("res/gfx/momo.png"));
+  spr.setTexture(d.tex_man.get_texture("res/gfx/momo.png"));
 
   // game loop
-  while (d->win.isOpen()) {
+  while (d.win.isOpen()) {
     // calculate delta time
-    d->delta = d->clock.restart().asSeconds();
+    d.delta = d.clock.restart().asSeconds();
 
     // update window title
-    const int fps = int(1.f / d->delta);
-    d->win.setTitle(
-        std::format("{} | {:.2f}s | {}fps", d->title, d->delta, fps));
+    const int fps = int(1.f / d.delta);
+    d.win.setTitle(std::format("{} | {:.2f}s | {}fps", d.title, d.delta, fps));
 
     // event loop
     sf::Event e;
-    while (d->win.pollEvent(e)) {
+    while (d.win.pollEvent(e)) {
       if (e.type == sf::Event::Closed) {
-        d->win.close();
+        d.win.close();
       }
-      d->update_mouse(e);
+      d.update_mouse(e);
     }
 
     // clear
-    clear(d);
+    d.clear();
 
     // update
-    spr.setPosition(d->mpos);
+    spr.setPosition(d.mpos);
 
     // draw
-    d->draw(spr);
+    d.draw(spr);
 
     // display
-    d->display();
+    d.display();
   }
-
-  delete d;
 
   return 0;
 }
