@@ -14,9 +14,7 @@ static const int height = s_height / scale;
 int main(int argc, char *argv[]) {
   //  global
   Data *d = new Data();
-  init(d, s_width, s_height, width, height, "sfml-helper");
-
-  d->tex_man.load_all_textures();
+  init(d, 1280, 720, 2, "sfml-helper");
 
   sf::Sprite spr;
   spr.setTexture(d->tex_man.get_texture("res/gfx/momo.png"));
@@ -37,16 +35,20 @@ int main(int argc, char *argv[]) {
       if (e.type == sf::Event::Closed) {
         d->win.close();
       }
+      d->update_mouse(e);
     }
 
     // clear
     clear(d);
 
+    // update
+    spr.setPosition(d->mpos);
+
     // draw
     d->draw(spr);
 
     // display
-    display(d, s_width, s_height);
+    d->display();
   }
 
   delete d;

@@ -99,6 +99,9 @@ struct Data {
   Texture_manager tex_man;
   int s_width, s_height, width, height, scale;
 
+  // main functions
+  void display();
+
   // drawing functions {calls ren_tex.draw()}
   void draw(const sf::Drawable &drawable,
             const sf::RenderStates &states = sf::RenderStates::Default);
@@ -141,7 +144,6 @@ sf::Vector2f from_radians(float rad);
 } // namespace v2f
 
 // Main sfml functions
-void display(Data *d, int s_width, int s_height);
 void clear(Data *d);
 void init(Data *data, int s_w, int s_h, int scale, const std::string &title);
 
@@ -602,6 +604,16 @@ bool read_sound_from_data(Data_chunk &chunk, const std::string &name) {
 
 // data --------------------------------------------------
 
+void Data::display() {
+  ren_tex.display();
+
+  ren_rect.setSize(sf::Vector2f((float)s_width, (float)s_height));
+  ren_rect.setTexture(&ren_tex.getTexture());
+
+  win.draw(ren_rect);
+  win.display();
+}
+
 void Data::draw(const sf::Drawable &drawable, const sf::RenderStates &states) {
   ren_tex.draw(drawable, states);
 }
@@ -761,15 +773,6 @@ sf::Vector2f from_radians(float rad) {
 } // namespace v2f
 
 // Main sfml functions
-void display(Data *d, int s_width, int s_height) {
-  d->ren_tex.display();
-
-  d->ren_rect.setSize(sf::Vector2f((float)s_width, (float)s_height));
-  d->ren_rect.setTexture(&d->ren_tex.getTexture());
-
-  d->win.draw(d->ren_rect);
-  d->win.display();
-}
 
 void clear(Data *d) {
   d->win.clear();
