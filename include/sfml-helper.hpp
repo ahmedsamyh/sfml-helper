@@ -39,6 +39,8 @@ void d_warn(const std::string &_msg);
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound };
 
+// #define LOG_DATA_CHUNK_FREE
+
 struct Data_chunk {
   Data_type type;
   size_t data_size;
