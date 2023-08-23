@@ -76,6 +76,9 @@ bool read_sound_from_data(Data_chunk &chunk, const std::string &name);
 
 // texture_manager --------------------------------------------------
 struct Texture_manager {
+  std::vector<Data_chunk> texture_chunks;
+  bool load_all_textures();
+
   std::unordered_map<std::string, sf::Texture> textures;
   sf::Texture &load_texture(const std::string &filename);
   sf::Texture &get_texture(const std::string &filename);
@@ -612,6 +615,26 @@ void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
 
 // texture_manager --------------------------------------------------
 std::string Texture_manager::texture_path = "res/gfx/";
+
+bool Texture_manager::load_all_textures() {
+  std::vector<Data_chunk> chunks = list_of_chunks_in_data();
+
+  if (chunks.empty()) {
+    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
+    return false;
+  }
+
+  for (auto &ch : chunks) {
+    if (ch.type == Data_type::Texture) {
+      texture_chunks.push_back(ch);
+    } else {
+      ch.free();
+    }
+  }
+
+  d_msg(std::format("Loaded {} textures", texture_chunks.size()));
+  return true;
+}
 
 sf::Texture &Texture_manager::load_texture(const std::string &filename) {
   // return the texture if it already exists
