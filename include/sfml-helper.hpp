@@ -37,7 +37,7 @@ void d_msg(const std::string &_msg);
 void d_warn(const std::string &_msg);
 
 // data.dat ==================================================
-enum Data_type { Font, Texture, Sound };
+enum Data_type { None = -1, Font, Texture, Sound };
 
 struct Data_chunk {
   Data_type type;
@@ -45,6 +45,8 @@ struct Data_chunk {
   size_t name_size;
   std::string name;
   char *data;
+
+  void free();
 };
 
 /* data.dat format
@@ -57,7 +59,7 @@ struct Data_chunk {
  */
 
 std::vector<std::string> list_of_names_in_data();
-bool remove_data_from_data(const std::string &_name);
+bool remove_chunk_from_data(const std::string &_name);
 bool write_chunk_to_data(const Data_type &type, const std::string &filename);
 bool write_texture_to_data(const std::string &texture_filename);
 bool write_font_to_data(const std::string &font_filename);
@@ -144,6 +146,18 @@ void d_warn(const std::string &_msg) {
 }
 
 // data.dat --------------------------------------------------
+void Data_chunk::free() {
+  type = Data_type::None;
+  data_size = 0;
+  name_size = 0;
+  name.resize(0);
+  if (data != nullptr) {
+    delete data;
+  }
+
+  d_msg("Chunk freed!");
+}
+
 std::vector<std::string> list_of_names_in_data() {
   std::ifstream ifs;
   std::vector<std::string> names;
@@ -200,7 +214,7 @@ std::vector<std::string> list_of_names_in_data() {
   return names;
 }
 
-bool remove_data_from_data(const std::string &_name) {
+bool remove_chunk_from_data(const std::string &_name) {
   std::ifstream ifs;
   ifs.open("data.dat", std::ios::binary);
   char *data = nullptr;
