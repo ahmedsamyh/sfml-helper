@@ -56,6 +56,93 @@ struct Data_chunk {
    ...
  */
 
+std::vector<std::string> list_of_names_in_data();
+bool remove_data_from_data(const std::string &_name);
+bool write_chunk_to_data(const Data_type &type, const std::string &filename);
+bool write_texture_to_data(const std::string &texture_filename);
+bool write_font_to_data(const std::string &font_filename);
+bool read_chunk_from_data(Data_chunk &chunk, const std::string &name);
+bool read_font_from_data(const std::string &font_name, char **font_data,
+                         size_t *font_data_size);
+
+// texture_manager --------------------------------------------------
+struct Texture_manager {
+  std::unordered_map<std::string, sf::Texture> textures;
+
+  sf::Texture &load_texture(const std::string &filename);
+
+  sf::Texture &get_texture(const std::string &filename);
+
+  static std::string texture_path;
+};
+// data --------------------------------------------------
+struct Data {
+  sf::RectangleShape rect;
+  sf::CircleShape circle;
+  sf::RenderWindow win;
+  sf::RenderTexture ren_tex;
+  sf::RectangleShape ren_rect;
+  sf::Clock clock;
+  float delta = 0.f;
+  std::string title = "sfml-helper";
+  sf::Vector2f mpos;
+  Texture_manager tex_man;
+};
+
+// math -------------------------
+namespace math {
+#define PI 3.14159265359
+
+float randomf(const float min, const float max);
+int randomi(const float min, const float max);
+float rad2deg(const float rad);
+float deg2rad(const float deg);
+float map(float val, float min, float max, float from, float to);
+} // namespace math
+
+// Vector2f --------------------------------------------------
+namespace v2f {
+float dist(const sf::Vector2f &vec);
+float mag(const sf::Vector2f &vec);
+sf::Vector2f normalize(const sf::Vector2f &vec);
+float radians(const sf::Vector2f &vec);
+float degrees(const sf::Vector2f &vec);
+sf::Vector2f normal(const sf::Vector2f &vec);
+sf::Vector2f set_mag(const sf::Vector2f &v, float mag);
+sf::Vector2f limit(const sf::Vector2f &v, float min, float max);
+sf::Vector2f from_degrees(float deg);
+sf::Vector2f from_radians(float rad);
+} // namespace v2f
+
+// Main sfml functions
+void display(Data *d, int s_width, int s_height);
+void clear(Data *d);
+void init(Data *data, int s_w, int s_h, int w, int h, const std::string &title);
+
+// drawing functions
+void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
+               const sf::Vector2f &size,
+               sf::Color fill_col = sf::Color::Transparent,
+               sf::Color out_col = sf::Color::White, float out_thic = 1);
+
+#endif /* _SFML-HELPER_H_ */
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef SFML_HELPER_IMPLEMENTATION
+// macro functions
+void d_msg(const std::string &_msg) {
+#ifdef DEBUG
+  DEBUG_MSG(_msg);
+#endif
+}
+
+void d_warn(const std::string &_msg) {
+#ifdef DEBUG
+  DEBUG_WARNING(_msg);
+#endif
+}
+
+// data.dat --------------------------------------------------
 std::vector<std::string> list_of_names_in_data() {
   std::ifstream ifs;
   std::vector<std::string> names;
@@ -353,123 +440,7 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name) {
 
 bool read_font_from_data(const std::string &font_name, char **font_data,
                          size_t *font_data_size) {
-  std::ifstream ifs;
-  ifs.open("data.dat", std::ios::binary);
-  if (ifs.is_open()) {
-    while (!ifs.eof()) {
-      // read data type
-      Data_type type = Data_type::Font;
-      ifs.read((char *)&type, sizeof(type));
-
-      // read data size
-      size_t data_size = 0;
-      ifs.read((char *)&data_size, sizeof(data_size));
-
-      // read name size
-      size_t name_size = 0;
-      ifs.read((char *)&name_size, sizeof(name_size));
-
-      // read name
-      std::string name;
-      name.resize(name_size);
-      ifs.read((char *)name.c_str(), name_size);
-
-      // read data
-      *font_data = new char[data_size];
-      ifs.read((char *)*font_data, data_size);
-
-      if (type == Data_type::Font && name == font_name) {
-        *font_data_size = data_size;
-        return true;
-      }
-      *font_data = nullptr;
-      delete *font_data;
-      *font_data_size = 0;
-    }
-    ifs.close();
-    std::cerr << "ERROR: Could not find font `" << font_name
-              << "` in `data.dat`!!!\n";
-    return false;
-  }
-  std::cerr << "ERROR: Could not open `data.dat`\n";
   return false;
-}
-
-// texture_manager --------------------------------------------------
-struct Texture_manager {
-  std::unordered_map<std::string, sf::Texture> textures;
-
-  sf::Texture &load_texture(const std::string &filename);
-
-  sf::Texture &get_texture(const std::string &filename);
-
-  static std::string texture_path;
-};
-// data --------------------------------------------------
-struct Data {
-  sf::RectangleShape rect;
-  sf::CircleShape circle;
-  sf::RenderWindow win;
-  sf::RenderTexture ren_tex;
-  sf::RectangleShape ren_rect;
-  sf::Clock clock;
-  float delta = 0.f;
-  std::string title = "sfml-helper";
-  sf::Vector2f mpos;
-  Texture_manager tex_man;
-};
-
-// math -------------------------
-namespace math {
-#define PI 3.14159265359
-
-float randomf(const float min, const float max);
-int randomi(const float min, const float max);
-float rad2deg(const float rad);
-float deg2rad(const float deg);
-float map(float val, float min, float max, float from, float to);
-} // namespace math
-
-// Vector2f --------------------------------------------------
-namespace v2f {
-float dist(const sf::Vector2f &vec);
-float mag(const sf::Vector2f &vec);
-sf::Vector2f normalize(const sf::Vector2f &vec);
-float radians(const sf::Vector2f &vec);
-float degrees(const sf::Vector2f &vec);
-sf::Vector2f normal(const sf::Vector2f &vec);
-sf::Vector2f set_mag(const sf::Vector2f &v, float mag);
-sf::Vector2f limit(const sf::Vector2f &v, float min, float max);
-sf::Vector2f from_degrees(float deg);
-sf::Vector2f from_radians(float rad);
-} // namespace v2f
-
-// Main sfml functions
-void display(Data *d, int s_width, int s_height);
-void clear(Data *d);
-void init(Data *data, int s_w, int s_h, int w, int h, const std::string &title);
-
-// drawing functions
-void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
-               const sf::Vector2f &size,
-               sf::Color fill_col = sf::Color::Transparent,
-               sf::Color out_col = sf::Color::White, float out_thic = 1);
-
-#endif /* _SFML-HELPER_H_ */
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef SFML_HELPER_IMPLEMENTATION
-// macro functions
-void d_msg(const std::string &_msg) {
-#ifdef DEBUG
-  DEBUG_MSG(_msg);
-#endif
-}
-
-void d_warn(const std::string &_msg) {
-#ifdef DEBUG
-  DEBUG_WARNING(_msg);
-#endif
 }
 
 // texture_manager --------------------------------------------------
