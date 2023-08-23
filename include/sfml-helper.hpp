@@ -29,6 +29,12 @@
               << " ASSERTION_FAILED: " << #condition << "\n";                  \
     exit(1);                                                                   \
   }
+#define ASSERT_MSG(condition, msg)                                             \
+  if (!(condition)) {                                                          \
+    std::cerr << __FILE__ << ":" << __LINE__ << ":0"                           \
+              << " ASSERTION_FAILED: " << #condition << " `" << msg << "`\n";  \
+    exit(1);                                                                   \
+  }
 #ifdef DEBUG
 #define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << "\n"
 #endif
