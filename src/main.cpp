@@ -12,9 +12,6 @@ static const int width = s_width / scale;
 static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
-  remove_chunk_from_data("res/gfx/c++.png");
-  write_texture_to_data("res/gfx/c++.png");
-
   //  global
   Data *d = new Data();
   init(d, s_width, s_height, width, height, "sfml-helper");
