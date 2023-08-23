@@ -97,6 +97,7 @@ struct Data {
   std::string title = "sfml-helper";
   sf::Vector2f mpos;
   Texture_manager tex_man;
+  int s_width, s_height, width, height, scale;
 
   // drawing functions {calls ren_tex.draw()}
   void draw(const sf::Drawable &drawable,
@@ -109,6 +110,9 @@ struct Data {
   void draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
             std::size_t vertexCount,
             const sf::RenderStates &states = sf::RenderStates::Default);
+
+  // mouse functions
+  void update_mouse(sf::Event &e);
 };
 
 // math -------------------------
@@ -139,7 +143,7 @@ sf::Vector2f from_radians(float rad);
 // Main sfml functions
 void display(Data *d, int s_width, int s_height);
 void clear(Data *d);
-void init(Data *data, int s_w, int s_h, int w, int h, const std::string &title);
+void init(Data *data, int s_w, int s_h, int scale, const std::string &title);
 
 // drawing functions
 void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
@@ -616,6 +620,13 @@ void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
   ren_tex.draw(vertexBuffer, firstVertex, vertexCount, states);
 }
 
+void Data::update_mouse(sf::Event &e) {
+  if (e.type == sf::Event::MouseMoved) {
+    mpos.x = float(e.mouseMove.x / scale);
+    mpos.y = float(e.mouseMove.y / scale);
+  }
+}
+
 // texture_manager --------------------------------------------------
 std::string Texture_manager::texture_path = "res/gfx/";
 
@@ -765,8 +776,13 @@ void clear(Data *d) {
   d->ren_tex.clear();
 }
 
-void init(Data *d, int s_w, int s_h, int w, int h, const std::string &title) {
+void init(Data *d, int s_w, int s_h, int scale, const std::string &title) {
   d->title = title;
+  d->s_width = s_w;
+  d->scale = scale;
+  d->s_height = s_h;
+  d->width = d->s_width / scale;
+  d->height = d->s_height / scale;
 
   // create window
   d->win.create(sf::VideoMode(s_w, s_h), title,
@@ -774,9 +790,11 @@ void init(Data *d, int s_w, int s_h, int w, int h, const std::string &title) {
   d->win.setVerticalSyncEnabled(true);
 
   // create render texture
-  if (!d->ren_tex.create(w, h)) {
+  if (!d->ren_tex.create(d->width, d->height)) {
     std::cerr << "ERROR: Could not create render texture!\n";
   }
+
+  d->tex_man.load_all_textures();
 }
 
 // drawing function
