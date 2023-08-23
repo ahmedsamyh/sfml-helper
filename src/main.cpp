@@ -12,31 +12,29 @@ static const int width = s_width / scale;
 static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
-  Data_chunk ch{0};
+  remove_chunk_from_data("res/gfx/c++.png");
+  write_texture_to_data("res/gfx/c++.png");
 
-  read_sound_from_data(ch, "PressStart2P-Regular.ttf");
-
-  VAR(Data_chunk::data_allocated);
-
-  exit(0);
-  //////////////////////////////////////////////////
   //  global
   Data *d = new Data();
   init(d, s_width, s_height, width, height, "sfml-helper");
 
   sf::Font font;
   Data_chunk font_chunk{0};
-  if (!read_font_from_data(font_chunk, "PressStart2P-Regular.ttf")) {
+  if (!read_font_from_data(font_chunk, "Angelface.otf")) {
     exit(1);
   }
   font.loadFromMemory(font_chunk.data, font_chunk.data_size);
   sf::Text text;
   text.setFont(font);
   text.setString("Hello, World");
-  text.setCharacterSize(16);
+  // text.setCharacterSize(16);
 
   sf::Texture tex;
   Data_chunk tex_chunk{0};
+  if (!read_texture_from_data(tex_chunk, "res/gfx/c++.png")) {
+    exit(1);
+  }
   tex.loadFromMemory(tex_chunk.data, tex_chunk.data_size);
   sf::Sprite spr;
   spr.setTexture(tex);

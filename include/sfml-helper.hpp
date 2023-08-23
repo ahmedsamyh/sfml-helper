@@ -448,8 +448,9 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
 
   if (ofs.is_open()) {
     ofs.seekp(0, std::ios::end);
-    d_msg(std::format<size_t>("`data.dat` contains {} bytes of data",
-                              ofs.tellp()));
+    d_msg(std::format<size_t>(
+        "`data.dat` contains {} bytes of data before writing `{}`", ofs.tellp(),
+        filename));
     ofs.seekp(0, std::ios::beg);
 
     size_t bytes_written = 0;
@@ -475,8 +476,8 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
     ofs.write((char *)data, data_size);
     bytes_written += data_size;
 
-    d_msg(std::format("Successfully written {} bytes to `data.dat`",
-                      bytes_written));
+    d_msg(std::format("Successfully written `{}` ({} bytes) to `data.dat`",
+                      filename, bytes_written));
     return true;
     ofs.close();
   } else {
