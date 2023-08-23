@@ -365,7 +365,7 @@ bool remove_chunk_from_data(const std::string &_name) {
 
     // remove the data found
     if (found) {
-      ASSERT(0 >= found_start && found_start < data_size);
+      ASSERT(0 <= found_start && found_start < previous_data_file_size);
 
       new_data_file[found_start];
 
