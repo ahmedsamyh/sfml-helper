@@ -52,6 +52,7 @@ std::vector<std::string> list_of_names_in_data() {
   std::ifstream ifs;
   std::vector<std::string> names;
   ifs.open("data.dat", std::ios::binary | std::ios::in);
+  // TODO: check if `data.dat` exists
   if (ifs.is_open()) {
     // ifs.seekg(0, std::ios::end);
     // std::cout << "Total size: " << ifs.tellg() << "\n";
@@ -95,7 +96,7 @@ std::vector<std::string> list_of_names_in_data() {
       }
     }
   } else {
-    sf::err() << "ERROR: Could not open `data.dat`!\n";
+    std::cerr << "ERROR: Could not open `data.dat`!\n";
     return names;
   }
 
@@ -225,62 +226,82 @@ bool remove_data_from_data(const std::string &_name) {
   }
 }
 
-bool write_font_to_data(const std::string &font_filename) {
+bool write_data_to_data(const Data_type &type, const std::string &filename) {
   for (auto &name : list_of_names_in_data()) {
-    if (name == font_filename) {
-      d_warn(std::format("Trying to add duplicate data {}", font_filename));
+    if (name == filename) {
+      d_warn(std::format("Trying to add duplicate data {}", filename));
       return true;
     }
   }
 
   std::ifstream ifs;
-  ifs.open(font_filename, std::ios::binary);
+  ifs.open(filename, std::ios::binary);
 
-  char *bytes = nullptr;
-  size_t bytes_size = 0;
+  char *data = nullptr;
+  size_t data_size = 0;
 
   if (ifs.is_open()) {
     ifs.seekg(0, std::ios::end);
-    bytes_size = ifs.tellg();
+    data_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    bytes = new char[bytes_size];
+    data = new char[data_size];
 
-    ifs.read((char *)bytes, bytes_size);
+    ifs.read((char *)data, data_size);
 
     ifs.close();
   } else {
-
+    std::cerr << "ERROR: Could not open `" << filename << "` for input\n";
     return false;
   }
 
   std::ofstream ofs;
-  ofs.open("data.dat", std::ios::binary | std::ios::app);
+  ofs.open("data.dat", std::ios::app | std::ios::binary);
 
   if (ofs.is_open()) {
-    // write data type {1 byte(s)}
-    Data_type type = Data_type::Font;
+    ofs.seekp(0, std::ios::end);
+    d_msg(std::format<size_t>("`data.dat` contains {} bytes of data",
+                              ofs.tellp()));
+    ofs.seekp(0, std::ios::beg);
+
+    size_t bytes_written = 0;
+
+    // write data type
     ofs.write((char *)&type, sizeof(type));
+    bytes_written += sizeof(type);
 
-    // write data size {8 byte(s)}
-    ofs.write((char *)&bytes_size, sizeof(bytes_size));
+    // write data size
+    ofs.write((char *)&data_size, sizeof(data_size));
+    bytes_written += sizeof(data_size);
 
-    // write name size {8 byte(s)}
-    size_t name_size = font_filename.size();
+    // write name size
+    size_t name_size = filename.size();
     ofs.write((char *)&name_size, sizeof(name_size));
+    bytes_written += sizeof(name_size);
 
     // write name
-    ofs.write(font_filename.c_str(), name_size);
+    ofs.write((char *)filename.c_str(), name_size);
+    bytes_written += name_size;
 
     // write data
-    ofs.write((char *)bytes, bytes_size);
+    ofs.write((char *)data, data_size);
+    bytes_written += data_size;
 
+    d_msg(std::format("Successfully written: {} to `data.dat`", bytes_written));
+    return true;
     ofs.close();
   } else {
-    sf::err() << "ERROR: Could not open `data.dat`\n";
+    std::cerr << "ERROR: Could not open `data.dat` for output\n";
     return false;
   }
-  d_msg(std::format("Successfully written `{}` to `data.dat`", font_filename));
-  return true;
+  return false;
+}
+
+bool write_texture_to_data(const std::string &texture_filename) {
+  return write_data_to_data(Data_type::Texture, texture_filename);
+}
+
+bool write_font_to_data(const std::string &font_filename) {
+  return write_data_to_data(Data_type::Font, font_filename);
 }
 
 bool read_font_from_data(const std::string &font_name, char **font_data,
