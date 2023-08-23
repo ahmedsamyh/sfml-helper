@@ -18,15 +18,8 @@ int main(int argc, char *argv[]) {
 
   d->tex_man.load_all_textures();
 
-  sf::Texture tex;
-  Data_chunk tex_chunk{0};
-  if (!read_texture_from_data(tex_chunk, "res/gfx/c++.png")) {
-    exit(1);
-  }
-  tex.loadFromMemory(tex_chunk.data, tex_chunk.data_size);
-
   sf::Sprite spr;
-  spr.setTexture(tex);
+  spr.setTexture(d->tex_man.get_texture("res/gfx/momo.png"));
 
   // game loop
   while (d->win.isOpen()) {

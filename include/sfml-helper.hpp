@@ -82,7 +82,6 @@ struct Texture_manager {
   bool load_all_textures();
 
   std::unordered_map<std::string, sf::Texture> textures;
-  sf::Texture &load_texture(const std::string &filename);
   sf::Texture &get_texture(const std::string &filename);
   static std::string texture_path;
 };
@@ -170,7 +169,9 @@ void Data_chunk::free() {
   type = Data_type::None;
   data_size = 0;
   name_size = 0;
+#ifdef DATA_CHUNK_FREE_LOG
   d_msg(std::format("Chunk `{}` freed!", name));
+#endif
   name.resize(0);
   if (data != nullptr) {
     delete data;
@@ -626,6 +627,7 @@ bool Texture_manager::load_all_textures() {
     return false;
   }
 
+  // loading texture data
   for (auto &ch : chunks) {
     if (ch.type == Data_type::Texture) {
       texture_chunks.push_back(ch);
@@ -634,31 +636,24 @@ bool Texture_manager::load_all_textures() {
     }
   }
 
+  // loading texture
+  for (auto &ch : texture_chunks) {
+    sf::Texture tex;
+    if (!tex.loadFromMemory(ch.data, ch.data_size)) {
+      std::cerr << "ERROR: Could not load texture data `" << ch.name << "`\n";
+      return false;
+    }
+    textures[ch.name] = tex;
+  }
+
   d_msg(std::format("Loaded {} textures", texture_chunks.size()));
   return true;
-}
-
-sf::Texture &Texture_manager::load_texture(const std::string &filename) {
-  // return the texture if it already exists
-  if (textures.contains(filename)) {
-    return textures.at(filename);
-  }
-
-  // load new texture
-  sf::Texture tex;
-  if (!tex.loadFromFile(Texture_manager::texture_path + filename)) {
-    std::cerr << "ERROR: could not load texture '" << filename << "'\n";
-    exit(1);
-  }
-  textures.insert({filename, tex});
-  return textures.at(filename);
 }
 
 sf::Texture &Texture_manager::get_texture(const std::string &filename) {
   // return the texture if it already exists
   if (!textures.contains(filename)) {
-    std::cerr << "ERROR: the texture '" << filename
-              << "' doesn't exist or isn't loaded!\n";
+    std::cerr << "ERROR: the texture '" << filename << "' doesn't exist\n";
     exit(1);
   }
 
