@@ -122,6 +122,7 @@ struct Data {
 
   // utility functions
   void handle_close(sf::Event &e);
+  float calc_delta();
 };
 
 // math -------------------------
@@ -672,6 +673,11 @@ void Data::handle_close(sf::Event &e) {
   if (e.type == sf::Event::Closed) {
     win.close();
   }
+}
+
+float Data::calc_delta() {
+  delta = clock.restart().asSeconds();
+  return delta;
 }
 
 // texture_manager --------------------------------------------------

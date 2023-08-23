@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   // game loop
   while (d.win.isOpen()) {
     // calculate delta time
-    d.delta = d.clock.restart().asSeconds();
+    float delta = d.calc_delta();
 
     // update window title
     const int fps = int(1.f / d.delta);
