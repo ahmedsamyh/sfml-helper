@@ -312,6 +312,45 @@ bool write_font_to_data(const std::string &font_filename) {
   return write_chunk_to_data(Data_type::Font, font_filename);
 }
 
+bool read_chunk_from_data(Data_chunk &chunk, const std::string &name) {
+  std::ifstream ifs;
+  ifs.open("data.dat", std::ios::binary);
+
+  if (ifs.is_open()) {
+    while (!ifs.eof()) {
+      // read data type
+      ifs.read((char *)&chunk.type, sizeof(chunk.type));
+
+      // read data size
+      ifs.read((char *)&chunk.data_size, sizeof(chunk.data_size));
+
+      // read name size
+      ifs.read((char *)&chunk.name_size, sizeof(chunk.name_size));
+
+      // read name
+      chunk.name.resize(chunk.name_size);
+      ifs.read((char *)chunk.name.c_str(), chunk.name_size);
+
+      // read data
+      chunk.data = new char[chunk.data_size];
+      ifs.read((char *)chunk.data, chunk.data_size);
+
+      // return if name matches
+      if (chunk.name == name) {
+        d_msg(std::format("Found `{}` in `data.dat`", name));
+        return true;
+      }
+    }
+    ifs.close();
+  } else {
+    std::cerr << "ERROR: Could not open `data.dat` for input\n";
+    return false;
+  }
+
+  std::cerr << "ERROR: Could not find `" << name << "` in `data.dat`\n";
+  return false;
+}
+
 bool read_font_from_data(const std::string &font_name, char **font_data,
                          size_t *font_data_size) {
   std::ifstream ifs;
