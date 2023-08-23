@@ -66,6 +66,7 @@ bool write_texture_to_data(const std::string &texture_filename);
 bool write_font_to_data(const std::string &font_filename);
 bool write_sound_to_data(const std::string &sound_filename);
 bool read_chunk_from_data(Data_chunk &chunk, const std::string &name);
+bool read_font_from_data(Data_chunk &chunk, const std::string &name);
 
 // texture_manager --------------------------------------------------
 struct Texture_manager {
@@ -527,6 +528,23 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name) {
   }
 
   std::cerr << "ERROR: Could not find `" << name << "` in `data.dat`\n";
+  return false;
+}
+
+bool read_font_from_data(Data_chunk &chunk, const std::string &name) {
+  bool status = false;
+
+  for (auto &ch : list_of_chunks_in_data()) {
+    if (ch.type == Data_type::Font) {
+      if (ch.name == name) {
+        chunk = ch;
+        d_msg(std::format("Found font: `{}` in `data.dat`", name));
+        return true;
+      }
+    }
+  }
+
+  std::cerr << "ERROR: Could not find font with name `" << name << "`\n";
   return false;
 }
 

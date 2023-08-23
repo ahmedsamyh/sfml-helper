@@ -12,40 +12,39 @@ static const int width = s_width / scale;
 static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
-
-  write_font_to_data("PressStart2P-Regular.ttf");
-
-  for (auto &chunk : list_of_chunks_in_data()) {
-    VAR(chunk.type);
-    VAR(chunk.data_size);
-    VAR(chunk.name_size);
-    VAR(chunk.name);
-  }
-  exit(0);
-  //////////////////////////////////////////////////
   //  global
   Data *d = new Data();
   init(d, s_width, s_height, width, height, "sfml-helper");
 
-  sf::Texture tex;
-  std::ifstream ifs;
-  ifs.open("res/gfx/momo.png", std::ios::binary);
-  char *data = nullptr;
-  size_t data_size = 0;
-  if (ifs.is_open()) {
-    ifs.seekg(0, std::ios::end);
-    data_size = ifs.tellg();
-    ifs.seekg(0, std::ios::beg);
-    data = new char[data_size];
-
-    ifs.read((char *)data, data_size);
-
-    ifs.close();
+  sf::Font font;
+  Data_chunk chunk{0};
+  if (!read_font_from_data(chunk, "PressStart2P-Regular.ttf")) {
+    exit(1);
   }
+  font.loadFromMemory(chunk.data, chunk.data_size);
+  sf::Text text;
+  text.setFont(font);
+  text.setString("Hello, World");
+  text.setCharacterSize(16);
+  // sf::Texture tex;
+  // std::ifstream ifs;
+  // ifs.open("res/gfx/momo.png", std::ios::binary);
+  // char *data = nullptr;
+  // size_t data_size = 0;
+  // if (ifs.is_open()) {
+  //   ifs.seekg(0, std::ios::end);
+  //   data_size = ifs.tellg();
+  //   ifs.seekg(0, std::ios::beg);
+  //   data = new char[data_size];
 
-  tex.loadFromMemory(data, data_size);
-  sf::Sprite spr;
-  spr.setTexture(tex);
+  //   ifs.read((char *)data, data_size);
+
+  //   ifs.close();
+  // }
+
+  // tex.loadFromMemory(data, data_size);
+  // sf::Sprite spr;
+  // spr.setTexture(tex);
 
   // game loop
   while (d->win.isOpen()) {
@@ -69,7 +68,8 @@ int main(int argc, char *argv[]) {
     clear(d);
 
     // draw
-    d->ren_tex.draw(spr);
+    // d->ren_tex.draw(spr);
+    d->ren_tex.draw(text);
 
     // display
     display(d, s_width, s_height);
