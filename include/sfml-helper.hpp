@@ -47,6 +47,9 @@ struct Data_chunk {
   char *data;
 
   void free();
+  void allocate(size_t size);
+
+  static size_t data_allocated;
 };
 
 /* data.dat format
@@ -65,8 +68,11 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename);
 bool write_texture_to_data(const std::string &texture_filename);
 bool write_font_to_data(const std::string &font_filename);
 bool write_sound_to_data(const std::string &sound_filename);
-bool read_chunk_from_data(Data_chunk &chunk, const std::string &name);
+bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
+                          Data_type type = Data_type::None);
 bool read_font_from_data(Data_chunk &chunk, const std::string &name);
+bool read_texture_from_data(Data_chunk &chunk, const std::string &name);
+bool read_sound_from_data(Data_chunk &chunk, const std::string &name);
 
 // texture_manager --------------------------------------------------
 struct Texture_manager {
@@ -147,13 +153,25 @@ void Data_chunk::free() {
   type = Data_type::None;
   data_size = 0;
   name_size = 0;
+  d_msg(std::format("Chunk `{}` freed!", name));
   name.resize(0);
   if (data != nullptr) {
     delete data;
+    ASSERT(Data_chunk::data_allocated > 0);
+    Data_chunk::data_allocated--;
   }
-
-  d_msg("Chunk freed!");
 }
+
+void Data_chunk::allocate(size_t size) {
+  if (data != nullptr) {
+    d_warn("data is already allocated!");
+    return;
+  }
+  data = new char[size];
+  Data_chunk::data_allocated++;
+}
+
+size_t Data_chunk::data_allocated = 0;
 
 std::vector<std::string> list_of_names_in_data() {
   std::ifstream ifs;
@@ -249,7 +267,7 @@ std::vector<Data_chunk> list_of_chunks_in_data() {
 
     // read data
     ASSERT(chunk.data_size > 0);
-    chunk.data = new char[chunk.data_size];
+    chunk.allocate(chunk.data_size);
     ifs.read((char *)chunk.data, chunk.data_size);
     bytes_read += ifs.gcount();
 
@@ -480,77 +498,83 @@ bool write_sound_to_data(const std::string &sound_filename) {
   return write_chunk_to_data(Data_type::Sound, sound_filename);
 }
 
-bool read_chunk_from_data(Data_chunk &chunk, const std::string &name) {
-  std::ifstream ifs;
-  ifs.open("data.dat", std::ios::binary);
-
-  if (ifs.is_open()) {
-
-    size_t bytes_read = 0;
-    size_t total_bytes = 0;
-    ifs.seekg(0, std::ios::end);
-    total_bytes = ifs.tellg();
-    ifs.seekg(0, std::ios::beg);
-
-    while (bytes_read < total_bytes) {
-      // read data type
-      ifs.read((char *)&chunk.type, sizeof(chunk.type));
-      bytes_read += ifs.gcount();
-
-      // read data size
-      ifs.read((char *)&chunk.data_size, sizeof(chunk.data_size));
-      bytes_read += ifs.gcount();
-
-      // read name size
-      ifs.read((char *)&chunk.name_size, sizeof(chunk.name_size));
-      bytes_read += ifs.gcount();
-
-      // read name
-      chunk.name.resize(chunk.name_size);
-      ifs.read((char *)chunk.name.c_str(), chunk.name_size);
-      bytes_read += ifs.gcount();
-
-      // read data
-      chunk.data = new char[chunk.data_size];
-      bytes_read += ifs.gcount();
-      ifs.read((char *)chunk.data, chunk.data_size);
-
-      // return if name matches
-      if (chunk.name == name) {
-        d_msg(std::format("Found `{}` in `data.dat`", name));
-        return true;
-      }
-    }
-    ifs.close();
-  } else {
-    std::cerr << "ERROR: Could not open `data.dat` for input\n";
+bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
+                          Data_type type) {
+  auto chunks = list_of_chunks_in_data();
+  if (chunks.empty()) {
+    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
     return false;
   }
 
-  std::cerr << "ERROR: Could not find `" << name << "` in `data.dat`\n";
-  return false;
-}
+  bool found = false;
+  bool found_type = false;
+  bool found_name = false;
+  bool check_type = type != Data_type::None;
+  int found_idx = -1;
+  for (size_t i = 0; i < chunks.size(); ++i) {
+    auto &ch = chunks.at(i);
 
-bool read_font_from_data(Data_chunk &chunk, const std::string &name) {
-  bool status = false;
+    if (check_type) {
+      found_type = ch.type == type;
+    }
+    found_name = ch.name == name;
 
-  for (auto &ch : list_of_chunks_in_data()) {
-    if (ch.type == Data_type::Font) {
-      if (ch.name == name) {
-        chunk = ch;
-        d_msg(std::format("Found font: `{}` in `data.dat`", name));
-        return true;
-      }
+    if (check_type) {
+      found = found_name && found_type;
+    } else {
+      found = found_name;
+    }
+    if (found) {
+      found_idx = int(i);
+      chunk = ch;
+      break;
     }
   }
 
-  std::cerr << "ERROR: Could not find font with name `" << name << "`\n";
-  return false;
+  // free unwanted allocated chunks
+  for (size_t i = 0; i < chunks.size(); ++i) {
+    if (i != found_idx) {
+      chunks.at(i).free();
+    }
+  }
+
+  std::string type_str;
+
+  switch (type) {
+  case Data_type::None:
+    type_str = "chunk";
+    break;
+  case Data_type::Font:
+    type_str = "font";
+    break;
+  case Data_type::Texture:
+    type_str = "texture";
+    break;
+  case Data_type::Sound:
+    type_str = "sound";
+    break;
+  }
+
+  if (!found) {
+    std::cerr << "ERROR: Could not find " << type_str << " `" << name
+              << "` in `data.dat`\n";
+    return false;
+  } else {
+    d_msg(std::format("Found {} `{}` in `data.dat`", type_str, name));
+    return true;
+  }
 }
 
-bool read_font_from_data(const std::string &font_name, char **font_data,
-                         size_t *font_data_size) {
-  return false;
+bool read_font_from_data(Data_chunk &chunk, const std::string &name) {
+  return read_chunk_from_data(chunk, name, Data_type::Font);
+}
+
+bool read_texture_from_data(Data_chunk &chunk, const std::string &name) {
+  return read_chunk_from_data(chunk, name, Data_type::Texture);
+}
+
+bool read_sound_from_data(Data_chunk &chunk, const std::string &name) {
+  return read_chunk_from_data(chunk, name, Data_type::Sound);
 }
 
 // texture_manager --------------------------------------------------
