@@ -13,9 +13,12 @@ static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
 
-  Data_chunk chunk{0};
-  read_chunk_from_data(chunk, "res/gfx/momo.png");
-
+  for (auto &chunk : list_of_chunks_in_data()) {
+    VAR(chunk.type);
+    VAR(chunk.data_size);
+    VAR(chunk.name_size);
+    VAR(chunk.name);
+  }
   exit(0);
   //////////////////////////////////////////////////
   //  global

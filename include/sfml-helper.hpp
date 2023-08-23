@@ -59,23 +59,19 @@ struct Data_chunk {
  */
 
 std::vector<std::string> list_of_names_in_data();
+std::vector<Data_chunk> list_of_chunks_in_data();
 bool remove_chunk_from_data(const std::string &_name);
 bool write_chunk_to_data(const Data_type &type, const std::string &filename);
 bool write_texture_to_data(const std::string &texture_filename);
 bool write_font_to_data(const std::string &font_filename);
 bool write_sound_to_data(const std::string &sound_filename);
 bool read_chunk_from_data(Data_chunk &chunk, const std::string &name);
-bool read_font_from_data(const std::string &font_name, char **font_data,
-                         size_t *font_data_size);
 
 // texture_manager --------------------------------------------------
 struct Texture_manager {
   std::unordered_map<std::string, sf::Texture> textures;
-
   sf::Texture &load_texture(const std::string &filename);
-
   sf::Texture &get_texture(const std::string &filename);
-
   static std::string texture_path;
 };
 // data --------------------------------------------------
@@ -212,6 +208,56 @@ std::vector<std::string> list_of_names_in_data() {
 
   ifs.close();
   return names;
+}
+
+std::vector<Data_chunk> list_of_chunks_in_data() {
+  std::vector<Data_chunk> chunks;
+
+  std::ifstream ifs;
+  ifs.open("data.dat", std::ios::binary);
+
+  if (!ifs.is_open()) {
+    std::cerr << "ERROR: Could not open `data.dat` for input\n";
+    return chunks;
+  }
+
+  size_t bytes_read = 0;
+  size_t total_bytes = 0;
+  ifs.seekg(0, std::ios::end);
+  total_bytes = ifs.tellg();
+  ifs.seekg(0, std::ios::beg);
+
+  while (bytes_read < total_bytes) {
+    Data_chunk chunk{0};
+
+    // read data type
+    ifs.read((char *)&chunk.type, sizeof(chunk.type));
+    bytes_read += ifs.gcount();
+
+    // read data size
+    ifs.read((char *)&chunk.data_size, sizeof(chunk.data_size));
+    bytes_read += ifs.gcount();
+
+    // read name size
+    ifs.read((char *)&chunk.name_size, sizeof(chunk.name_size));
+    bytes_read += ifs.gcount();
+
+    // read name
+    ASSERT(chunk.name_size > 0);
+    chunk.name.resize(chunk.name_size);
+    ifs.read((char *)chunk.name.c_str(), chunk.name_size);
+    bytes_read += ifs.gcount();
+
+    // read data
+    ASSERT(chunk.data_size > 0);
+    chunk.data = new char[chunk.data_size];
+    ifs.read((char *)chunk.data, chunk.data_size);
+    bytes_read += ifs.gcount();
+
+    chunks.push_back(chunk);
+  }
+
+  return chunks;
 }
 
 bool remove_chunk_from_data(const std::string &_name) {
