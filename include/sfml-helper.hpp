@@ -78,15 +78,22 @@ bool read_font_from_data(Data_chunk &chunk, const std::string &name);
 bool read_texture_from_data(Data_chunk &chunk, const std::string &name);
 bool read_sound_from_data(Data_chunk &chunk, const std::string &name);
 
-// texture_manager --------------------------------------------------
-struct Texture_manager {
+// resource_manager --------------------------------------------------
+struct Resource_manager {
   std::vector<Data_chunk> texture_chunks;
+  std::vector<Data_chunk> font_chunks;
   bool load_all_textures();
+  bool load_all_fonts();
+
+  sf::Font &load_font(const std::string &filename);
 
   std::unordered_map<std::string, sf::Texture> textures;
+  std::unordered_map<std::string, sf::Font> fonts;
   sf::Texture &get_texture(const std::string &filename);
+  sf::Font &get_font(const std::string &filename);
   static std::string texture_path;
 };
+
 // data --------------------------------------------------
 struct Data {
   sf::RectangleShape rect;
@@ -98,13 +105,12 @@ struct Data {
   float delta = 0.f;
   std::string title = "sfml-helper";
   sf::Vector2f mpos;
-  Texture_manager tex_man;
+  Resource_manager res_man;
   int s_width, s_height, width, height, scale;
 
   // main functions
   void clear(const sf::Color &col = sf::Color(0, 0, 0, 255));
   bool init(int s_w, int s_h, int scl, const std::string &title);
-
   void display();
 
   // drawing functions {calls ren_tex.draw()}
@@ -636,7 +642,10 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
     return false;
   }
 
-  return tex_man.load_all_textures();
+  // load default font
+  res_man.load_font("PressStart2P-Regular.ttf");
+
+  return res_man.load_all_textures();
 }
 
 void Data::display() {
@@ -713,10 +722,10 @@ void Data::update_title() {
   win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
 }
 
-// texture_manager --------------------------------------------------
-std::string Texture_manager::texture_path = "res/gfx/";
+// resource_manager --------------------------------------------------
+std::string Resource_manager::texture_path = "res/gfx/";
 
-bool Texture_manager::load_all_textures() {
+bool Resource_manager::load_all_textures() {
   std::vector<Data_chunk> chunks = list_of_chunks_in_data();
 
   if (chunks.empty()) {
@@ -747,7 +756,69 @@ bool Texture_manager::load_all_textures() {
   return true;
 }
 
-sf::Texture &Texture_manager::get_texture(const std::string &filename) {
+bool Resource_manager::load_all_fonts() {
+  std::vector<Data_chunk> chunks = list_of_chunks_in_data();
+
+  if (chunks.empty()) {
+    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
+    return false;
+  }
+
+  // loading font data
+  for (auto &ch : chunks) {
+    if (ch.type == Data_type::Font) {
+      font_chunks.push_back(ch);
+    } else {
+      ch.free();
+    }
+  }
+
+  // loading font
+  for (auto &ch : font_chunks) {
+    sf::Font font;
+    if (!font.loadFromMemory(ch.data, ch.data_size)) {
+      std::cerr << "ERROR: Could not load font data `" << ch.name << "`\n";
+      return false;
+    }
+    fonts[ch.name] = font;
+  }
+
+  d_msg(std::format("Loaded {} Fonts", font_chunks.size()));
+  return true;
+}
+
+sf::Font &Resource_manager::load_font(const std::string &filename) {
+  std::vector<Data_chunk> chunks = list_of_chunks_in_data();
+
+  if (chunks.empty()) {
+    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
+    exit(1);
+  }
+
+  // loading font data
+  for (auto &ch : chunks) {
+    if (ch.type == Data_type::Font && ch.name == filename) {
+      font_chunks.push_back(ch);
+    } else {
+      ch.free();
+    }
+  }
+
+  // loading font
+  for (auto &ch : font_chunks) {
+    sf::Font font;
+    if (!font.loadFromMemory(ch.data, ch.data_size)) {
+      std::cerr << "ERROR: Could not load font data `" << ch.name << "`\n";
+      exit(1);
+    }
+    fonts[ch.name] = font;
+  }
+
+  d_msg(std::format("Loaded font `{}`", font_chunks.back().name));
+  return fonts[font_chunks.back().name];
+}
+
+sf::Texture &Resource_manager::get_texture(const std::string &filename) {
   // return the texture if it already exists
   if (!textures.contains(filename)) {
     std::cerr << "ERROR: the texture '" << filename << "' doesn't exist\n";
@@ -755,6 +826,16 @@ sf::Texture &Texture_manager::get_texture(const std::string &filename) {
   }
 
   return textures.at(filename);
+}
+
+sf::Font &Resource_manager::get_font(const std::string &filename) {
+  // return the font if it already exists
+  if (!fonts.contains(filename)) {
+    std::cerr << "ERROR: the font '" << filename << "' doesn't exist\n";
+    exit(1);
+  }
+
+  return fonts.at(filename);
 }
 
 // math -------------------------

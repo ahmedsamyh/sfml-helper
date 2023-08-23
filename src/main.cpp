@@ -27,7 +27,6 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
-    d.draw_circle(d.mpos, 100.f);
 
     // display
     d.display();
