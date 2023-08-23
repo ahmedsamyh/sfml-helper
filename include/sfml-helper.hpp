@@ -3,6 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <format>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 
@@ -117,6 +119,11 @@ struct Data {
             std::size_t vertexCount,
             const sf::RenderStates &states = sf::RenderStates::Default);
 
+  // drawing function
+  void draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
+                 sf::Color fill_col = sf::Color::Transparent,
+                 sf::Color out_col = sf::Color::White, float out_thic = 1);
+
   // mouse functions
   void update_mouse(sf::Event &e);
 
@@ -150,12 +157,6 @@ sf::Vector2f limit(const sf::Vector2f &v, float min, float max);
 sf::Vector2f from_degrees(float deg);
 sf::Vector2f from_radians(float rad);
 } // namespace v2f
-
-// drawing functions
-void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
-               const sf::Vector2f &size,
-               sf::Color fill_col = sf::Color::Transparent,
-               sf::Color out_col = sf::Color::White, float out_thic = 1);
 
 #endif /* _SFML-HELPER_H_ */
 
@@ -663,6 +664,17 @@ void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
   ren_tex.draw(vertexBuffer, firstVertex, vertexCount, states);
 }
 
+void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
+                     sf::Color fill_col, sf::Color out_col, float out_thic) {
+  rect.setPosition(pos + sf::Vector2f(out_thic, out_thic));
+  rect.setSize(size - sf::Vector2f(out_thic, out_thic));
+  rect.setFillColor(fill_col);
+  rect.setOutlineColor(out_col);
+  rect.setOutlineThickness(out_thic);
+
+  draw(rect);
+}
+
 void Data::update_mouse(sf::Event &e) {
   if (e.type == sf::Event::MouseMoved) {
     mpos.x = float(e.mouseMove.x / scale);
@@ -818,18 +830,5 @@ sf::Vector2f from_radians(float rad) {
 }
 
 } // namespace v2f
-
-// drawing function
-void draw_rect(Data &data, sf::RenderTarget &ren, const sf::Vector2f &pos,
-               const sf::Vector2f &size, sf::Color fill_col, sf::Color out_col,
-               float out_thic) {
-  data.rect.setPosition(pos + sf::Vector2f(out_thic, out_thic));
-  data.rect.setSize(size - sf::Vector2f(out_thic, out_thic));
-  data.rect.setFillColor(fill_col);
-  data.rect.setOutlineColor(out_col);
-  data.rect.setOutlineThickness(out_thic);
-
-  ren.draw(data.rect);
-}
 
 #endif
