@@ -74,6 +74,7 @@ struct Data_chunk {
 std::vector<std::string> list_of_names_in_data();
 std::vector<Data_chunk> list_of_chunks_in_data();
 bool remove_chunk_from_data(const std::string &_name);
+bool remove_all_chunks_from_data();
 bool write_chunk_to_data(const Data_type &type, const std::string &filename);
 bool write_texture_to_data(const std::string &texture_filename);
 bool write_font_to_data(const std::string &font_filename);
@@ -475,6 +476,18 @@ bool remove_chunk_from_data(const std::string &_name) {
     std::cerr << "ERROR: Could not open `data.dat` for input\n";
     return false;
   }
+}
+
+bool remove_all_chunks_from_data() {
+  std::ofstream ofs;
+  ofs.open("data.dat", std::ios::binary);
+  if (!ofs.is_open()) {
+    std::cerr << "ERROR: Could not open `data.dat` for output\n";
+    return false;
+  }
+  d_warn("`data.dat` cleared");
+  ofs.close();
+  return true;
 }
 
 bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
