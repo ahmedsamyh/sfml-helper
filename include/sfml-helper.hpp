@@ -119,6 +119,9 @@ struct Data {
 
   // mouse functions
   void update_mouse(sf::Event &e);
+
+  // utility functions
+  void handle_close(sf::Event &e);
 };
 
 // math -------------------------
@@ -662,6 +665,12 @@ void Data::update_mouse(sf::Event &e) {
   if (e.type == sf::Event::MouseMoved) {
     mpos.x = float(e.mouseMove.x / scale);
     mpos.y = float(e.mouseMove.y / scale);
+  }
+}
+
+void Data::handle_close(sf::Event &e) {
+  if (e.type == sf::Event::Closed) {
+    win.close();
   }
 }
 
