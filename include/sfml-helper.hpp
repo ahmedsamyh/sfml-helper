@@ -61,6 +61,7 @@ bool remove_data_from_data(const std::string &_name);
 bool write_chunk_to_data(const Data_type &type, const std::string &filename);
 bool write_texture_to_data(const std::string &texture_filename);
 bool write_font_to_data(const std::string &font_filename);
+bool write_sound_to_data(const std::string &sound_filename);
 bool read_chunk_from_data(Data_chunk &chunk, const std::string &name);
 bool read_font_from_data(const std::string &font_name, char **font_data,
                          size_t *font_data_size);
@@ -397,6 +398,10 @@ bool write_texture_to_data(const std::string &texture_filename) {
 
 bool write_font_to_data(const std::string &font_filename) {
   return write_chunk_to_data(Data_type::Font, font_filename);
+}
+
+bool write_sound_to_data(const std::string &sound_filename) {
+  return write_chunk_to_data(Data_type::Sound, sound_filename);
 }
 
 bool read_chunk_from_data(Data_chunk &chunk, const std::string &name) {
