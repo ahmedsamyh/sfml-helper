@@ -123,6 +123,9 @@ struct Data {
   void draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
                  sf::Color fill_col = sf::Color::Transparent,
                  sf::Color out_col = sf::Color::White, float out_thic = 1);
+  void draw_circle(const sf::Vector2f &pos, float radius,
+                   sf::Color fill_col = sf::Color::Transparent,
+                   sf::Color out_col = sf::Color::White, float out_thic = 1);
 
   // mouse functions
   void update_mouse(sf::Event &e);
@@ -673,6 +676,18 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
   rect.setOutlineThickness(out_thic);
 
   draw(rect);
+}
+
+void Data::draw_circle(const sf::Vector2f &pos, float radius,
+                       sf::Color fill_col, sf::Color out_col, float out_thic) {
+  circle.setPosition(pos);
+  circle.setOrigin({radius, radius});
+  circle.setRadius(radius - out_thic);
+  circle.setFillColor(fill_col);
+  circle.setOutlineColor(out_col);
+  circle.setOutlineThickness(out_thic);
+
+  draw(circle);
 }
 
 void Data::update_mouse(sf::Event &e) {
