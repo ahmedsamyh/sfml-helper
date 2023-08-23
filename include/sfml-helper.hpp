@@ -160,42 +160,40 @@ std::vector<std::string> list_of_names_in_data() {
   ifs.open("data.dat", std::ios::binary | std::ios::in);
   // TODO: check if `data.dat` exists
   if (ifs.is_open()) {
-    // ifs.seekg(0, std::ios::end);
-    // std::cout << "Total size: " << ifs.tellg() << "\n";
-    // ifs.seekg(0, std::ios::beg);
 
-    while (!ifs.eof()) {
+    size_t bytes_read = 0;
+    size_t total_bytes = 0;
+    ifs.seekg(0, std::ios::end);
+    total_bytes = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+
+    while (bytes_read < total_bytes) {
+
       // read data type
       Data_type type = Data_type::Font;
       ifs.read((char *)&type, sizeof(type));
+      bytes_read += ifs.gcount();
 
       // read data size
       size_t data_size = 0;
       ifs.read((char *)&data_size, sizeof(data_size));
-
-      // VAR(ifs.gcount());
-      // VAR(data_size);
+      bytes_read += ifs.gcount();
 
       // read name size
       size_t name_size = 0;
       ifs.read((char *)&name_size, sizeof(name_size));
-
-      // VAR(ifs.gcount());
-      // VAR(name_size);
+      bytes_read += ifs.gcount();
 
       // read name
       std::string name;
       name.resize(name_size);
       ifs.read((char *)name.c_str(), name_size);
-
-      // VAR(ifs.gcount());
-      // VAR(name);
+      bytes_read += ifs.gcount();
 
       // read data
       char *data = new char[data_size];
       ifs.read((char *)data, data_size);
-
-      // VAR(ifs.gcount());
+      bytes_read += ifs.gcount();
 
       if (name_size > 0) {
         names.push_back(name);
@@ -288,7 +286,13 @@ bool remove_chunk_from_data(const std::string &_name) {
     size_t found_start = 0;
     size_t found_size = 0;
 
-    while (!ifs.eof()) {
+    size_t bytes_read = 0;
+    size_t total_bytes = 0;
+    ifs.seekg(0, std::ios::end);
+    total_bytes = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+
+    while (bytes_read < total_bytes) {
       // record start of data
       found_start = ifs.tellg();
       found_size = 0;
@@ -297,31 +301,41 @@ bool remove_chunk_from_data(const std::string &_name) {
       Data_type type = Data_type::Font;
       ifs.read((char *)&type, sizeof(type));
       ASSERT(ifs.gcount() == sizeof(type));
-      found_size += ifs.gcount();
+      size_t gcount = ifs.gcount();
+      found_size += gcount;
+      bytes_read += gcount;
 
       // read data size
       ifs.read((char *)&data_size, sizeof(data_size));
       ASSERT(ifs.gcount() == sizeof(data_size));
-      found_size += ifs.gcount();
+      gcount = ifs.gcount();
+      found_size += gcount;
+      bytes_read += gcount;
 
       // read name size
       size_t name_size = 0;
       ifs.read((char *)&name_size, sizeof(name_size));
       ASSERT(ifs.gcount() == sizeof(name_size));
-      found_size += ifs.gcount();
+      gcount = ifs.gcount();
+      found_size += gcount;
+      bytes_read += gcount;
 
       // read name
       std::string name;
       name.resize(name_size);
       ifs.read((char *)name.c_str(), name_size);
       ASSERT(ifs.gcount() == name_size);
-      found_size += ifs.gcount();
+      gcount = ifs.gcount();
+      found_size += gcount;
+      bytes_read += gcount;
 
       // read data
       data = new char[data_size];
       ifs.read(data, data_size);
       ASSERT(ifs.gcount() == data_size);
-      found_size += ifs.gcount();
+      gcount = ifs.gcount();
+      found_size += gcount;
+      bytes_read += gcount;
 
       // break if name is found
       found = (name_size > 0 ? name == _name : false);
@@ -442,7 +456,8 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
     ofs.write((char *)data, data_size);
     bytes_written += data_size;
 
-    d_msg(std::format("Successfully written: {} to `data.dat`", bytes_written));
+    d_msg(std::format("Successfully written {} bytes to `data.dat`",
+                      bytes_written));
     return true;
     ofs.close();
   } else {
@@ -469,22 +484,34 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name) {
   ifs.open("data.dat", std::ios::binary);
 
   if (ifs.is_open()) {
-    while (!ifs.eof()) {
+
+    size_t bytes_read = 0;
+    size_t total_bytes = 0;
+    ifs.seekg(0, std::ios::end);
+    total_bytes = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+
+    while (bytes_read < total_bytes) {
       // read data type
       ifs.read((char *)&chunk.type, sizeof(chunk.type));
+      bytes_read += ifs.gcount();
 
       // read data size
       ifs.read((char *)&chunk.data_size, sizeof(chunk.data_size));
+      bytes_read += ifs.gcount();
 
       // read name size
       ifs.read((char *)&chunk.name_size, sizeof(chunk.name_size));
+      bytes_read += ifs.gcount();
 
       // read name
       chunk.name.resize(chunk.name_size);
       ifs.read((char *)chunk.name.c_str(), chunk.name_size);
+      bytes_read += ifs.gcount();
 
       // read data
       chunk.data = new char[chunk.data_size];
+      bytes_read += ifs.gcount();
       ifs.read((char *)chunk.data, chunk.data_size);
 
       // return if name matches

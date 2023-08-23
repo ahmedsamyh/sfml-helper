@@ -13,6 +13,8 @@ static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
 
+  write_font_to_data("PressStart2P-Regular.ttf");
+
   for (auto &chunk : list_of_chunks_in_data()) {
     VAR(chunk.type);
     VAR(chunk.data_size);
