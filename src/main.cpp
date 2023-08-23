@@ -17,8 +17,7 @@ int main(int argc, char *argv[]) {
     float delta = d.calc_delta();
 
     // update window title
-    const int fps = int(1.f / d.delta);
-    d.win.setTitle(std::format("{} | {:.2f}s | {}fps", d.title, d.delta, fps));
+    d.update_title();
 
     // event loop
     sf::Event e;

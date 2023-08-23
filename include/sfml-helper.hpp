@@ -123,6 +123,7 @@ struct Data {
   // utility functions
   void handle_close(sf::Event &e);
   float calc_delta();
+  void update_title();
 };
 
 // math -------------------------
@@ -678,6 +679,11 @@ void Data::handle_close(sf::Event &e) {
 float Data::calc_delta() {
   delta = clock.restart().asSeconds();
   return delta;
+}
+
+void Data::update_title() {
+  const int fps = int(1.f / delta);
+  win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
 }
 
 // texture_manager --------------------------------------------------
