@@ -98,6 +98,7 @@ struct Resource_manager {
 struct Data {
   sf::RectangleShape rect;
   sf::CircleShape circle;
+  sf::Text text;
   sf::RenderWindow win;
   sf::RenderTexture ren_tex;
   sf::RectangleShape ren_rect;
@@ -132,6 +133,9 @@ struct Data {
   void draw_circle(const sf::Vector2f &pos, float radius,
                    sf::Color fill_col = sf::Color::Transparent,
                    sf::Color out_col = sf::Color::White, float out_thic = 1);
+  void draw_text(const sf::Vector2f &pos, const std::string &str,
+                 int character_size = 16, sf::Color fill_col = sf::Color::White,
+                 sf::Color out_col = sf::Color::White, float out_thic = 0.f);
 
   // mouse functions
   void update_mouse(sf::Event &e);
@@ -643,7 +647,7 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   }
 
   // load default font
-  res_man.load_font("PressStart2P-Regular.ttf");
+  text.setFont(res_man.load_font("PressStart2P-Regular.ttf"));
 
   return res_man.load_all_textures();
 }
@@ -697,6 +701,19 @@ void Data::draw_circle(const sf::Vector2f &pos, float radius,
   circle.setOutlineThickness(out_thic);
 
   draw(circle);
+}
+
+void Data::draw_text(const sf::Vector2f &pos, const std::string &str,
+                     int character_size, sf::Color fill_col, sf::Color out_col,
+                     float out_thic) {
+  text.setPosition(pos);
+  text.setString(str);
+  text.setCharacterSize(character_size - uint64_t(out_thic));
+  text.setFillColor(fill_col);
+  text.setOutlineColor(out_col);
+  text.setOutlineThickness(out_thic);
+
+  draw(text);
 }
 
 void Data::update_mouse(sf::Event &e) {
