@@ -39,6 +39,14 @@ void d_warn(const std::string &_msg);
 // data.dat ==================================================
 enum Data_type { Font, Texture, Sound };
 
+struct Data_chunk {
+  Data_type type;
+  size_t data_size;
+  size_t name_size;
+  std::string name;
+  char *data;
+};
+
 /* data.dat format
    [data_type]
    [data_size]
@@ -226,10 +234,10 @@ bool remove_data_from_data(const std::string &_name) {
   }
 }
 
-bool write_data_to_data(const Data_type &type, const std::string &filename) {
+bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
   for (auto &name : list_of_names_in_data()) {
     if (name == filename) {
-      d_warn(std::format("Trying to add duplicate data {}", filename));
+      d_warn(std::format("Trying to add duplicate data `{}`", filename));
       return true;
     }
   }
@@ -297,11 +305,11 @@ bool write_data_to_data(const Data_type &type, const std::string &filename) {
 }
 
 bool write_texture_to_data(const std::string &texture_filename) {
-  return write_data_to_data(Data_type::Texture, texture_filename);
+  return write_chunk_to_data(Data_type::Texture, texture_filename);
 }
 
 bool write_font_to_data(const std::string &font_filename) {
-  return write_data_to_data(Data_type::Font, font_filename);
+  return write_chunk_to_data(Data_type::Font, font_filename);
 }
 
 bool read_font_from_data(const std::string &font_name, char **font_data,

@@ -13,7 +13,7 @@ static const int height = s_height / scale;
 
 int main(int argc, char *argv[]) {
 
-  write_data_to_data(Data_type::Texture, "res/gfx/momo.png");
+  write_texture_to_data("res/gfx/momo.png");
 
   exit(0);
   //////////////////////////////////////////////////
