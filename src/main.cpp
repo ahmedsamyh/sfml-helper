@@ -16,17 +16,6 @@ int main(int argc, char *argv[]) {
   Data *d = new Data();
   init(d, s_width, s_height, width, height, "sfml-helper");
 
-  sf::Font font;
-  Data_chunk font_chunk{0};
-  if (!read_font_from_data(font_chunk, "Angelface.otf")) {
-    exit(1);
-  }
-  font.loadFromMemory(font_chunk.data, font_chunk.data_size);
-  sf::Text text;
-  text.setFont(font);
-  text.setString("Hello, World");
-  // text.setCharacterSize(16);
-
   sf::Texture tex;
   Data_chunk tex_chunk{0};
   if (!read_texture_from_data(tex_chunk, "res/gfx/c++.png")) {
@@ -58,8 +47,7 @@ int main(int argc, char *argv[]) {
     clear(d);
 
     // draw
-    d->ren_tex.draw(text);
-    d->ren_tex.draw(spr);
+    d->draw(spr);
 
     // display
     display(d, s_width, s_height);

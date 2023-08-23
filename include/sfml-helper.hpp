@@ -93,6 +93,18 @@ struct Data {
   std::string title = "sfml-helper";
   sf::Vector2f mpos;
   Texture_manager tex_man;
+
+  // drawing functions {calls ren_tex.draw()}
+  void draw(const sf::Drawable &drawable,
+            const sf::RenderStates &states = sf::RenderStates::Default);
+  void draw(const sf::Vertex *vertices, std::size_t vertexCount,
+            sf::PrimitiveType type,
+            const sf::RenderStates &states = sf::RenderStates::Default);
+  void draw(const sf::VertexBuffer &vertexBuffer,
+            const sf::RenderStates &states = sf::RenderStates::Default);
+  void draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
+            std::size_t vertexCount,
+            const sf::RenderStates &states = sf::RenderStates::Default);
 };
 
 // math -------------------------
@@ -576,6 +588,26 @@ bool read_texture_from_data(Data_chunk &chunk, const std::string &name) {
 
 bool read_sound_from_data(Data_chunk &chunk, const std::string &name) {
   return read_chunk_from_data(chunk, name, Data_type::Sound);
+}
+
+// data --------------------------------------------------
+
+void Data::draw(const sf::Drawable &drawable, const sf::RenderStates &states) {
+  ren_tex.draw(drawable, states);
+}
+
+void Data::draw(const sf::Vertex *vertices, std::size_t vertexCount,
+                sf::PrimitiveType type, const sf::RenderStates &states) {
+  ren_tex.draw(vertices, vertexCount, type, states);
+}
+
+void Data::draw(const sf::VertexBuffer &vertexBuffer,
+                const sf::RenderStates &states) {
+  ren_tex.draw(vertexBuffer, states);
+}
+void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
+                std::size_t vertexCount, const sf::RenderStates &states) {
+  ren_tex.draw(vertexBuffer, firstVertex, vertexCount, states);
 }
 
 // texture_manager --------------------------------------------------
