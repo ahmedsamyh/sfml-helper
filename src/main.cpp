@@ -27,7 +27,6 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
-    d.draw_text(d.mpos, "Hello, World");
 
     // display
     d.display();
