@@ -157,6 +157,8 @@ struct Data {
                  const Text_align &align = Text_align::TopLeft,
                  int character_size = 16, sf::Color fill_col = sf::Color::White,
                  sf::Color out_col = sf::Color::White, float out_thic = 0.f);
+  void draw_line(const sf::Vector2f &p1, const sf::Vector2f &p2,
+                 sf::Color col = sf::Color::White, float out_thic = 1.f);
 
   // mouse functions
   void update_mouse(sf::Event &e);
@@ -680,7 +682,7 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   }
 
   // load default font
-  text.setFont(res_man.load_font("PressStart2P-Regular.ttf"));
+  text.setFont(res_man.load_font("res/font/PressStart2P-Regular.ttf"));
 
   return res_man.load_all_textures();
 }
@@ -781,6 +783,23 @@ void Data::draw_text(const sf::Vector2f &pos, const std::string &str,
   }
 
   draw(text);
+}
+
+void Data::draw_line(const sf::Vector2f &p1, const sf::Vector2f &p2,
+                     sf::Color col, float out_thic) {
+  sf::Vertex q[4];
+  // 0------------1
+  // p1          p2
+  // 2------------3
+  sf::Vector2f n = v2f::normal(v2f::normalize(p2 - p1));
+  q[0].position = p1 + n * (out_thic / 2.f);
+  q[1].position = p2 + n * (out_thic / 2.f);
+  q[2].position = p1 - n * (out_thic / 2.f);
+  q[3].position = p2 - n * (out_thic / 2.f);
+  for (size_t i = 0; i < 4; ++i)
+    q[i].color = col;
+
+  draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
 
 void Data::update_mouse(sf::Event &e) {

@@ -2,9 +2,6 @@
 #include <sfml-helper.hpp>
 
 int main(int argc, char *argv[]) {
-  remove_all_chunks_from_data();
-  exit(0);
-
   //  global
   Data d;
   d.init(1280, 720, 1, "sfml-helper");
@@ -30,6 +27,8 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
+    sf::Vector2f center = {d.width / 2.f, d.height / 2.f};
+    d.draw_line(d.mpos, center, sf::Color::White, 10.f);
 
     // display
     d.display();
