@@ -27,8 +27,6 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
-    sf::Vector2f center = {d.width / 2.f, d.height / 2.f};
-    d.draw_line_ex(d.mpos, center, sf::Color::Green, sf::Color::Red);
 
     // display
     d.display();

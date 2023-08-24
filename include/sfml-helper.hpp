@@ -162,6 +162,9 @@ struct Data {
   void draw_line_ex(const sf::Vector2f &p1, const sf::Vector2f &p2,
                     sf::Color col1 = sf::Color::White,
                     sf::Color col2 = sf::Color::White, float out_thic = 1.f);
+  void draw_arrow(const sf::Vector2f &p1, const sf::Vector2f &p2,
+                  sf::Color col = sf::Color::White, float out_thic = 1.f,
+                  float shaft_len = 10.f);
 
   // mouse functions
   void update_mouse(sf::Event &e);
@@ -822,6 +825,18 @@ void Data::draw_line_ex(const sf::Vector2f &p1, const sf::Vector2f &p2,
   q[3].color = col2;
 
   draw(q, 4, sf::PrimitiveType::TriangleStrip);
+}
+
+void Data::draw_arrow(const sf::Vector2f &p1, const sf::Vector2f &p2,
+                      sf::Color col, float out_thic, float shaft_len) {
+
+  draw_line(p1, p2, col, out_thic);
+  sf::Vector2f n = v2f::normal(v2f::normalize(p1 - p2));
+  sf::Vector2f t = v2f::normalize(p1 - p2);
+  sf::Vector2f sh1 = p2 + (n * shaft_len) + (t * shaft_len);
+  draw_line(p2, sh1, col, out_thic);
+  sf::Vector2f sh2 = p2 - (n * shaft_len) + (t * shaft_len);
+  draw_line(p2, sh2, col, out_thic);
 }
 
 void Data::update_mouse(sf::Event &e) {
