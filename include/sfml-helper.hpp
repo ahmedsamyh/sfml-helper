@@ -159,6 +159,9 @@ struct Data {
                  sf::Color out_col = sf::Color::White, float out_thic = 0.f);
   void draw_line(const sf::Vector2f &p1, const sf::Vector2f &p2,
                  sf::Color col = sf::Color::White, float out_thic = 1.f);
+  void draw_line_ex(const sf::Vector2f &p1, const sf::Vector2f &p2,
+                    sf::Color col1 = sf::Color::White,
+                    sf::Color col2 = sf::Color::White, float out_thic = 1.f);
 
   // mouse functions
   void update_mouse(sf::Event &e);
@@ -798,6 +801,25 @@ void Data::draw_line(const sf::Vector2f &p1, const sf::Vector2f &p2,
   q[3].position = p2 - n * (out_thic / 2.f);
   for (size_t i = 0; i < 4; ++i)
     q[i].color = col;
+
+  draw(q, 4, sf::PrimitiveType::TriangleStrip);
+}
+
+void Data::draw_line_ex(const sf::Vector2f &p1, const sf::Vector2f &p2,
+                        sf::Color col1, sf::Color col2, float out_thic) {
+  sf::Vertex q[4];
+  // 0------------1
+  // p1          p2
+  // 2------------3
+  sf::Vector2f n = v2f::normal(v2f::normalize(p2 - p1));
+  q[0].position = p1 + n * (out_thic / 2.f);
+  q[2].position = p1 - n * (out_thic / 2.f);
+  q[0].color = col1;
+  q[2].color = col1;
+  q[1].position = p2 + n * (out_thic / 2.f);
+  q[3].position = p2 - n * (out_thic / 2.f);
+  q[1].color = col2;
+  q[3].color = col2;
 
   draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
