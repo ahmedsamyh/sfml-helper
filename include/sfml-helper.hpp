@@ -125,7 +125,7 @@ struct Data {
   sf::Clock clock;
   float delta = 0.f;
   std::string title = "sfml-helper";
-  sf::Vector2f mpos;
+  sf::Vector2f _mpos;
   Resource_manager res_man;
   int s_width, s_height, width, height, scale;
   sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
@@ -169,6 +169,7 @@ struct Data {
 
   // mouse functions
   void update_mouse(sf::Event &e);
+  sf::Vector2f &mpos();
 
   // utility functions
   void handle_close(sf::Event &e);
@@ -847,10 +848,12 @@ void Data::draw_arrow(const sf::Vector2f &p1, const sf::Vector2f &p2,
 
 void Data::update_mouse(sf::Event &e) {
   if (e.type == sf::Event::MouseMoved) {
-    mpos.x = float(e.mouseMove.x / scale);
-    mpos.y = float(e.mouseMove.y / scale);
+    _mpos.x = float(e.mouseMove.x / scale);
+    _mpos.y = float(e.mouseMove.y / scale);
   }
 }
+
+sf::Vector2f &Data::mpos() { return _mpos; }
 
 void Data::handle_close(sf::Event &e) {
   if (e.type == sf::Event::Closed) {
