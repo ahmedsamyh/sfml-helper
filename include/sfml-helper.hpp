@@ -128,6 +128,7 @@ struct Data {
   sf::Vector2f mpos;
   Resource_manager res_man;
   int s_width, s_height, width, height, scale;
+  sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
 
   // main functions
   void clear(const sf::Color &col = sf::Color(0, 0, 0, 255));
@@ -173,6 +174,11 @@ struct Data {
   void handle_close(sf::Event &e);
   float calc_delta();
   void update_title();
+
+  // view functions
+  void camera_follow(const sf::Vector2f &pos, float rate = 0.25f);
+  void camera_view();
+  void default_view();
 };
 
 // math -------------------------
@@ -861,6 +867,21 @@ void Data::update_title() {
   const int fps = int(1.f / delta);
   win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
 }
+
+void Data::camera_follow(const sf::Vector2f &pos, float rate) {
+  camera = pos;
+  to_camera += (camera - to_camera) * rate;
+}
+
+void Data::camera_view() {
+  sf::View v;
+  v.setSize(float(width), float(height));
+  v.setCenter(to_camera);
+
+  ren_tex.setView(v);
+}
+
+void Data::default_view() { ren_tex.setView(ren_tex.getDefaultView()); }
 
 // resource_manager --------------------------------------------------
 std::string Resource_manager::texture_path = "res/gfx/";
