@@ -29,18 +29,20 @@ int main(int argc, char *argv[]) {
 
     // draw
     d.camera_view();
-    d.draw_rect({0.f, 0.f}, {float(d.width), float(d.height)});
+    d.draw_rect({0.f, 0.f}, d.ss());
 
     d.default_view();
-    d.draw_text({float(d.width / 2.f), float(d.height / 2.f)}, "Center",
-                CenterCenter);
+    d.draw_text(d.ss() / 2.f, "Center", CenterCenter);
 
-    d.draw_text({0.f, 0.f}, std::format("mpos_scr: ({:.0f}, {:.0f})",
-                                        d.mpos().x, d.mpos().y));
+    sf::Vector2f mw = d.s_to_w(d.mpos());
+    sf::Vector2f ms = d.w_to_s(d.mpos());
 
-    d.draw_text(
-        {0.f, float(d.text.getCharacterSize())},
-        std::format("mpos_world: ({:.2f}, {:.2f})", d.mpos().x, d.mpos().y));
+    d.draw_text({0.f, 0.f},
+                std::format("mpos_scr: ({:.0f}, {:.0f})", ms.x, ms.y));
+
+    d.draw_text({0.f, float(d.text.getCharacterSize())},
+                std::format("mpos_world: ({:.2f}, {:.2f})", mw.x, mw.y));
+
     // display
     d.display();
   }

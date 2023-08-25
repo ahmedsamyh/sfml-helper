@@ -171,6 +171,15 @@ struct Data {
   void update_mouse(sf::Event &e);
   sf::Vector2f &mpos();
 
+  // screen functions
+  sf::Vector2f ss() const;
+  sf::Vector2f ss_f() const;
+  sf::Vector2i ss_i() const;
+  sf::Vector2f s_to_w(const sf::Vector2f &p);
+  sf::Vector2f s_to_w(const sf::Vector2i &p);
+  sf::Vector2f w_to_s(const sf::Vector2f &p);
+  sf::Vector2f w_to_s(const sf::Vector2i &p);
+
   // utility functions
   void handle_close(sf::Event &e);
   float calc_delta();
@@ -854,6 +863,39 @@ void Data::update_mouse(sf::Event &e) {
 }
 
 sf::Vector2f &Data::mpos() { return _mpos; }
+
+sf::Vector2f Data::ss() const { return ss_f(); }
+
+sf::Vector2f Data::ss_f() const {
+  return sf::Vector2f(float(width), float(height));
+}
+
+sf::Vector2i Data::ss_i() const { return sf::Vector2i(width, height); }
+
+sf::Vector2f Data::s_to_w(const sf::Vector2f &p) {
+  return s_to_w(sf::Vector2i(p));
+}
+
+sf::Vector2f Data::s_to_w(const sf::Vector2i &p) {
+  sf::View previous = ren_tex.getView();
+  default_view();
+  sf::Vector2f res = ren_tex.mapPixelToCoords(p);
+  ren_tex.setView(previous);
+  return res;
+}
+
+sf::Vector2f Data::w_to_s(const sf::Vector2f &p) {
+  sf::View previous = ren_tex.getView();
+  camera_view();
+  sf::Vector2f res = sf::Vector2f(ren_tex.mapCoordsToPixel(p));
+  ren_tex.setView(previous);
+
+  return res;
+}
+
+sf::Vector2f Data::w_to_s(const sf::Vector2i &p) {
+  return w_to_s(sf::Vector2f(p));
+}
 
 void Data::handle_close(sf::Event &e) {
   if (e.type == sf::Event::Closed) {
