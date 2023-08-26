@@ -129,6 +129,7 @@ struct Data {
   Resource_manager res_man;
   int s_width, s_height, width, height, scale;
   sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
+  sf::View _camera_view;
 
   // main functions
   void clear(const sf::Color &col = sf::Color(0, 0, 0, 255));
@@ -909,15 +910,12 @@ void Data::update_title() {
 void Data::camera_follow(const sf::Vector2f &pos, float rate) {
   camera = pos;
   to_camera += (camera - to_camera) * rate;
+
+  _camera_view.setSize(float(width), float(height));
+  _camera_view.setCenter(to_camera);
 }
 
-void Data::camera_view() {
-  sf::View v;
-  v.setSize(float(width), float(height));
-  v.setCenter(to_camera);
-
-  ren_tex.setView(v);
-}
+void Data::camera_view() { ren_tex.setView(_camera_view); }
 
 void Data::default_view() { ren_tex.setView(ren_tex.getDefaultView()); }
 

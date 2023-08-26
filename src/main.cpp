@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
 
     // draw
     d.camera_view();
+
     d.draw_rect({0.f, 0.f}, d.ss());
 
     sf::Vector2f mw = d.s_to_w(d.mpos());
