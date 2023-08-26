@@ -877,19 +877,12 @@ sf::Vector2f Data::s_to_w(const sf::Vector2f &p) {
 }
 
 sf::Vector2f Data::s_to_w(const sf::Vector2i &p) {
-  sf::View previous = ren_tex.getView();
-  default_view();
   sf::Vector2f res = ren_tex.mapPixelToCoords(p);
-  ren_tex.setView(previous);
   return res;
 }
 
 sf::Vector2f Data::w_to_s(const sf::Vector2f &p) {
-  sf::View previous = ren_tex.getView();
-  camera_view();
   sf::Vector2f res = sf::Vector2f(ren_tex.mapCoordsToPixel(p));
-  ren_tex.setView(previous);
-
   return res;
 }
 

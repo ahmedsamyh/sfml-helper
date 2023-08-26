@@ -31,10 +31,11 @@ int main(int argc, char *argv[]) {
     d.camera_view();
     d.draw_rect({0.f, 0.f}, d.ss());
 
+    sf::Vector2f mw = d.s_to_w(d.mpos());
+
     d.default_view();
     d.draw_text(d.ss() / 2.f, "Center", CenterCenter);
 
-    sf::Vector2f mw = d.s_to_w(d.mpos());
     sf::Vector2f ms = d.w_to_s(d.mpos());
 
     d.draw_text({0.f, 0.f},
