@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
 
     // update
     d.camera_follow(d.mpos());
+    VAR(d.mouse_scroll());
 
     // draw
     d.camera_view();

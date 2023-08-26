@@ -126,6 +126,7 @@ struct Data {
   float delta = 0.f;
   std::string title = "sfml-helper";
   sf::Vector2f _mpos;
+  float _mouse_scroll = 0.f;
   Resource_manager res_man;
   int s_width, s_height, width, height, scale;
   sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
@@ -171,6 +172,7 @@ struct Data {
   // mouse functions
   void update_mouse(sf::Event &e);
   sf::Vector2f &mpos();
+  float mouse_scroll();
 
   // screen functions
   sf::Vector2f ss() const;
@@ -861,9 +863,15 @@ void Data::update_mouse(sf::Event &e) {
     _mpos.x = float(e.mouseMove.x / scale);
     _mpos.y = float(e.mouseMove.y / scale);
   }
+
+  if (e.type == sf::Event::MouseWheelScrolled) {
+    _mouse_scroll = e.mouseWheelScroll.delta;
+  }
 }
 
 sf::Vector2f &Data::mpos() { return _mpos; }
+
+float Data::mouse_scroll() { return _mouse_scroll; }
 
 sf::Vector2f Data::ss() const { return ss_f(); }
 
@@ -905,6 +913,7 @@ float Data::calc_delta() {
 void Data::update_title() {
   const int fps = int(1.f / delta);
   win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
+  _mouse_scroll = 0.f;
 }
 
 void Data::camera_follow(const sf::Vector2f &pos, float rate) {
