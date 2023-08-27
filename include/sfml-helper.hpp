@@ -41,14 +41,15 @@ namespace fs = std::filesystem;
 #define INFO(msg) std::cout << "INFO: " << msg << "\n"
 void d_info(const std::string &_msg);
 void info(const std::string &_msg, bool debug = false);
-
 #define WARNING(msg) std::cout << "WARNING: " << msg << "\n"
 void d_warn(const std::string &_msg);
 void warn(const std::string &_msg, bool debug = false);
-
 #define error(msg, ...)                                                        \
   std::cerr << std::format("ERROR: {}:{}:0 {}\n", __FILE__, __LINE__, msg);    \
   exit(1)
+
+#define fmt(str, ...) std::format((str), __VA_ARGS__)
+#define print(str, ...) std::cout << fmt(str, __VA_ARGS__)
 
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound };
@@ -339,6 +340,10 @@ std::vector<std::string> list_of_names_in_data() {
 
 std::vector<Data_chunk> list_of_chunks_in_data() {
   std::vector<Data_chunk> chunks;
+
+  if (!fs::exists("data.dat")) {
+    error("`data.dat` doesn't exist");
+  }
 
   std::ifstream ifs;
   ifs.open("data.dat", std::ios::binary);
