@@ -38,13 +38,11 @@ namespace fs = std::filesystem;
               << " ASSERTION_FAILED: " << #condition << " `" << msg << "`\n";  \
     exit(1);                                                                   \
   }
-#ifdef DEBUG
-#define MSG(msg) std::cout << "DEBUG: " << msg << "\n"
-#endif
-void d_msg(const std::string &_msg);
-#ifdef DEBUG
+#define INFO(msg) std::cout << "INFO: " << msg << "\n"
+void d_info(const std::string &_msg);
+void info(const std::string &_msg, bool debug = false);
+
 #define WARNING(msg) std::cout << "WARNING: " << msg << "\n"
-#endif
 void d_warn(const std::string &_msg);
 void warn(const std::string &_msg, bool debug = false);
 
@@ -228,10 +226,16 @@ sf::Vector2f from_radians(float rad);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SFML_HELPER_IMPLEMENTATION
 // macro functions
-void d_msg(const std::string &_msg) {
+void d_info(const std::string &_msg) { info(_msg, true); }
+
+void info(const std::string &_msg, bool debug) {
+  if (debug) {
 #ifdef DEBUG
-  MSG(_msg);
+    INFO(_msg);
 #endif
+  } else {
+    INFO(_msg);
+  }
 }
 
 void d_warn(const std::string &_msg) { warn(_msg, true); }
@@ -252,7 +256,7 @@ void Data_chunk::free() {
   data_size = 0;
   name_size = 0;
 #ifdef DATA_CHUNK_FREE_LOG
-  d_msg(std::format("Chunk `{}` freed!", name));
+  d_info(std::format("Chunk `{}` freed!", name));
 #endif
   name.resize(0);
   if (data != nullptr) {
@@ -497,7 +501,7 @@ bool remove_chunk_from_data(const std::string &_name) {
           delete new_data_file;
           delete previous_data_file;
 
-          d_msg(
+          d_info(
               std::format("Successfully removed `{}` from `data.dat`", _name));
           return true;
           ofs.close();
@@ -561,7 +565,7 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
 
   if (ofs.is_open()) {
     ofs.seekp(0, std::ios::end);
-    d_msg(std::format<size_t>(
+    d_info(std::format<size_t>(
         "`data.dat` contains {} bytes of data before writing `{}`", ofs.tellp(),
         filename));
     ofs.seekp(0, std::ios::beg);
@@ -589,8 +593,8 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
     ofs.write((char *)data, data_size);
     bytes_written += data_size;
 
-    d_msg(std::format("Successfully written `{}` ({} bytes) to `data.dat`",
-                      filename, bytes_written));
+    d_info(std::format("Successfully written `{}` ({} bytes) to `data.dat`",
+                       filename, bytes_written));
     return true;
     ofs.close();
   } else {
@@ -674,7 +678,7 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
               << "` in `data.dat`\n";
     return false;
   } else {
-    d_msg(std::format("Found {} `{}` in `data.dat`", type_str, name));
+    d_info(std::format("Found {} `{}` in `data.dat`", type_str, name));
     return true;
   }
 }
@@ -975,7 +979,7 @@ bool Resource_manager::load_all_textures() {
     textures[ch.name] = tex;
   }
 
-  d_msg(std::format("Loaded {} textures", texture_chunks.size()));
+  d_info(std::format("Loaded {} textures", texture_chunks.size()));
   return true;
 }
 
@@ -1006,7 +1010,7 @@ bool Resource_manager::load_all_fonts() {
     fonts[ch.name] = font;
   }
 
-  d_msg(std::format("Loaded {} Fonts", font_chunks.size()));
+  d_info(std::format("Loaded {} Fonts", font_chunks.size()));
   return true;
 }
 
@@ -1037,7 +1041,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
     fonts[ch.name] = font;
   }
 
-  d_msg(std::format("Loaded font `{}`", font_chunks.back().name));
+  d_info(std::format("Loaded font `{}`", font_chunks.back().name));
   return fonts[font_chunks.back().name];
 }
 
