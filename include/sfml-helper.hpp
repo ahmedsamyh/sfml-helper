@@ -46,6 +46,10 @@ void info(const std::string &_msg, bool debug = false);
 void d_warn(const std::string &_msg);
 void warn(const std::string &_msg, bool debug = false);
 
+#define error(msg, ...)                                                        \
+  std::cerr << std::format("ERROR: {}:{}:0 {}\n", __FILE__, __LINE__, msg);    \
+  exit(1)
+
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound };
 
@@ -281,6 +285,7 @@ std::vector<std::string> list_of_names_in_data() {
   std::ifstream ifs;
   std::vector<std::string> names;
   if (!fs::exists("data.dat")) {
+    error("`data.dat` doesn't exist");
   }
   ifs.open("data.dat", std::ios::binary | std::ios::in);
   if (ifs.is_open()) {
@@ -324,7 +329,7 @@ std::vector<std::string> list_of_names_in_data() {
       }
     }
   } else {
-    std::cerr << "ERROR: Could not open `data.dat`!\n";
+    error("Could not open `data.dat` for input");
     return names;
   }
 
@@ -339,7 +344,7 @@ std::vector<Data_chunk> list_of_chunks_in_data() {
   ifs.open("data.dat", std::ios::binary);
 
   if (!ifs.is_open()) {
-    std::cerr << "ERROR: Could not open `data.dat` for input\n";
+    error("Could not open `data.dat` for input");
     return chunks;
   }
 
@@ -396,7 +401,7 @@ bool remove_chunk_from_data(const std::string &_name) {
     ifs.seekg(0, std::ios::end);
     size_t previous_data_file_size = ifs.tellg();
     if (previous_data_file_size <= 0) {
-      std::cout << "ERROR: `data.dat` is empty!\n";
+      error("`data.dat` is empty!");
       return false;
     }
     previous_data_file = new char[previous_data_file_size];
@@ -506,16 +511,16 @@ bool remove_chunk_from_data(const std::string &_name) {
           return true;
           ofs.close();
         } else {
-          std::cerr << "ERROR: Could not open `data.dat` for output\n";
+          error("Could not open `data.dat` for output");
           return false;
         }
       }
     }
 
-    std::cerr << "ERROR: Could not find `" << _name << "` in `data.dat`\n";
+    error(std::format("Could not find `{}` in `data.dat`", _name));
     return false;
   } else {
-    std::cerr << "ERROR: Could not open `data.dat` for input\n";
+    error("Could not open `data.dat` for input");
     return false;
   }
 }
@@ -524,7 +529,7 @@ bool remove_all_chunks_from_data() {
   std::ofstream ofs;
   ofs.open("data.dat", std::ios::binary);
   if (!ofs.is_open()) {
-    std::cerr << "ERROR: Could not open `data.dat` for output\n";
+    error("Could not open `data.dat` for output");
     return false;
   }
   d_warn("`data.dat` cleared");
@@ -556,7 +561,7 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
 
     ifs.close();
   } else {
-    std::cerr << "ERROR: Could not open `" << filename << "` for input\n";
+    error(std::format("Could not open `{}` for input", filename));
     return false;
   }
 
@@ -598,7 +603,7 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
     return true;
     ofs.close();
   } else {
-    std::cerr << "ERROR: Could not open `data.dat` for output\n";
+    error("Could not open `data.dat` for output");
     return false;
   }
   return false;
@@ -620,7 +625,7 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
                           Data_type type) {
   auto chunks = list_of_chunks_in_data();
   if (chunks.empty()) {
-    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
+    error("No chunk(s) found in `data.dat`");
     return false;
   }
 
@@ -674,8 +679,7 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
   }
 
   if (!found) {
-    std::cerr << "ERROR: Could not find " << type_str << " `" << name
-              << "` in `data.dat`\n";
+    error(std::format("Could not find {} `{}` in `data.dat`", type_str, name));
     return false;
   } else {
     d_info(std::format("Found {} `{}` in `data.dat`", type_str, name));
@@ -717,14 +721,8 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
 
   // create render texture
   if (!ren_tex.create(width, height)) {
-    std::cerr << "ERROR: Could not create render texture!\n";
+    error("Could not create render texture!");
     return false;
-  }
-
-  // make sure 'data.dat' exists
-  if (!fs::exists("data.dat")) {
-    std::cerr << "ERROR: data.dat doesn't exist!\n";
-    exit(1);
   }
 
   // load default font
@@ -956,7 +954,7 @@ bool Resource_manager::load_all_textures() {
   std::vector<Data_chunk> chunks = list_of_chunks_in_data();
 
   if (chunks.empty()) {
-    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
+    error("No chunk(s) found in `data.dat`");
     return false;
   }
 
@@ -973,7 +971,7 @@ bool Resource_manager::load_all_textures() {
   for (auto &ch : texture_chunks) {
     sf::Texture tex;
     if (!tex.loadFromMemory(ch.data, ch.data_size)) {
-      std::cerr << "ERROR: Could not load texture data `" << ch.name << "`\n";
+      error(std::format("Could not load texture data `{}`", ch.name));
       return false;
     }
     textures[ch.name] = tex;
@@ -987,7 +985,7 @@ bool Resource_manager::load_all_fonts() {
   std::vector<Data_chunk> chunks = list_of_chunks_in_data();
 
   if (chunks.empty()) {
-    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
+    error("No chunk(s) found in `data.dat`");
     return false;
   }
 
@@ -1004,7 +1002,7 @@ bool Resource_manager::load_all_fonts() {
   for (auto &ch : font_chunks) {
     sf::Font font;
     if (!font.loadFromMemory(ch.data, ch.data_size)) {
-      std::cerr << "ERROR: Could not load font data `" << ch.name << "`\n";
+      error(std::format("Could not load font data `{}`", ch.name));
       return false;
     }
     fonts[ch.name] = font;
@@ -1018,7 +1016,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
   std::vector<Data_chunk> chunks = list_of_chunks_in_data();
 
   if (chunks.empty()) {
-    std::cerr << "ERROR: No chunk(s) found in `data.dat`\n";
+    error("No chunk(s) found in `data.dat`");
     exit(1);
   }
 
@@ -1035,7 +1033,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
   for (auto &ch : font_chunks) {
     sf::Font font;
     if (!font.loadFromMemory(ch.data, ch.data_size)) {
-      std::cerr << "ERROR: Could not load font data `" << ch.name << "`\n";
+      error(std::format("Could not load font data `{}`", ch.name));
       exit(1);
     }
     fonts[ch.name] = font;
@@ -1048,8 +1046,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
 sf::Texture &Resource_manager::get_texture(const std::string &filename) {
   // return the texture if it already exists
   if (!textures.contains(filename)) {
-    std::cerr << "ERROR: the texture '" << filename << "' doesn't exist\n";
-    exit(1);
+    error(std::format("the texture `{} doesn't exist!`", filename));
   }
 
   return textures.at(filename);
@@ -1058,7 +1055,7 @@ sf::Texture &Resource_manager::get_texture(const std::string &filename) {
 sf::Font &Resource_manager::get_font(const std::string &filename) {
   // return the font if it already exists
   if (!fonts.contains(filename)) {
-    std::cerr << "ERROR: the font '" << filename << "' doesn't exist\n";
+    error(std::format("the font `{} doesn't exist!`", filename));
     exit(1);
   }
 
