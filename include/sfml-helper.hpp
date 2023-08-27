@@ -2,11 +2,14 @@
 #define _SFML_HELPER_H_
 
 #include <SFML/Graphics.hpp>
+#include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <unordered_map>
+
+namespace fs = std::filesystem;
 
 // macros ==================================================
 #define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
@@ -266,8 +269,9 @@ size_t Data_chunk::data_allocated = 0;
 std::vector<std::string> list_of_names_in_data() {
   std::ifstream ifs;
   std::vector<std::string> names;
+  if (!fs::exists("data.dat")) {
+  }
   ifs.open("data.dat", std::ios::binary | std::ios::in);
-  // TODO: check if `data.dat` exists
   if (ifs.is_open()) {
 
     size_t bytes_read = 0;
@@ -704,6 +708,12 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   if (!ren_tex.create(width, height)) {
     std::cerr << "ERROR: Could not create render texture!\n";
     return false;
+  }
+
+  // make sure 'data.dat' exists
+  if (!fs::exists("data.dat")) {
+    std::cerr << "ERROR: data.dat doesn't exist!\n";
+    exit(1);
   }
 
   // load default font
