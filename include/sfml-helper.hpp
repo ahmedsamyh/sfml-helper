@@ -39,13 +39,14 @@ namespace fs = std::filesystem;
     exit(1);                                                                   \
   }
 #ifdef DEBUG
-#define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << "\n"
+#define MSG(msg) std::cout << "DEBUG: " << msg << "\n"
 #endif
 void d_msg(const std::string &_msg);
 #ifdef DEBUG
-#define DEBUG_WARNING(msg) std::cout << "WARNING: " << msg << "\n"
+#define WARNING(msg) std::cout << "WARNING: " << msg << "\n"
 #endif
 void d_warn(const std::string &_msg);
+void warn(const std::string &_msg, bool debug = false);
 
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound };
@@ -229,14 +230,20 @@ sf::Vector2f from_radians(float rad);
 // macro functions
 void d_msg(const std::string &_msg) {
 #ifdef DEBUG
-  DEBUG_MSG(_msg);
+  MSG(_msg);
 #endif
 }
 
-void d_warn(const std::string &_msg) {
+void d_warn(const std::string &_msg) { warn(_msg, true); }
+
+void warn(const std::string &_msg, bool debug) {
+  if (debug) {
 #ifdef DEBUG
-  DEBUG_WARNING(_msg);
+    WARNING(_msg);
 #endif
+  } else {
+    WARNING(_msg);
+  }
 }
 
 // data.dat --------------------------------------------------
