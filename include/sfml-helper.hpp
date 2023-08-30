@@ -198,7 +198,9 @@ struct Data {
   // mouse functions
   void update_mouse_event(sf::Event &e);
   void update_mouse();
+  bool m_pressed(Mouse_Button btn);
   bool m_held(Mouse_Button btn);
+  bool m_released(Mouse_Button btn);
   sf::Vector2f &mpos();
   float mouse_scroll();
 
@@ -924,14 +926,31 @@ void Data::update_mouse_event(sf::Event &e) {
 }
 
 void Data::update_mouse() {
+  memcpy(prev_mouse_pressed, mouse_pressed,
+         sizeof(bool) * Mouse_Button::ButtonCount);
+  memcpy(prev_mouse_held, mouse_held, sizeof(bool) * Mouse_Button::ButtonCount);
+  memcpy(prev_mouse_released, mouse_released,
+         sizeof(bool) * Mouse_Button::ButtonCount);
   for (size_t i = 0; i < sf::Mouse::Button::ButtonCount; ++i) {
     mouse_held[i] = sf::Mouse::isButtonPressed(sf::Mouse::Button(i));
+    mouse_pressed[i] = mouse_held[i] && !prev_mouse_held[i];
+    mouse_released[i] = !mouse_held[i] && prev_mouse_held[i];
   }
+}
+
+bool Data::m_pressed(Mouse_Button btn) {
+  ASSERT(size_t(btn) < size_t(Mouse_Button::ButtonCount));
+  return mouse_pressed[btn];
 }
 
 bool Data::m_held(Mouse_Button btn) {
   ASSERT(size_t(btn) < size_t(Mouse_Button::ButtonCount));
   return mouse_held[btn];
+}
+
+bool Data::m_released(Mouse_Button btn) {
+  ASSERT(size_t(btn) < size_t(Mouse_Button::ButtonCount));
+  return mouse_released[btn];
 }
 
 sf::Vector2f &Data::mpos() { return _mpos; }

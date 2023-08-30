@@ -47,10 +47,8 @@ int main(int argc, char *argv[]) {
     d.draw_text({0.f, 0.f},
                 std::format("mpos_scr: ({:.0f}, {:.0f})", ms_w.x, ms_w.y));
 
-    if (d.m_held(Left)) {
-      d.draw_text({0.f, float(d.text.getCharacterSize())},
-                  std::format("mpos_world: ({:.2f}, {:.2f})", mw_s.x, mw_s.y));
-    }
+    d.draw_text({0.f, float(d.text.getCharacterSize())},
+                std::format("mpos_world: ({:.2f}, {:.2f})", mw_s.x, mw_s.y));
 
     // display
     d.display();
