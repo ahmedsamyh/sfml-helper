@@ -49,7 +49,9 @@ void warn(const std::string &_msg, bool debug = false);
   exit(1)
 
 #define fmt(str, ...) std::format((str), __VA_ARGS__)
+#ifndef NO_PRINT
 #define print(str, ...) std::cout << fmt(str, __VA_ARGS__)
+#endif
 
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound };
@@ -910,12 +912,14 @@ sf::Vector2f Data::s_to_w(const sf::Vector2f &p) {
 }
 
 sf::Vector2f Data::s_to_w(const sf::Vector2i &p) {
-  sf::Vector2f res = ren_tex.mapPixelToCoords(p);
+
+  sf::Vector2f res = ren_tex.mapPixelToCoords(p, _camera_view);
   return res;
 }
 
 sf::Vector2f Data::w_to_s(const sf::Vector2f &p) {
-  sf::Vector2f res = sf::Vector2f(ren_tex.mapCoordsToPixel(p));
+  sf::Vector2f res =
+      sf::Vector2f(ren_tex.mapCoordsToPixel(p, ren_tex.getDefaultView()));
   return res;
 }
 
