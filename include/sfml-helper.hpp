@@ -123,6 +123,17 @@ enum Text_align {
   BottomRight
 };
 
+// mouse --------------------------------------------------
+enum Mouse_Button {
+  Left,     //!< The left mouse button
+  Right,    //!< The right mouse button
+  Middle,   //!< The middle (wheel) mouse button
+  XButton1, //!< The first extra mouse button
+  XButton2, //!< The second extra mouse button
+
+  ButtonCount //!< Keep last -- the total number of mouse buttons
+};
+
 // data --------------------------------------------------
 struct Data {
   sf::RectangleShape rect;
@@ -140,6 +151,12 @@ struct Data {
   int s_width, s_height, width, height, scale;
   sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
   sf::View _camera_view;
+  bool mouse_pressed[sf::Mouse::Button::ButtonCount],
+      mouse_held[sf::Mouse::Button::ButtonCount],
+      mouse_released[sf::Mouse::Button::ButtonCount];
+  bool prev_mouse_pressed[sf::Mouse::Button::ButtonCount],
+      prev_mouse_held[sf::Mouse::Button::ButtonCount],
+      prev_mouse_released[sf::Mouse::Button::ButtonCount];
 
   // main functions
   void clear(const sf::Color &col = sf::Color(0, 0, 0, 255));
@@ -179,7 +196,9 @@ struct Data {
                   float shaft_len = 10.f);
 
   // mouse functions
-  void update_mouse(sf::Event &e);
+  void update_mouse_event(sf::Event &e);
+  void update_mouse();
+  bool m_held(Mouse_Button btn);
   sf::Vector2f &mpos();
   float mouse_scroll();
 
@@ -721,6 +740,15 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   width = s_width / scale;
   height = s_height / scale;
 
+  for (size_t i = 0; i < sf::Mouse::Button::ButtonCount; ++i) {
+    mouse_released[i] = false;
+    prev_mouse_released[i] = false;
+    mouse_held[i] = false;
+    prev_mouse_held[i] = false;
+    mouse_pressed[i] = false;
+    prev_mouse_pressed[i] = false;
+  }
+
   // create window
   win.create(sf::VideoMode(s_width, s_height), title,
              sf::Style::Close | sf::Style::Titlebar);
@@ -884,7 +912,7 @@ void Data::draw_arrow(const sf::Vector2f &p1, const sf::Vector2f &p2,
   draw_line(p2, sh2, col, out_thic);
 }
 
-void Data::update_mouse(sf::Event &e) {
+void Data::update_mouse_event(sf::Event &e) {
   if (e.type == sf::Event::MouseMoved) {
     _mpos.x = float(e.mouseMove.x / scale);
     _mpos.y = float(e.mouseMove.y / scale);
@@ -893,6 +921,17 @@ void Data::update_mouse(sf::Event &e) {
   if (e.type == sf::Event::MouseWheelScrolled) {
     _mouse_scroll = e.mouseWheelScroll.delta;
   }
+}
+
+void Data::update_mouse() {
+  for (size_t i = 0; i < sf::Mouse::Button::ButtonCount; ++i) {
+    mouse_held[i] = sf::Mouse::isButtonPressed(sf::Mouse::Button(i));
+  }
+}
+
+bool Data::m_held(Mouse_Button btn) {
+  ASSERT(size_t(btn) < size_t(Mouse_Button::ButtonCount));
+  return mouse_held[btn];
 }
 
 sf::Vector2f &Data::mpos() { return _mpos; }

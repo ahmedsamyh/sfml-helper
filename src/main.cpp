@@ -18,8 +18,9 @@ int main(int argc, char *argv[]) {
     sf::Event e;
     while (d.win.pollEvent(e)) {
       d.handle_close(e);
-      d.update_mouse(e);
+      d.update_mouse_event(e);
     }
+    d.update_mouse();
 
     // clear
     d.clear();
@@ -43,11 +44,13 @@ int main(int argc, char *argv[]) {
     sf::Vector2f mw_s = d.s_to_w(d.mpos());
     sf::Vector2f ms_s = d.w_to_s(d.mpos());
 
-    // d.draw_text({0.f, 0.f},
-    // std::format("mpos_scr: ({:.0f}, {:.0f})", ms.x, ms.y));
+    d.draw_text({0.f, 0.f},
+                std::format("mpos_scr: ({:.0f}, {:.0f})", ms_w.x, ms_w.y));
 
-    // d.draw_text({0.f, float(d.text.getCharacterSize())},
-    // std::format("mpos_world: ({:.2f}, {:.2f})", mw.x, mw.y));
+    if (d.m_held(Left)) {
+      d.draw_text({0.f, float(d.text.getCharacterSize())},
+                  std::format("mpos_world: ({:.2f}, {:.2f})", mw_s.x, mw_s.y));
+    }
 
     // display
     d.display();
