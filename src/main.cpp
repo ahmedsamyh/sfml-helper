@@ -7,6 +7,11 @@ int main(int argc, char *argv[]) {
   Data d;
   d.init(1280, 720, 1, "sfml-helper");
 
+  sf::Vector2f cam = {0.f, 0.f};
+  sf::Vector2f from_mpos = {0.f, 0.f};
+  sf::Vector2f diff = {0.f, 0.f};
+  float cam_zoom = 1.f;
+
   // game loop
   while (d.win.isOpen()) {
     // calculate delta time
@@ -27,32 +32,44 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
-    d.camera_follow(d.mpos());
+    d.camera_follow(cam, 1.f);
+
+    if (d.m_pressed(Left)) {
+      from_mpos = d.scr_to_wrld(d.mpos());
+      diff = cam - from_mpos;
+    }
+
+    cam_zoom -= float(d.mouse_scroll() * 0.01f);
 
     // draw
     //////////////////////////////////////////////////
+    d._camera_view.zoom(cam_zoom);
     d.camera_view();
+
+    if (d.m_held(Left)) {
+      cam += from_mpos - d.scr_to_wrld(d.mpos());
+      // d.draw_line(from_mpos, d.scr_to_wrld(d.mpos()));
+    }
 
     d.draw_rect({0.f, 0.f}, d.ss());
 
-    sf::Vector2f mw = d.s_to_w(d.mpos());
-    sf::Vector2f ms = d.w_to_s(d.mpos());
+    d.draw_line(cam - sf::Vector2f(10.f, 0.f), cam + sf::Vector2f(10.f, 0.f),
+                sf::Color::Red);
+    d.draw_line(cam - sf::Vector2f(0.f, 10.f), cam + sf::Vector2f(0.f, 10.f),
+                sf::Color::Red);
+
+    sf::Vector2f mw = d.scr_to_wrld(d.mpos());
+    sf::Vector2f ms = d.wrld_to_scr(d.mpos());
 
     //////////////////////////////////////////////////
     d.default_view();
-    d.draw_text(d.ss() / 2.f, "Center", CenterCenter);
-
-    sf::Vector2f mw_from_ms = d.w_to_s(mw);
+    // d.draw_text(d.ss() / 2.f, "Center", CenterCenter);
 
     d.draw_text({0.f, 0.f},
                 std::format("mpos_scr: ({:.0f}, {:.0f})", ms.x, ms.y));
 
     d.draw_text({0.f, float(d.text.getCharacterSize())},
                 std::format("mpos_world: ({:.2f}, {:.2f})", mw.x, mw.y));
-
-    d.draw_text({0.f, float(d.text.getCharacterSize() * 2.f)},
-                std::format("mpos_world_from_mpos_scr: ({:.2f}, {:.2f})",
-                            mw_from_ms.x, mw_from_ms.y));
 
     // display
     d.display();
