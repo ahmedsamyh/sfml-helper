@@ -9,7 +9,6 @@ int main(int argc, char *argv[]) {
 
   sf::Vector2f cam = {0.f, 0.f};
   sf::Vector2f from_mpos = {0.f, 0.f};
-  sf::Vector2f diff = {0.f, 0.f};
 
   // game loop
   while (d.win.isOpen()) {
@@ -36,7 +35,6 @@ int main(int argc, char *argv[]) {
 
     if (d.m_pressed(MB::Left)) {
       from_mpos = d.scr_to_wrld(d.mpos());
-      diff = cam - from_mpos;
     }
 
     float zoom_rate = d.k_held(Key::LShift) ? 0.1f : 0.01f;
@@ -45,13 +43,9 @@ int main(int argc, char *argv[]) {
       d.camera_zoom() = 1.f;
     }
 
-    if (d.k_released(Key::X)) {
-      std::cout << "X Released\n";
-    }
-
     d.camera_zoom() -= float(d.mouse_scroll() * zoom_rate);
 
-    // VAR(sf::A);
+    VAR(d.camera_zoom());
 
     // draw
     //////////////////////////////////////////////////
@@ -75,12 +69,6 @@ int main(int argc, char *argv[]) {
     //////////////////////////////////////////////////
     d.default_view();
     // d.draw_text(d.ss() / 2.f, "Center", CenterCenter);
-
-    d.draw_text({0.f, 0.f},
-                std::format("mpos_scr: ({:.0f}, {:.0f})", ms.x, ms.y));
-
-    d.draw_text({0.f, float(d.text.getCharacterSize())},
-                std::format("mpos_world: ({:.2f}, {:.2f})", mw.x, mw.y));
 
     // display
     d.display();
