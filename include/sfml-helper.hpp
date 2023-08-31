@@ -125,7 +125,7 @@ enum Text_align {
 };
 
 // mouse --------------------------------------------------
-enum Mouse_Button {
+enum class MB {
   Left,     //!< The left mouse button
   Right,    //!< The right mouse button
   Middle,   //!< The middle (wheel) mouse button
@@ -200,9 +200,9 @@ struct Data {
   // mouse functions
   void update_mouse_event(sf::Event &e);
   void update_mouse();
-  bool m_pressed(Mouse_Button btn);
-  bool m_held(Mouse_Button btn);
-  bool m_released(Mouse_Button btn);
+  bool m_pressed(MB btn);
+  bool m_held(MB btn);
+  bool m_released(MB btn);
   sf::Vector2f &mpos();
   float mouse_scroll();
 
@@ -928,10 +928,11 @@ void Data::update_mouse_event(sf::Event &e) {
 
 void Data::update_mouse() {
   memcpy(prev_mouse_pressed, mouse_pressed,
-         sizeof(bool) * Mouse_Button::ButtonCount);
-  memcpy(prev_mouse_held, mouse_held, sizeof(bool) * Mouse_Button::ButtonCount);
+         sizeof(bool) * static_cast<size_t>(MB::ButtonCount));
+  memcpy(prev_mouse_held, mouse_held,
+         sizeof(bool) * static_cast<size_t>(MB::ButtonCount));
   memcpy(prev_mouse_released, mouse_released,
-         sizeof(bool) * Mouse_Button::ButtonCount);
+         sizeof(bool) * static_cast<size_t>(MB::ButtonCount));
   for (size_t i = 0; i < sf::Mouse::Button::ButtonCount; ++i) {
     mouse_held[i] = sf::Mouse::isButtonPressed(sf::Mouse::Button(i));
     mouse_pressed[i] = mouse_held[i] && !prev_mouse_held[i];
@@ -939,19 +940,19 @@ void Data::update_mouse() {
   }
 }
 
-bool Data::m_pressed(Mouse_Button btn) {
-  ASSERT(size_t(btn) < size_t(Mouse_Button::ButtonCount));
-  return mouse_pressed[btn];
+bool Data::m_pressed(MB btn) {
+  ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  return mouse_pressed[static_cast<size_t>(btn)];
 }
 
-bool Data::m_held(Mouse_Button btn) {
-  ASSERT(size_t(btn) < size_t(Mouse_Button::ButtonCount));
-  return mouse_held[btn];
+bool Data::m_held(MB btn) {
+  ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  return mouse_held[static_cast<size_t>(btn)];
 }
 
-bool Data::m_released(Mouse_Button btn) {
-  ASSERT(size_t(btn) < size_t(Mouse_Button::ButtonCount));
-  return mouse_released[btn];
+bool Data::m_released(MB btn) {
+  ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  return mouse_released[static_cast<size_t>(btn)];
 }
 
 sf::Vector2f &Data::mpos() { return _mpos; }
