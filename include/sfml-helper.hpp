@@ -353,7 +353,7 @@ struct Data {
   void update_title();
 
   // view functions
-  void camera_follow(const sf::Vector2f &pos, float rate = 0.25f);
+  void camera_follow(const sf::Vector2f &pos, float rate = 1.f);
   void camera_view();
   float &camera_zoom();
   void default_view();

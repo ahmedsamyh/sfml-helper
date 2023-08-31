@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
-    d.camera_follow(cam, 1.f);
+    d.camera_follow(cam);
 
     if (d.m_pressed(MB::Left)) {
       from_mpos = d.scr_to_wrld(d.mpos());
