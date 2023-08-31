@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
       d.update_mouse_event(e);
     }
     d.update_mouse();
+    d.update_key();
 
     // clear
     d.clear();
@@ -33,18 +34,30 @@ int main(int argc, char *argv[]) {
     // update
     d.camera_follow(cam, 1.f);
 
-    if (d.m_pressed(Left)) {
+    if (d.m_pressed(MB::Left)) {
       from_mpos = d.scr_to_wrld(d.mpos());
       diff = cam - from_mpos;
     }
 
-    d.camera_zoom() -= float(d.mouse_scroll() * 0.01f);
+    float zoom_rate = d.k_held(Key::LShift) ? 0.1f : 0.01f;
+
+    if (d.k_pressed(Key::Num1)) {
+      d.camera_zoom() = 1.f;
+    }
+
+    if (d.k_released(Key::X)) {
+      std::cout << "X Released\n";
+    }
+
+    d.camera_zoom() -= float(d.mouse_scroll() * zoom_rate);
+
+    // VAR(sf::A);
 
     // draw
     //////////////////////////////////////////////////
     d.camera_view();
 
-    if (d.m_held(Left)) {
+    if (d.m_held(MB::Left)) {
       cam += from_mpos - d.scr_to_wrld(d.mpos());
       // d.draw_line(from_mpos, d.scr_to_wrld(d.mpos()));
     }
