@@ -45,8 +45,6 @@ int main(int argc, char *argv[]) {
 
     d.camera_zoom() -= float(d.mouse_scroll() * zoom_rate);
 
-    VAR(d.camera_zoom());
-
     // draw
     //////////////////////////////////////////////////
     d.camera_view();
@@ -55,6 +53,8 @@ int main(int argc, char *argv[]) {
       cam += from_mpos - d.scr_to_wrld(d.mpos());
       // d.draw_line(from_mpos, d.scr_to_wrld(d.mpos()));
     }
+
+    d.draw_point(d.scr_to_wrld(d.mpos()));
 
     d.draw_rect({0.f, 0.f}, d.ss());
 

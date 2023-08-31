@@ -322,6 +322,8 @@ struct Data {
   void draw_arrow(const sf::Vector2f &p1, const sf::Vector2f &p2,
                   sf::Color col = sf::Color::White, float out_thic = 1.f,
                   float shaft_len = 10.f);
+  void draw_point(const sf::Vector2f &p, sf::Color col = sf::Color::White,
+                  float thic = 1.f);
 
   // mouse functions
   void update_mouse_event(sf::Event &e);
@@ -1057,6 +1059,17 @@ void Data::draw_arrow(const sf::Vector2f &p1, const sf::Vector2f &p2,
   draw_line(p2, sh1, col, out_thic);
   sf::Vector2f sh2 = p2 - (n * shaft_len) + (t * shaft_len);
   draw_line(p2, sh2, col, out_thic);
+}
+
+void Data::draw_point(const sf::Vector2f &p, sf::Color col, float thic) {
+  thic = std::fmaxf(0.1f, thic);
+  sf::Vertex q[4];
+  q[0].position = p + sf::Vector2f(-(thic / 2.f), -(thic / 2.f));
+  q[1].position = p + sf::Vector2f((thic / 2.f), -(thic / 2.f));
+  q[2].position = p + sf::Vector2f(-(thic / 2.f), (thic / 2.f));
+  q[3].position = p + sf::Vector2f((thic / 2.f), (thic / 2.f));
+
+  ren_tex.draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
 
 void Data::update_mouse_event(sf::Event &e) {
