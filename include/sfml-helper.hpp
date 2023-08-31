@@ -152,6 +152,7 @@ struct Data {
   int s_width, s_height, width, height, scale;
   sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
   sf::View _camera_view;
+  float _camera_zoom = 1.f;
   bool mouse_pressed[sf::Mouse::Button::ButtonCount],
       mouse_held[sf::Mouse::Button::ButtonCount],
       mouse_released[sf::Mouse::Button::ButtonCount];
@@ -220,6 +221,7 @@ struct Data {
   // view functions
   void camera_follow(const sf::Vector2f &pos, float rate = 0.25f);
   void camera_view();
+  float &camera_zoom();
   void default_view();
 };
 
@@ -1001,7 +1003,10 @@ void Data::camera_follow(const sf::Vector2f &pos, float rate) {
 
   _camera_view.setSize(float(width), float(height));
   _camera_view.setCenter(to_camera);
+  _camera_view.zoom(_camera_zoom);
 }
+
+float &Data::camera_zoom() { return _camera_zoom; }
 
 void Data::camera_view() { ren_tex.setView(_camera_view); }
 

@@ -10,7 +10,6 @@ int main(int argc, char *argv[]) {
   sf::Vector2f cam = {0.f, 0.f};
   sf::Vector2f from_mpos = {0.f, 0.f};
   sf::Vector2f diff = {0.f, 0.f};
-  float cam_zoom = 1.f;
 
   // game loop
   while (d.win.isOpen()) {
@@ -39,11 +38,10 @@ int main(int argc, char *argv[]) {
       diff = cam - from_mpos;
     }
 
-    cam_zoom -= float(d.mouse_scroll() * 0.01f);
+    d.camera_zoom() -= float(d.mouse_scroll() * 0.01f);
 
     // draw
     //////////////////////////////////////////////////
-    d._camera_view.zoom(cam_zoom);
     d.camera_view();
 
     if (d.m_held(Left)) {
