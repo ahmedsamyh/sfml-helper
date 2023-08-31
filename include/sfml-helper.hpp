@@ -2,6 +2,7 @@
 #define _SFML_HELPER_H_
 
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -209,9 +210,7 @@ struct Data {
   sf::Vector2f ss_f() const;
   sf::Vector2i ss_i() const;
   sf::Vector2f s_to_w(const sf::Vector2f &p);
-  sf::Vector2f s_to_w(const sf::Vector2i &p);
   sf::Vector2f w_to_s(const sf::Vector2f &p);
-  sf::Vector2f w_to_s(const sf::Vector2i &p);
 
   // utility functions
   void handle_close(sf::Event &e);
@@ -966,23 +965,17 @@ sf::Vector2f Data::ss_f() const {
 sf::Vector2i Data::ss_i() const { return sf::Vector2i(width, height); }
 
 sf::Vector2f Data::s_to_w(const sf::Vector2f &p) {
-  return s_to_w(sf::Vector2i(p));
-}
-
-sf::Vector2f Data::s_to_w(const sf::Vector2i &p) {
-
-  sf::Vector2f res = ren_tex.mapPixelToCoords(p, _camera_view);
+  sf::Vector2f res = ren_tex.mapPixelToCoords(
+      sf::Vector2i(int(std::floorf(p.x)), int(std::floorf(p.y))), _camera_view);
   return res;
 }
 
 sf::Vector2f Data::w_to_s(const sf::Vector2f &p) {
-  sf::Vector2f res =
-      sf::Vector2f(ren_tex.mapCoordsToPixel(p, ren_tex.getDefaultView()));
+  sf::Vector2i res_i =
+      ren_tex.mapCoordsToPixel(sf::Vector2f(std::floorf(p.x), std::floorf(p.y)),
+                               ren_tex.getDefaultView());
+  sf::Vector2f res = sf::Vector2f(res_i);
   return res;
-}
-
-sf::Vector2f Data::w_to_s(const sf::Vector2i &p) {
-  return w_to_s(sf::Vector2f(p));
 }
 
 void Data::handle_close(sf::Event &e) {
