@@ -877,6 +877,9 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   width = s_width / scale;
   height = s_height / scale;
 
+  // std::cout auto-flushes on every output
+  std::cout << std::unitbuf;
+
   // create window
   win.create(sf::VideoMode(s_width, s_height), title,
              sf::Style::Close | sf::Style::Titlebar);

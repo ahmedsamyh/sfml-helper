@@ -3,7 +3,6 @@
 
 int main(int argc, char *argv[]) {
   //  global
-  std::cout << std::unitbuf;
   Data d;
   d.init(1280, 720, 1, "sfml-helper");
 
