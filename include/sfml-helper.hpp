@@ -1179,6 +1179,7 @@ void Data::camera_follow(const sf::Vector2f &pos, float rate) {
 
   _camera_view.setSize(float(width), float(height));
   _camera_view.setCenter(to_camera);
+  _camera_zoom = std::fmaxf(0.1f, _camera_zoom);
   _camera_view.zoom(_camera_zoom);
 }
 
