@@ -949,6 +949,8 @@ void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
 
 void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
                      sf::Color fill_col, sf::Color out_col, float out_thic) {
+  if (size.x <= 0.f || size.y <= 0.f)
+    return;
   rect.setPosition(pos + sf::Vector2f(out_thic, out_thic));
   rect.setSize(size - sf::Vector2f(out_thic, out_thic));
   rect.setFillColor(fill_col);
