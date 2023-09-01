@@ -332,6 +332,7 @@ struct Data {
   bool m_held(MB btn);
   bool m_released(MB btn);
   sf::Vector2f &mpos();
+  sf::Vector2f mpos_w();
   float mouse_scroll();
 
   // key functions
@@ -1116,6 +1117,8 @@ bool Data::m_released(MB btn) {
 }
 
 sf::Vector2f &Data::mpos() { return _mpos; }
+
+sf::Vector2f Data::mpos_w() { return scr_to_wrld(mpos()); }
 
 float Data::mouse_scroll() { return _mouse_scroll; }
 
