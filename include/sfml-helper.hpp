@@ -960,6 +960,8 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
 
 void Data::draw_circle(const sf::Vector2f &pos, float radius,
                        sf::Color fill_col, sf::Color out_col, float out_thic) {
+  if (radius <= 0.f)
+    return;
   circle.setPosition(pos);
   circle.setOrigin({radius, radius});
   circle.setRadius(radius - out_thic);
