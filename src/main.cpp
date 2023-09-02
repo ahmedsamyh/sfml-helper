@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
   Data d;
   d.init(1280, 720, 1, "sfml-helper");
 
-  Timer t(d);
+  Alarm a(d, 1.f);
 
   // game loop
   while (d.win.isOpen()) {
@@ -29,7 +29,9 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
-    t.run();
+    if (a.on_alarm()) {
+      std::cout << "ALARM\n";
+    }
 
     // draw
 

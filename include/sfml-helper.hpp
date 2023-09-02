@@ -127,6 +127,13 @@ struct Timer {
   sf::Int64 us() const;
 };
 
+struct Alarm : Timer {
+  float alarm_time; // in seconds
+  Alarm(Data &_d, float _alarm_time, float _time = 0.f);
+
+  bool on_alarm();
+};
+
 // text_aligment --------------------------------------------------
 enum Text_align {
   TopLeft,
@@ -1357,6 +1364,19 @@ float Timer::s() const { return sf::seconds(time).asSeconds(); }
 sf::Int32 Timer::ms() const { return sf::seconds(time).asMilliseconds(); }
 
 sf::Int64 Timer::us() const { return sf::seconds(time).asMicroseconds(); }
+
+Alarm::Alarm(Data &_d, float _alarm_time, float _time) : Timer(_d, _time) {
+  alarm_time = _alarm_time;
+}
+
+bool Alarm::on_alarm() {
+  run();
+  if (time >= alarm_time) {
+    time -= alarm_time;
+    return true;
+  }
+  return false;
+}
 
 // math -------------------------
 namespace math {
