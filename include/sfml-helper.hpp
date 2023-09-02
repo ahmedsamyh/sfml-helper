@@ -911,6 +911,8 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   width = s_width / scale;
   height = s_height / scale;
 
+  srand(unsigned int(time(0)));
+
   // std::cout auto-flushes on every output
   std::cout << std::unitbuf;
 

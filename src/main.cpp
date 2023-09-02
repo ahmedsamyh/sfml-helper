@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     // update
     if (a.on_alarm()) {
-      std::cout << "ALARM\n";
+      std::cout << math::randomf(0.f, 1.f) << "\n";
     }
 
     // draw
