@@ -116,10 +116,13 @@ struct Data;
 struct Timer {
   float time; // in seconds
   Data *d;
+  bool initted = false;
 
+  Timer();
   Timer(Data &_d, float _time = 0.f);
 
   void run();
+  void init(Data &_d, float _time = 0.f);
 
   // getters
   float s() const;
@@ -131,7 +134,12 @@ struct Alarm : Timer {
   float alarm_time; // in seconds
   bool one_time;
   bool ran_one_time;
+
+  Alarm();
   Alarm(Data &_d, float _alarm_time, bool _one_time = false, float _time = 0.f);
+
+  void init(Data &_d, float _alarm_time, bool _one_time = false,
+            float _time = 0.f);
 
   bool on_alarm();
 };
@@ -1354,12 +1362,25 @@ sf::Font &Resource_manager::get_font(const std::string &filename) {
 
 // timer ----------------------------------------
 
+Timer::Timer() { std::cout << "Timer: Empty ctor called\n"; }
+
 Timer::Timer(Data &_d, float _time) {
-  time = _time;
-  d = &_d;
+
+  std::cout << "Timer: ctor called\n";
+  init(_d, _time);
 }
 
-void Timer::run() { time += d->delta; }
+void Timer::init(Data &_d, float _time) {
+  std::cout << "Timer: init called\n";
+  time = _time;
+  d = &_d;
+  initted = true;
+}
+
+void Timer::run() {
+  ASSERT(initted);
+  time += d->delta;
+}
 
 float Timer::s() const { return sf::seconds(time).asSeconds(); }
 
@@ -1367,14 +1388,25 @@ sf::Int32 Timer::ms() const { return sf::seconds(time).asMilliseconds(); }
 
 sf::Int64 Timer::us() const { return sf::seconds(time).asMicroseconds(); }
 
+Alarm::Alarm() { std::cout << "Alarm: Empty ctor called\n"; }
+
 Alarm::Alarm(Data &_d, float _alarm_time, bool _one_time, float _time)
     : Timer(_d, _time) {
+  std::cout << "Alarm: ctor called\n";
+  init(_d, _alarm_time, _one_time, _time);
+}
+
+void Alarm::init(Data &_d, float _alarm_time, bool _one_time, float _time) {
+  std::cout << "Alarm: init called\n";
+  Timer::init(_d, _time);
   alarm_time = _alarm_time;
   one_time = _one_time;
   ran_one_time = false;
+  initted = true;
 }
 
 bool Alarm::on_alarm() {
+  ASSERT(initted);
   if (ran_one_time)
     return false;
   run();
