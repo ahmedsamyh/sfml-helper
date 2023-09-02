@@ -61,10 +61,10 @@ void UI::end_layout() {
 
 void UI::begin(const sf::Vector2f &pos, Layout::Kind kind) {
   ///
-  layout l;
+  Layout l;
   l.pos = pos;
   l.kind = kind;
-  layouts.push_back(layout);
+  layouts.push_back(l);
 }
 
 bool UI::btn(size_t id, const std::string &str, size_t char_size,
@@ -74,14 +74,14 @@ bool UI::btn(size_t id, const std::string &str, size_t char_size,
   ASSERT(l != nullptr);
 
   const sf::Vector2f pos = l->available_pos();
-  const sf::Vector2f size = {char_size * str.size(), char_size};
+  const sf::Vector2f size = {float(char_size * str.size()), float(char_size)};
   bool click = false;
-  bool hovering =
-      // bool hovering;
-      if (active_id == id) {}
-  else {
-    if ()
+  bool hovering = false;
+  // bool hovering;
+  if (active_id == id) {
+  } else {
   }
+  return false;
 }
 
 void UI::end() {
