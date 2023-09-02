@@ -111,6 +111,22 @@ struct Resource_manager {
   static std::string texture_path;
 };
 
+// timer --------------------------------------------------
+struct Data;
+struct Timer {
+  float time; // in seconds
+  Data *d;
+
+  Timer(Data &_d, float _time = 0.f);
+
+  void run();
+
+  // getters
+  float s() const;
+  sf::Int32 ms() const;
+  sf::Int64 us() const;
+};
+
 // text_aligment --------------------------------------------------
 enum Text_align {
   TopLeft,
@@ -1326,6 +1342,21 @@ sf::Font &Resource_manager::get_font(const std::string &filename) {
 
   return fonts.at(filename);
 }
+
+// timer ----------------------------------------
+
+Timer::Timer(Data &_d, float _time) {
+  time = _time;
+  d = &_d;
+}
+
+void Timer::run() { time += d->delta; }
+
+float Timer::s() const { return sf::seconds(time).asSeconds(); }
+
+sf::Int32 Timer::ms() const { return sf::seconds(time).asMilliseconds(); }
+
+sf::Int64 Timer::us() const { return sf::seconds(time).asMicroseconds(); }
 
 // math -------------------------
 namespace math {
