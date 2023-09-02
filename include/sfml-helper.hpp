@@ -129,7 +129,9 @@ struct Timer {
 
 struct Alarm : Timer {
   float alarm_time; // in seconds
-  Alarm(Data &_d, float _alarm_time, float _time = 0.f);
+  bool one_time;
+  bool ran_one_time;
+  Alarm(Data &_d, float _alarm_time, bool _one_time = false, float _time = 0.f);
 
   bool on_alarm();
 };
@@ -1365,14 +1367,22 @@ sf::Int32 Timer::ms() const { return sf::seconds(time).asMilliseconds(); }
 
 sf::Int64 Timer::us() const { return sf::seconds(time).asMicroseconds(); }
 
-Alarm::Alarm(Data &_d, float _alarm_time, float _time) : Timer(_d, _time) {
+Alarm::Alarm(Data &_d, float _alarm_time, bool _one_time, float _time)
+    : Timer(_d, _time) {
   alarm_time = _alarm_time;
+  one_time = _one_time;
+  ran_one_time = false;
 }
 
 bool Alarm::on_alarm() {
+  if (ran_one_time)
+    return false;
   run();
   if (time >= alarm_time) {
     time -= alarm_time;
+    if (one_time) {
+      ran_one_time = true;
+    }
     return true;
   }
   return false;
