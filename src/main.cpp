@@ -125,6 +125,9 @@ int main(int argc, char *argv[]) {
   Data d;
   d.init(1280, 720, 1, "sfml-helper");
 
+  Alarm a;
+  a.init(d, 0.1f);
+
   // game loop
   while (d.win.isOpen()) {
     // calculate delta time
@@ -146,6 +149,9 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
+    if (a.on_alarm()) {
+      std::cout << "ALARM\n";
+    }
 
     // draw
 

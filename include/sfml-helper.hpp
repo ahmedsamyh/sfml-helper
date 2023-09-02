@@ -111,6 +111,39 @@ struct Resource_manager {
   static std::string texture_path;
 };
 
+// timer --------------------------------------------------
+struct Data;
+struct Timer {
+  float time; // in seconds
+  Data *d;
+  bool initted = false;
+
+  Timer();
+  Timer(Data &_d, float _time = 0.f);
+
+  void run();
+  void init(Data &_d, float _time = 0.f);
+
+  // getters
+  float s() const;
+  sf::Int32 ms() const;
+  sf::Int64 us() const;
+};
+
+struct Alarm : Timer {
+  float alarm_time; // in seconds
+  bool one_time;
+  bool ran_one_time;
+
+  Alarm();
+  Alarm(Data &_d, float _alarm_time, bool _one_time = false, float _time = 0.f);
+
+  void init(Data &_d, float _alarm_time, bool _one_time = false,
+            float _time = 0.f);
+
+  bool on_alarm();
+};
+
 // text_aligment --------------------------------------------------
 enum Text_align {
   TopLeft,
@@ -332,6 +365,7 @@ struct Data {
   bool m_held(MB btn);
   bool m_released(MB btn);
   sf::Vector2f &mpos();
+  sf::Vector2f mpos_w();
   float mouse_scroll();
 
   // key functions
@@ -948,6 +982,8 @@ void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
 
 void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
                      sf::Color fill_col, sf::Color out_col, float out_thic) {
+  if (size.x <= 0.f || size.y <= 0.f)
+    return;
   rect.setPosition(pos + sf::Vector2f(out_thic, out_thic));
   rect.setSize(size - sf::Vector2f(out_thic, out_thic));
   rect.setFillColor(fill_col);
@@ -959,6 +995,8 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
 
 void Data::draw_circle(const sf::Vector2f &pos, float radius,
                        sf::Color fill_col, sf::Color out_col, float out_thic) {
+  if (radius <= 0.f)
+    return;
   circle.setPosition(pos);
   circle.setOrigin({radius, radius});
   circle.setRadius(radius - out_thic);
@@ -1116,6 +1154,8 @@ bool Data::m_released(MB btn) {
 }
 
 sf::Vector2f &Data::mpos() { return _mpos; }
+
+sf::Vector2f Data::mpos_w() { return scr_to_wrld(mpos()); }
 
 float Data::mouse_scroll() { return _mouse_scroll; }
 
@@ -1318,6 +1358,66 @@ sf::Font &Resource_manager::get_font(const std::string &filename) {
   }
 
   return fonts.at(filename);
+}
+
+// timer ----------------------------------------
+
+Timer::Timer() { std::cout << "Timer: Empty ctor called\n"; }
+
+Timer::Timer(Data &_d, float _time) {
+
+  std::cout << "Timer: ctor called\n";
+  init(_d, _time);
+}
+
+void Timer::init(Data &_d, float _time) {
+  std::cout << "Timer: init called\n";
+  time = _time;
+  d = &_d;
+  initted = true;
+}
+
+void Timer::run() {
+  ASSERT(initted);
+  time += d->delta;
+}
+
+float Timer::s() const { return sf::seconds(time).asSeconds(); }
+
+sf::Int32 Timer::ms() const { return sf::seconds(time).asMilliseconds(); }
+
+sf::Int64 Timer::us() const { return sf::seconds(time).asMicroseconds(); }
+
+Alarm::Alarm() { std::cout << "Alarm: Empty ctor called\n"; }
+
+Alarm::Alarm(Data &_d, float _alarm_time, bool _one_time, float _time)
+    : Timer(_d, _time) {
+  std::cout << "Alarm: ctor called\n";
+  init(_d, _alarm_time, _one_time, _time);
+}
+
+void Alarm::init(Data &_d, float _alarm_time, bool _one_time, float _time) {
+  std::cout << "Alarm: init called\n";
+  Timer::init(_d, _time);
+  alarm_time = _alarm_time;
+  one_time = _one_time;
+  ran_one_time = false;
+  initted = true;
+}
+
+bool Alarm::on_alarm() {
+  ASSERT(initted);
+  if (ran_one_time)
+    return false;
+  run();
+  if (time >= alarm_time) {
+    time -= alarm_time;
+    if (one_time) {
+      ran_one_time = true;
+    }
+    return true;
+  }
+  return false;
 }
 
 // math -------------------------
