@@ -1422,16 +1422,11 @@ sf::Font &Resource_manager::get_font(const std::string &filename) {
 
 // timer ----------------------------------------
 
-Timer::Timer() { std::cout << "Timer: Empty ctor called\n"; }
+Timer::Timer() {}
 
-Timer::Timer(Data &_d, float _time) {
-
-  std::cout << "Timer: ctor called\n";
-  init(_d, _time);
-}
+Timer::Timer(Data &_d, float _time) { init(_d, _time); }
 
 void Timer::init(Data &_d, float _time) {
-  std::cout << "Timer: init called\n";
   time = _time;
   d = &_d;
   initted = true;
@@ -1448,16 +1443,14 @@ sf::Int32 Timer::ms() const { return sf::seconds(time).asMilliseconds(); }
 
 sf::Int64 Timer::us() const { return sf::seconds(time).asMicroseconds(); }
 
-Alarm::Alarm() { std::cout << "Alarm: Empty ctor called\n"; }
+Alarm::Alarm() {}
 
 Alarm::Alarm(Data &_d, float _alarm_time, bool _one_time, float _time)
     : Timer(_d, _time) {
-  std::cout << "Alarm: ctor called\n";
   init(_d, _alarm_time, _one_time, _time);
 }
 
 void Alarm::init(Data &_d, float _alarm_time, bool _one_time, float _time) {
-  std::cout << "Alarm: init called\n";
   Timer::init(_d, _time);
   alarm_time = _alarm_time;
   one_time = _one_time;
