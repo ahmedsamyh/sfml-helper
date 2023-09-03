@@ -2,7 +2,6 @@
 #include <sfml-helper.hpp>
 
 int main(int argc, char *argv[]) {
-
   //  global
   Data d;
   d.init(1280, 720, 2, "sfml-helper");

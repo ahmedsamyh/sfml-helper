@@ -721,8 +721,9 @@ bool remove_chunk_from_data(const std::string &_name) {
           delete new_data_file;
           delete previous_data_file;
 
-          d_info(
-              std::format("Successfully removed `{}` from `data.dat`", _name));
+          d_info(std::format(
+              "Successfully removed `{}` ({} bytes) from `data.dat`", _name,
+              found_size));
           return true;
           ofs.close();
         } else {
@@ -785,9 +786,9 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
 
   if (ofs.is_open()) {
     ofs.seekp(0, std::ios::end);
-    d_info(std::format<size_t>(
-        "`data.dat` contains {} bytes of data before writing `{}`", ofs.tellp(),
-        filename));
+    // d_info(std::format<size_t>(
+    //     "`data.dat` contains {} bytes of data before writing `{}`",
+    //     ofs.tellp(), filename));
     ofs.seekp(0, std::ios::beg);
 
     size_t bytes_written = 0;
@@ -895,13 +896,20 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
   case Data_type::Sound:
     type_str = "sound";
     break;
+  case Data_type::Shader:
+    type_str = "shader";
+    break;
+  default:
+    ASSERT(0);
+    break;
   }
 
   if (!found) {
     error(std::format("Could not find {} `{}` in `data.dat`", type_str, name));
     return false;
   } else {
-    d_info(std::format("Found {} `{}` in `data.dat`", type_str, name));
+    d_info(std::format("Successfully read {} `{}` ({} bytes) from `data.dat`",
+                       type_str, name, chunk.total_size()));
     return true;
   }
 }
