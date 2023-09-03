@@ -2,7 +2,7 @@
 
 Helper functions for use in SFML applications.
 
-all the functions are in [sfml-helper.hpp](./src/sfml-helper.hpp) as a [single-header only](https://github.com/nothings/stb) format.
+all the functions are in [sfml-helper.hpp](./include/sfml-helper.hpp) as a [single-header only](https://github.com/nothings/stb) format.
 
 ## Quick Start
 ```console
