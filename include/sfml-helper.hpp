@@ -112,7 +112,6 @@ struct Resource_manager {
   std::unordered_map<std::string, sf::Font> fonts;
   sf::Texture &get_texture(const std::string &filename);
   sf::Font &get_font(const std::string &filename);
-  static std::string texture_path;
 };
 
 // timer --------------------------------------------------
@@ -1306,8 +1305,6 @@ void Data::camera_view() { ren_tex.setView(_camera_view); }
 void Data::default_view() { ren_tex.setView(ren_tex.getDefaultView()); }
 
 // resource_manager --------------------------------------------------
-std::string Resource_manager::texture_path = "res/gfx/";
-
 bool Resource_manager::load_all_textures() {
   std::vector<Data_chunk> chunks = list_of_chunks_in_data();
 
