@@ -1,6 +1,5 @@
-bin 
-lib 
-build 
-.topdir 
-*~ 
-*.exe 
+bin
+lib
+build
+.topdir
+*~
