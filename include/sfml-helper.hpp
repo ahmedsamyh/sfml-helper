@@ -586,6 +586,15 @@ std::vector<Data_chunk> list_of_chunks_in_data() {
 }
 
 bool remove_chunk_from_data(const std::string &_name) {
+  bool found = false;
+  for (auto &name : list_of_names_in_data()) {
+    found |= name == _name;
+  }
+  if (!found) {
+    d_warn(std::format("Chunk named `{}` doesn't exist!", _name));
+    return true;
+  }
+
   std::ifstream ifs;
   ifs.open("data.dat", std::ios::binary);
   char *data = nullptr;
