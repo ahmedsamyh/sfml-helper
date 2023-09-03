@@ -84,19 +84,20 @@ struct Data_chunk {
 
 std::vector<std::string> list_of_names_in_data();
 std::vector<Data_chunk> list_of_chunks_in_data();
-bool remove_chunk_from_data(const std::string &_name);
+bool remove_chunk_from_data(const std::string &filename);
 bool remove_all_chunks_from_data();
 bool write_chunk_to_data(const Data_type &type, const std::string &filename);
-bool write_texture_to_data(const std::string &texture_filename);
-bool write_font_to_data(const std::string &font_filename);
-bool write_sound_to_data(const std::string &sound_filename);
+bool write_texture_to_data(const std::string &filename);
+bool write_font_to_data(const std::string &filename);
+bool write_sound_to_data(const std::string &filename);
 bool write_shader_to_data(const std::string &filename);
-bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
+bool read_chunk_from_data(Data_chunk &chunk, const std::string &filename,
                           Data_type type = Data_type::None);
-bool read_font_from_data(Data_chunk &chunk, const std::string &name);
-bool read_texture_from_data(Data_chunk &chunk, const std::string &name);
-bool read_sound_from_data(Data_chunk &chunk, const std::string &name);
-bool read_shader_from_data(Data_chunk &chunk, const std::string &name);
+bool read_font_from_data(Data_chunk &chunk, const std::string &filename);
+bool read_texture_from_data(Data_chunk &chunk, const std::string &filename);
+bool read_sound_from_data(Data_chunk &chunk, const std::string &filename);
+bool read_shader_from_data(Data_chunk &chunk, const std::string &filename);
+bool chunk_exists_in_data(const std::string &filename);
 
 // resource_manager --------------------------------------------------
 struct Resource_manager {
@@ -457,7 +458,7 @@ void Data_chunk::free() {
   type = Data_type::None;
   data_size = 0;
   name_size = 0;
-#ifdef DATA_CHUNK_FREE_LOG
+#ifdef LOG_DATA_CHUNK_FREE
   d_info(std::format("Chunk `{}` freed!", name));
 #endif
   name.resize(0);
@@ -916,20 +917,41 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
   }
 }
 
-bool read_font_from_data(Data_chunk &chunk, const std::string &name) {
-  return read_chunk_from_data(chunk, name, Data_type::Font);
+bool read_font_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Font);
 }
 
-bool read_texture_from_data(Data_chunk &chunk, const std::string &name) {
-  return read_chunk_from_data(chunk, name, Data_type::Texture);
+bool read_texture_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Texture);
 }
 
-bool read_sound_from_data(Data_chunk &chunk, const std::string &name) {
-  return read_chunk_from_data(chunk, name, Data_type::Sound);
+bool read_sound_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Sound);
 }
 
-bool read_shader_from_data(Data_chunk &chunk, const std::string &name) {
-  return read_chunk_from_data(chunk, name, Data_type::Shader);
+bool read_shader_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Shader);
+}
+
+bool chunk_exists_in_data(const std::string &filename) {
+  std::vector<Data_chunk> chunks = list_of_chunks_in_data();
+  bool found = false;
+
+  if (chunks.empty()) {
+    d_info(std::format("Chunk `{}` doesn't exist!", filename));
+    return found;
+  }
+
+  for (auto &ch : chunks) {
+    found |= ch.name == filename;
+    ch.free();
+  }
+
+  if (found) {
+    d_info(std::format("Chunk `{}` exist!", filename));
+  }
+
+  return found;
 }
 
 // data --------------------------------------------------
