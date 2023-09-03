@@ -13,16 +13,6 @@
 namespace fs = std::filesystem;
 
 // macros ==================================================
-#define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
-#define IF_KEY_PRESSED(block)                                                  \
-  if (e.type == sf::Event::KeyPressed) {                                       \
-    block                                                                      \
-  }
-#define is_key(k) e.key.code == sf::Keyboard::k
-#define IF_KEY_RELEASED(block)                                                 \
-  if (e.type == sf::Event::KeyReleased) {                                      \
-    block                                                                      \
-  }
 #define VAR(name) std::cout << #name << ": " << name << "\n"
 #define VAR_STR(name) std::format("{}: {}", #name, name)
 #define NL() std::cout << "\n"
