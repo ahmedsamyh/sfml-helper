@@ -1383,19 +1383,18 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
       ch.free();
     }
   }
-
   // loading font
-  for (auto &ch : font_chunks) {
-    sf::Font font;
-    if (!font.loadFromMemory(ch.data, ch.data_size)) {
-      error(std::format("Could not load font data `{}`", ch.name));
-      exit(1);
-    }
-    fonts[ch.name] = font;
+
+  sf::Font font;
+  auto &ch = font_chunks.back();
+  if (!font.loadFromMemory(ch.data, ch.data_size)) {
+    error(std::format("Could not load font data `{}`", ch.name));
+    exit(1);
   }
+  fonts[ch.name] = font;
 
   d_info(std::format("Loaded font `{}`", font_chunks.back().name));
-  return fonts[font_chunks.back().name];
+  return fonts[ch.name];
 }
 
 sf::Texture &Resource_manager::get_texture(const std::string &filename) {
