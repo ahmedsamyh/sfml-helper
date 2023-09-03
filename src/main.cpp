@@ -28,6 +28,12 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
+    if (d.m_pressed(MB::Left)) {
+      std::cout << "Mouse Left Pressed\n";
+    }
+    if (d.k_released(Key::S)) {
+      std::cout << "S Key Released\n";
+    }
 
     // draw
 

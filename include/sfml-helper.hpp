@@ -1189,16 +1189,25 @@ void Data::update_mouse() {
 
 bool Data::m_pressed(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return mouse_pressed[static_cast<size_t>(btn)];
 }
 
 bool Data::m_held(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return mouse_held[static_cast<size_t>(btn)];
 }
 
 bool Data::m_released(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return mouse_released[static_cast<size_t>(btn)];
 }
 
@@ -1224,18 +1233,27 @@ void Data::update_key() {
 bool Data::k_pressed(Key key) {
   ASSERT(0 <= static_cast<size_t>(key) &&
          static_cast<size_t>(key) < static_cast<size_t>(Key::KeyCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return _keys[static_cast<size_t>(key)].pressed;
 }
 
 bool Data::k_held(Key key) {
   ASSERT(0 <= static_cast<size_t>(key) &&
          static_cast<size_t>(key) < static_cast<size_t>(Key::KeyCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return _keys[static_cast<size_t>(key)].held;
 }
 
 bool Data::k_released(Key key) {
   ASSERT(0 <= static_cast<size_t>(key) &&
          static_cast<size_t>(key) < static_cast<size_t>(Key::KeyCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return _keys[static_cast<size_t>(key)].released;
 }
 
