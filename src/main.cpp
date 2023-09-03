@@ -4,7 +4,21 @@
 int main(int argc, char *argv[]) {
   //  global
   Data d;
-  d.init(1280, 720, 1, "sfml-helper");
+  d.init(1280, 720, 2, "sfml-helper");
+
+  sf::Shader *shader = new sf::Shader();
+  sf::Sprite spr;
+  spr.setTexture(d.res_man.get_texture("res/gfx/momo.png"));
+  spr.setOrigin(spr.getLocalBounds().width / 2.f,
+                spr.getLocalBounds().height / 2.f);
+
+  if (!shader->loadFromFile("res/shaders/shader.frag",
+                            sf::Shader::Type::Fragment))
+    return 1;
+
+  shader->setUniform("texture", sf::Shader::CurrentTexture);
+
+  Timer t(d);
 
   // game loop
   while (d.win.isOpen()) {
@@ -27,12 +41,34 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
+    if (d.k_pressed(Key::Space)) {
+      sf::Shader *new_shader = new sf::Shader();
+      if (!new_shader->loadFromFile("res/shaders/shader.frag",
+                                    sf::Shader::Type::Fragment)) {
+        // could not load new_shader
+        delete new_shader;
+        std::cout << "Could not load new shader!\n";
+      } else {
+        delete shader;
+        shader = new_shader;
+
+        std::cout << "Loaded new shader!\n";
+      }
+    }
+
+    t.run();
+    spr.setPosition(d.mpos());
+    shader->setUniform("time", t.s());
 
     // draw
+    d.draw(spr, shader);
 
     // display
     d.display();
   }
+
+  if (shader)
+    delete shader;
 
   return 0;
 }
