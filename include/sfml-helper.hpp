@@ -68,6 +68,7 @@ struct Data_chunk {
 
   void free();
   void allocate(size_t size);
+  size_t total_size() const;
 
   static size_t data_allocated;
 };
@@ -472,6 +473,11 @@ void Data_chunk::allocate(size_t size) {
   }
   data = new char[size];
   Data_chunk::data_allocated++;
+}
+
+size_t Data_chunk::total_size() const {
+  return (sizeof(type) + sizeof(data_size) + sizeof(name_size) + name.size() +
+          data_size);
 }
 
 size_t Data_chunk::data_allocated = 0;
