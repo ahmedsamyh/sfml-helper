@@ -441,6 +441,7 @@ void info(const std::string &_msg, bool debug) {
 void d_warn(const std::string &_msg) { warn(_msg, true); }
 
 void warn(const std::string &_msg, bool debug) {
+#ifndef NO_WARNING
   if (debug) {
 #ifdef DEBUG
     WARNING(_msg);
@@ -448,6 +449,7 @@ void warn(const std::string &_msg, bool debug) {
   } else {
     WARNING(_msg);
   }
+#endif
 }
 
 // data.dat --------------------------------------------------
