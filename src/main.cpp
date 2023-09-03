@@ -1,3 +1,4 @@
+#define NO_WARNING
 #define SFML_HELPER_IMPLEMENTATION
 #include <sfml-helper.hpp>
 
@@ -13,7 +14,9 @@ int main(int argc, char *argv[]) {
                 spr.getLocalBounds().height / 2.f);
 
   auto reload_shader_and_get_string = [](const std::string &filename) {
-    remove_chunk_from_data(filename);
+    if (chunk_exists_in_data(filename)) {
+      remove_chunk_from_data(filename);
+    }
     write_shader_to_data(filename);
     Data_chunk shader_ch;
     read_shader_from_data(shader_ch, filename);
