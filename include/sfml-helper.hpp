@@ -516,6 +516,7 @@ std::vector<std::string> list_of_names_in_data() {
       char *data = new char[data_size];
       ifs.read((char *)data, data_size);
       bytes_read += ifs.gcount();
+      delete data;
 
       if (name_size > 0) {
         names.push_back(name);
