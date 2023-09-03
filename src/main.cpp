@@ -2,6 +2,7 @@
 #include <sfml-helper.hpp>
 
 int main(int argc, char *argv[]) {
+
   //  global
   Data d;
   d.init(1280, 720, 2, "sfml-helper");
@@ -12,8 +13,21 @@ int main(int argc, char *argv[]) {
   spr.setOrigin(spr.getLocalBounds().width / 2.f,
                 spr.getLocalBounds().height / 2.f);
 
-  if (!shader->loadFromFile("res/shaders/shader.frag",
-                            sf::Shader::Type::Fragment))
+  auto reload_shader_and_get_string = [](const std::string &filename) {
+    remove_chunk_from_data(filename);
+    write_shader_to_data(filename);
+    Data_chunk shader_ch;
+    read_shader_from_data(shader_ch, filename);
+    std::string shader_str;
+    shader_str = shader_ch.data;
+    shader_str.resize(shader_ch.data_size);
+    shader_ch.free();
+    return shader_str;
+  };
+
+  if (!shader->loadFromMemory(
+          reload_shader_and_get_string("res/shaders/shader.frag"),
+          sf::Shader::Type::Fragment))
     return 1;
 
   shader->setUniform("texture", sf::Shader::CurrentTexture);
@@ -41,10 +55,12 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
-    if (d.k_pressed(Key::Space)) {
+    if (d.k_pressed(Key::F1)) {
       sf::Shader *new_shader = new sf::Shader();
-      if (!new_shader->loadFromFile("res/shaders/shader.frag",
-                                    sf::Shader::Type::Fragment)) {
+
+      if (!new_shader->loadFromMemory(
+              reload_shader_and_get_string("res/shaders/shader.frag"),
+              sf::Shader::Type::Fragment)) {
         // could not load new_shader
         delete new_shader;
         std::cout << "Could not load new shader!\n";

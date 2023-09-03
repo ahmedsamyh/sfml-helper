@@ -55,7 +55,7 @@ void warn(const std::string &_msg, bool debug = false);
 #endif
 
 // data.dat ==================================================
-enum Data_type { None = -1, Font, Texture, Sound };
+enum Data_type { None = -1, Font, Texture, Sound, Shader };
 
 // #define LOG_DATA_CHUNK_FREE
 
@@ -89,11 +89,13 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename);
 bool write_texture_to_data(const std::string &texture_filename);
 bool write_font_to_data(const std::string &font_filename);
 bool write_sound_to_data(const std::string &sound_filename);
+bool write_shader_to_data(const std::string &filename);
 bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
                           Data_type type = Data_type::None);
 bool read_font_from_data(Data_chunk &chunk, const std::string &name);
 bool read_texture_from_data(Data_chunk &chunk, const std::string &name);
 bool read_sound_from_data(Data_chunk &chunk, const std::string &name);
+bool read_shader_from_data(Data_chunk &chunk, const std::string &name);
 
 // resource_manager --------------------------------------------------
 struct Resource_manager {
@@ -828,6 +830,10 @@ bool write_sound_to_data(const std::string &sound_filename) {
   return write_chunk_to_data(Data_type::Sound, sound_filename);
 }
 
+bool write_shader_to_data(const std::string &filename) {
+  return write_chunk_to_data(Data_type::Shader, filename);
+}
+
 bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
                           Data_type type) {
   auto chunks = list_of_chunks_in_data();
@@ -904,6 +910,10 @@ bool read_texture_from_data(Data_chunk &chunk, const std::string &name) {
 
 bool read_sound_from_data(Data_chunk &chunk, const std::string &name) {
   return read_chunk_from_data(chunk, name, Data_type::Sound);
+}
+
+bool read_shader_from_data(Data_chunk &chunk, const std::string &name) {
+  return read_chunk_from_data(chunk, name, Data_type::Shader);
 }
 
 // data --------------------------------------------------
