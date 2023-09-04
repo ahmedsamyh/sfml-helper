@@ -5,6 +5,8 @@ Helper functions for use in SFML applications.
 all the functions are in [sfml-helper.hpp](./include/sfml-helper.hpp) as a [single-header only](https://github.com/nothings/stb) format.
 
 ## Quick Start
+
+First put sfml libs inside lib (debug libs in lib/Debug and release in lib/Release), then put external sfml dependency libs inside lib (flac.lib, freetype.lib, openal32.lib, vorbis.lib, etc)
 ```console
 > premake5 vs2022
 > msbuild -p:configuration=Debug build\sfml-helper.sln
