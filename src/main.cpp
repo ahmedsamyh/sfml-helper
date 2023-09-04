@@ -28,9 +28,6 @@ int main(int argc, char *argv[]) {
     d.clear();
 
     // update
-    if (d.k_pressed(Key::Space, false)) {
-      std::cout << "Space pressed\n";
-    }
 
     // draw
 
