@@ -395,6 +395,7 @@ int randomi(const float min, const float max);
 float rad2deg(const float rad);
 float deg2rad(const float deg);
 float map(float val, float min, float max, float from, float to);
+bool chance(float percent);
 } // namespace math
 
 // Vector2f --------------------------------------------------
@@ -1495,6 +1496,14 @@ float deg2rad(const float deg) { return float((deg / 180) * PI); }
 float map(float val, float min, float max, float from, float to) {
   float normalized = val / (max - min);
   return normalized * (to - from) + from;
+}
+
+bool chance(float percent) {
+  //
+  ASSERT_MSG(0.f <= percent && percent <= 100.f,
+             "percent should be between 0.f and 100.f");
+
+  return math::randomf(0.f, 100.f) <= percent;
 }
 
 } // namespace math
