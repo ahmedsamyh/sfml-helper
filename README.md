@@ -6,8 +6,10 @@ all the functions are in [sfml-helper.hpp](./include/sfml-helper.hpp) as a [sing
 
 ## Quick Start
 
-First put sfml libs inside lib (debug libs in lib/Debug and release in lib/Release), then put external sfml dependency libs inside lib (flac.lib, freetype.lib, openal32.lib, vorbis.lib, etc)
+First put sfml libs inside lib (debug libs in lib/Debug and release in lib/Release), then put external sfml dependency libs inside lib (flac.lib, freetype.lib, openal32.lib, vorbis.lib, etc).
+
 Then run this:
+
 ```console
 > premake5 vs2022
 > msbuild -p:configuration=Debug build\sfml-helper.sln
