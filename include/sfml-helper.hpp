@@ -282,7 +282,7 @@ enum class Key {
 };
 
 struct State {
-  bool held = false, pressed = false, released = false;
+  bool held = false, just_pressed = false, pressed = false, released = false;
 };
 
 // data --------------------------------------------------
@@ -352,7 +352,7 @@ struct Data {
                   float thic = 1.f);
 
   // mouse functions
-  void update_mouse_event(sf::Event &e);
+  void update_mouse_event(const sf::Event &e);
   void update_mouse();
   bool m_pressed(MB btn);
   bool m_held(MB btn);
@@ -363,7 +363,8 @@ struct Data {
 
   // key functions
   void update_key();
-  bool k_pressed(Key key);
+  void update_key_event(const sf::Event &e);
+  bool k_pressed(Key key, bool just = true);
   bool k_held(Key key);
   bool k_released(Key key);
 
@@ -968,6 +969,7 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   win.create(sf::VideoMode(s_width, s_height), title,
              sf::Style::Close | sf::Style::Titlebar);
   win.setVerticalSyncEnabled(true);
+  win.setKeyRepeatEnabled(true);
 
   // create render texture
   if (!ren_tex.create(width, height)) {
@@ -989,9 +991,11 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
 
   for (size_t i = 0; i < static_cast<size_t>(Key::KeyCount); ++i) {
     _keys[i].pressed = false;
+    _keys[i].just_pressed = false;
     _keys[i].held = false;
     _keys[i].released = false;
     _prev_keys[i].pressed = false;
+    _prev_keys[i].just_pressed = false;
     _prev_keys[i].held = false;
     _prev_keys[i].released = false;
   }
@@ -1163,7 +1167,7 @@ void Data::draw_point(const sf::Vector2f &p, sf::Color col, float thic) {
   ren_tex.draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
 
-void Data::update_mouse_event(sf::Event &e) {
+void Data::update_mouse_event(const sf::Event &e) {
   if (e.type == sf::Event::MouseMoved) {
     _mpos.x = float(e.mouseMove.x / scale);
     _mpos.y = float(e.mouseMove.y / scale);
@@ -1220,24 +1224,32 @@ float Data::mouse_scroll() { return _mouse_scroll; }
 
 void Data::update_key() {
   for (size_t i = 0; i < static_cast<size_t>(Key::KeyCount); ++i) {
-    memcpy(_prev_keys, _keys,
-           sizeof(State) * static_cast<size_t>(Key::KeyCount));
+    _prev_keys[i].held = _keys[i].held;
+    _keys[i].pressed = false;
 
     _keys[i].held =
         sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
 
-    _keys[i].pressed = !_prev_keys[i].held && _keys[i].held;
+    _keys[i].just_pressed = !_prev_keys[i].held && _keys[i].held;
     _keys[i].released = _prev_keys[i].held && !_keys[i].held;
   }
 }
 
-bool Data::k_pressed(Key key) {
+void Data::update_key_event(const sf::Event &e) {
+  ///
+  if (e.type == sf::Event::KeyPressed) {
+    _keys[static_cast<size_t>(e.key.code)].pressed = true;
+  }
+}
+
+bool Data::k_pressed(Key key, bool just) {
   ASSERT(0 <= static_cast<size_t>(key) &&
          static_cast<size_t>(key) < static_cast<size_t>(Key::KeyCount));
   if (!win.hasFocus()) {
     return false;
   }
-  return _keys[static_cast<size_t>(key)].pressed;
+  return (just ? _keys[static_cast<size_t>(key)].just_pressed
+               : _keys[static_cast<size_t>(key)].pressed);
 }
 
 bool Data::k_held(Key key) {
