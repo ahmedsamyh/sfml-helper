@@ -16,17 +16,21 @@ int main(int argc, char *argv[]) {
 
     // event loop
     sf::Event e;
+    d.update_mouse();
+    d.update_key();
     while (d.win.pollEvent(e)) {
       d.handle_close(e);
       d.update_mouse_event(e);
+      d.update_key_event(e);
     }
-    d.update_mouse();
-    d.update_key();
 
     // clear
     d.clear();
 
     // update
+    if (d.k_pressed(Key::Space, false)) {
+      std::cout << "Space pressed\n";
+    }
 
     // draw
 
