@@ -123,10 +123,7 @@ void UI::Layout::push_widget(const sf::Vector2f &_size) {
 int main(int argc, char *argv[]) {
   //  global
   Data d;
-  d.init(1280, 720, 1, "sfml-helper");
-
-  Alarm a;
-  a.init(d, 0.1f);
+  d.init(1280, 720, 2, "sfml-helper");
 
   // game loop
   while (d.win.isOpen()) {
@@ -138,20 +135,18 @@ int main(int argc, char *argv[]) {
 
     // event loop
     sf::Event e;
+    d.update_mouse();
+    d.update_key();
     while (d.win.pollEvent(e)) {
       d.handle_close(e);
       d.update_mouse_event(e);
+      d.update_key_event(e);
     }
-    d.update_mouse();
-    d.update_key();
 
     // clear
     d.clear();
 
     // update
-    if (a.on_alarm()) {
-      std::cout << "ALARM\n";
-    }
 
     // draw
 

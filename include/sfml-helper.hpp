@@ -13,16 +13,6 @@
 namespace fs = std::filesystem;
 
 // macros ==================================================
-#define is_key_held(key) sf::Keyboard::isKeyPressed(sf::Keyboard::key)
-#define IF_KEY_PRESSED(block)                                                  \
-  if (e.type == sf::Event::KeyPressed) {                                       \
-    block                                                                      \
-  }
-#define is_key(k) e.key.code == sf::Keyboard::k
-#define IF_KEY_RELEASED(block)                                                 \
-  if (e.type == sf::Event::KeyReleased) {                                      \
-    block                                                                      \
-  }
 #define VAR(name) std::cout << #name << ": " << name << "\n"
 #define VAR_STR(name) std::format("{}: {}", #name, name)
 #define NL() std::cout << "\n"
@@ -55,7 +45,7 @@ void warn(const std::string &_msg, bool debug = false);
 #endif
 
 // data.dat ==================================================
-enum Data_type { None = -1, Font, Texture, Sound };
+enum Data_type { None = -1, Font, Texture, Sound, Shader };
 
 // #define LOG_DATA_CHUNK_FREE
 
@@ -68,6 +58,7 @@ struct Data_chunk {
 
   void free();
   void allocate(size_t size);
+  size_t total_size() const;
 
   static size_t data_allocated;
 };
@@ -83,17 +74,20 @@ struct Data_chunk {
 
 std::vector<std::string> list_of_names_in_data();
 std::vector<Data_chunk> list_of_chunks_in_data();
-bool remove_chunk_from_data(const std::string &_name);
+bool remove_chunk_from_data(const std::string &filename);
 bool remove_all_chunks_from_data();
 bool write_chunk_to_data(const Data_type &type, const std::string &filename);
-bool write_texture_to_data(const std::string &texture_filename);
-bool write_font_to_data(const std::string &font_filename);
-bool write_sound_to_data(const std::string &sound_filename);
-bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
+bool write_texture_to_data(const std::string &filename);
+bool write_font_to_data(const std::string &filename);
+bool write_sound_to_data(const std::string &filename);
+bool write_shader_to_data(const std::string &filename);
+bool read_chunk_from_data(Data_chunk &chunk, const std::string &filename,
                           Data_type type = Data_type::None);
-bool read_font_from_data(Data_chunk &chunk, const std::string &name);
-bool read_texture_from_data(Data_chunk &chunk, const std::string &name);
-bool read_sound_from_data(Data_chunk &chunk, const std::string &name);
+bool read_font_from_data(Data_chunk &chunk, const std::string &filename);
+bool read_texture_from_data(Data_chunk &chunk, const std::string &filename);
+bool read_sound_from_data(Data_chunk &chunk, const std::string &filename);
+bool read_shader_from_data(Data_chunk &chunk, const std::string &filename);
+bool chunk_exists_in_data(const std::string &filename);
 
 // resource_manager --------------------------------------------------
 struct Resource_manager {
@@ -108,7 +102,6 @@ struct Resource_manager {
   std::unordered_map<std::string, sf::Font> fonts;
   sf::Texture &get_texture(const std::string &filename);
   sf::Font &get_font(const std::string &filename);
-  static std::string texture_path;
 };
 
 // timer --------------------------------------------------
@@ -289,7 +282,7 @@ enum class Key {
 };
 
 struct State {
-  bool held = false, pressed = false, released = false;
+  bool held = false, just_pressed = false, pressed = false, released = false;
 };
 
 // data --------------------------------------------------
@@ -359,7 +352,7 @@ struct Data {
                   float thic = 1.f);
 
   // mouse functions
-  void update_mouse_event(sf::Event &e);
+  void update_mouse_event(const sf::Event &e);
   void update_mouse();
   bool m_pressed(MB btn);
   bool m_held(MB btn);
@@ -370,7 +363,8 @@ struct Data {
 
   // key functions
   void update_key();
-  bool k_pressed(Key key);
+  void update_key_event(const sf::Event &e);
+  bool k_pressed(Key key, bool just = true);
   bool k_held(Key key);
   bool k_released(Key key);
 
@@ -402,6 +396,7 @@ int randomi(const float min, const float max);
 float rad2deg(const float rad);
 float deg2rad(const float deg);
 float map(float val, float min, float max, float from, float to);
+bool chance(float percent);
 } // namespace math
 
 // Vector2f --------------------------------------------------
@@ -438,6 +433,7 @@ void info(const std::string &_msg, bool debug) {
 void d_warn(const std::string &_msg) { warn(_msg, true); }
 
 void warn(const std::string &_msg, bool debug) {
+#ifndef NO_WARNING
   if (debug) {
 #ifdef DEBUG
     WARNING(_msg);
@@ -445,6 +441,7 @@ void warn(const std::string &_msg, bool debug) {
   } else {
     WARNING(_msg);
   }
+#endif
 }
 
 // data.dat --------------------------------------------------
@@ -452,7 +449,7 @@ void Data_chunk::free() {
   type = Data_type::None;
   data_size = 0;
   name_size = 0;
-#ifdef DATA_CHUNK_FREE_LOG
+#ifdef LOG_DATA_CHUNK_FREE
   d_info(std::format("Chunk `{}` freed!", name));
 #endif
   name.resize(0);
@@ -470,6 +467,11 @@ void Data_chunk::allocate(size_t size) {
   }
   data = new char[size];
   Data_chunk::data_allocated++;
+}
+
+size_t Data_chunk::total_size() const {
+  return (sizeof(type) + sizeof(data_size) + sizeof(name_size) + name.size() +
+          data_size);
 }
 
 size_t Data_chunk::data_allocated = 0;
@@ -516,6 +518,7 @@ std::vector<std::string> list_of_names_in_data() {
       char *data = new char[data_size];
       ifs.read((char *)data, data_size);
       bytes_read += ifs.gcount();
+      delete data;
 
       if (name_size > 0) {
         names.push_back(name);
@@ -585,6 +588,15 @@ std::vector<Data_chunk> list_of_chunks_in_data() {
 }
 
 bool remove_chunk_from_data(const std::string &_name) {
+  bool found = false;
+  for (auto &name : list_of_names_in_data()) {
+    found |= name == _name;
+  }
+  if (!found) {
+    d_warn(std::format("Chunk named `{}` doesn't exist!", _name));
+    return true;
+  }
+
   std::ifstream ifs;
   ifs.open("data.dat", std::ios::binary);
   char *data = nullptr;
@@ -703,8 +715,9 @@ bool remove_chunk_from_data(const std::string &_name) {
           delete new_data_file;
           delete previous_data_file;
 
-          d_info(
-              std::format("Successfully removed `{}` from `data.dat`", _name));
+          d_info(std::format(
+              "Successfully removed `{}` ({} bytes) from `data.dat`", _name,
+              found_size));
           return true;
           ofs.close();
         } else {
@@ -767,9 +780,9 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
 
   if (ofs.is_open()) {
     ofs.seekp(0, std::ios::end);
-    d_info(std::format<size_t>(
-        "`data.dat` contains {} bytes of data before writing `{}`", ofs.tellp(),
-        filename));
+    // d_info(std::format<size_t>(
+    //     "`data.dat` contains {} bytes of data before writing `{}`",
+    //     ofs.tellp(), filename));
     ofs.seekp(0, std::ios::beg);
 
     size_t bytes_written = 0;
@@ -816,6 +829,10 @@ bool write_font_to_data(const std::string &font_filename) {
 
 bool write_sound_to_data(const std::string &sound_filename) {
   return write_chunk_to_data(Data_type::Sound, sound_filename);
+}
+
+bool write_shader_to_data(const std::string &filename) {
+  return write_chunk_to_data(Data_type::Shader, filename);
 }
 
 bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
@@ -873,27 +890,59 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
   case Data_type::Sound:
     type_str = "sound";
     break;
+  case Data_type::Shader:
+    type_str = "shader";
+    break;
+  default:
+    ASSERT(0);
+    break;
   }
 
   if (!found) {
     error(std::format("Could not find {} `{}` in `data.dat`", type_str, name));
     return false;
   } else {
-    d_info(std::format("Found {} `{}` in `data.dat`", type_str, name));
+    d_info(std::format("Successfully read {} `{}` ({} bytes) from `data.dat`",
+                       type_str, name, chunk.total_size()));
     return true;
   }
 }
 
-bool read_font_from_data(Data_chunk &chunk, const std::string &name) {
-  return read_chunk_from_data(chunk, name, Data_type::Font);
+bool read_font_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Font);
 }
 
-bool read_texture_from_data(Data_chunk &chunk, const std::string &name) {
-  return read_chunk_from_data(chunk, name, Data_type::Texture);
+bool read_texture_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Texture);
 }
 
-bool read_sound_from_data(Data_chunk &chunk, const std::string &name) {
-  return read_chunk_from_data(chunk, name, Data_type::Sound);
+bool read_sound_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Sound);
+}
+
+bool read_shader_from_data(Data_chunk &chunk, const std::string &filename) {
+  return read_chunk_from_data(chunk, filename, Data_type::Shader);
+}
+
+bool chunk_exists_in_data(const std::string &filename) {
+  std::vector<Data_chunk> chunks = list_of_chunks_in_data();
+  bool found = false;
+
+  if (chunks.empty()) {
+    d_info(std::format("Chunk `{}` doesn't exist!", filename));
+    return found;
+  }
+
+  for (auto &ch : chunks) {
+    found |= ch.name == filename;
+    ch.free();
+  }
+
+  if (found) {
+    d_info(std::format("Chunk `{}` exist!", filename));
+  }
+
+  return found;
 }
 
 // data --------------------------------------------------
@@ -911,6 +960,8 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   width = s_width / scale;
   height = s_height / scale;
 
+  srand(unsigned int(time(0)));
+
   // std::cout auto-flushes on every output
   std::cout << std::unitbuf;
 
@@ -918,6 +969,7 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   win.create(sf::VideoMode(s_width, s_height), title,
              sf::Style::Close | sf::Style::Titlebar);
   win.setVerticalSyncEnabled(true);
+  win.setKeyRepeatEnabled(true);
 
   // create render texture
   if (!ren_tex.create(width, height)) {
@@ -939,9 +991,11 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
 
   for (size_t i = 0; i < static_cast<size_t>(Key::KeyCount); ++i) {
     _keys[i].pressed = false;
+    _keys[i].just_pressed = false;
     _keys[i].held = false;
     _keys[i].released = false;
     _prev_keys[i].pressed = false;
+    _prev_keys[i].just_pressed = false;
     _prev_keys[i].held = false;
     _prev_keys[i].released = false;
   }
@@ -1113,7 +1167,7 @@ void Data::draw_point(const sf::Vector2f &p, sf::Color col, float thic) {
   ren_tex.draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
 
-void Data::update_mouse_event(sf::Event &e) {
+void Data::update_mouse_event(const sf::Event &e) {
   if (e.type == sf::Event::MouseMoved) {
     _mpos.x = float(e.mouseMove.x / scale);
     _mpos.y = float(e.mouseMove.y / scale);
@@ -1140,16 +1194,25 @@ void Data::update_mouse() {
 
 bool Data::m_pressed(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return mouse_pressed[static_cast<size_t>(btn)];
 }
 
 bool Data::m_held(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return mouse_held[static_cast<size_t>(btn)];
 }
 
 bool Data::m_released(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return mouse_released[static_cast<size_t>(btn)];
 }
 
@@ -1161,32 +1224,49 @@ float Data::mouse_scroll() { return _mouse_scroll; }
 
 void Data::update_key() {
   for (size_t i = 0; i < static_cast<size_t>(Key::KeyCount); ++i) {
-    memcpy(_prev_keys, _keys,
-           sizeof(State) * static_cast<size_t>(Key::KeyCount));
+    _prev_keys[i].held = _keys[i].held;
+    _keys[i].pressed = false;
 
     _keys[i].held =
         sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i));
 
-    _keys[i].pressed = !_prev_keys[i].held && _keys[i].held;
+    _keys[i].just_pressed = !_prev_keys[i].held && _keys[i].held;
     _keys[i].released = _prev_keys[i].held && !_keys[i].held;
   }
 }
 
-bool Data::k_pressed(Key key) {
+void Data::update_key_event(const sf::Event &e) {
+  ///
+  if (e.type == sf::Event::KeyPressed) {
+    _keys[static_cast<size_t>(e.key.code)].pressed = true;
+  }
+}
+
+bool Data::k_pressed(Key key, bool just) {
   ASSERT(0 <= static_cast<size_t>(key) &&
          static_cast<size_t>(key) < static_cast<size_t>(Key::KeyCount));
-  return _keys[static_cast<size_t>(key)].pressed;
+  if (!win.hasFocus()) {
+    return false;
+  }
+  return (just ? _keys[static_cast<size_t>(key)].just_pressed
+               : _keys[static_cast<size_t>(key)].pressed);
 }
 
 bool Data::k_held(Key key) {
   ASSERT(0 <= static_cast<size_t>(key) &&
          static_cast<size_t>(key) < static_cast<size_t>(Key::KeyCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return _keys[static_cast<size_t>(key)].held;
 }
 
 bool Data::k_released(Key key) {
   ASSERT(0 <= static_cast<size_t>(key) &&
          static_cast<size_t>(key) < static_cast<size_t>(Key::KeyCount));
+  if (!win.hasFocus()) {
+    return false;
+  }
   return _keys[static_cast<size_t>(key)].released;
 }
 
@@ -1246,8 +1326,6 @@ void Data::camera_view() { ren_tex.setView(_camera_view); }
 void Data::default_view() { ren_tex.setView(ren_tex.getDefaultView()); }
 
 // resource_manager --------------------------------------------------
-std::string Resource_manager::texture_path = "res/gfx/";
-
 bool Resource_manager::load_all_textures() {
   std::vector<Data_chunk> chunks = list_of_chunks_in_data();
 
@@ -1326,19 +1404,18 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
       ch.free();
     }
   }
-
   // loading font
-  for (auto &ch : font_chunks) {
-    sf::Font font;
-    if (!font.loadFromMemory(ch.data, ch.data_size)) {
-      error(std::format("Could not load font data `{}`", ch.name));
-      exit(1);
-    }
-    fonts[ch.name] = font;
+
+  sf::Font font;
+  auto &ch = font_chunks.back();
+  if (!font.loadFromMemory(ch.data, ch.data_size)) {
+    error(std::format("Could not load font data `{}`", ch.name));
+    exit(1);
   }
+  fonts[ch.name] = font;
 
   d_info(std::format("Loaded font `{}`", font_chunks.back().name));
-  return fonts[font_chunks.back().name];
+  return fonts[ch.name];
 }
 
 sf::Texture &Resource_manager::get_texture(const std::string &filename) {
@@ -1362,16 +1439,11 @@ sf::Font &Resource_manager::get_font(const std::string &filename) {
 
 // timer ----------------------------------------
 
-Timer::Timer() { std::cout << "Timer: Empty ctor called\n"; }
+Timer::Timer() {}
 
-Timer::Timer(Data &_d, float _time) {
-
-  std::cout << "Timer: ctor called\n";
-  init(_d, _time);
-}
+Timer::Timer(Data &_d, float _time) { init(_d, _time); }
 
 void Timer::init(Data &_d, float _time) {
-  std::cout << "Timer: init called\n";
   time = _time;
   d = &_d;
   initted = true;
@@ -1388,16 +1460,14 @@ sf::Int32 Timer::ms() const { return sf::seconds(time).asMilliseconds(); }
 
 sf::Int64 Timer::us() const { return sf::seconds(time).asMicroseconds(); }
 
-Alarm::Alarm() { std::cout << "Alarm: Empty ctor called\n"; }
+Alarm::Alarm() {}
 
 Alarm::Alarm(Data &_d, float _alarm_time, bool _one_time, float _time)
     : Timer(_d, _time) {
-  std::cout << "Alarm: ctor called\n";
   init(_d, _alarm_time, _one_time, _time);
 }
 
 void Alarm::init(Data &_d, float _alarm_time, bool _one_time, float _time) {
-  std::cout << "Alarm: init called\n";
   Timer::init(_d, _time);
   alarm_time = _alarm_time;
   one_time = _one_time;
@@ -1438,6 +1508,14 @@ float deg2rad(const float deg) { return float((deg / 180) * PI); }
 float map(float val, float min, float max, float from, float to) {
   float normalized = val / (max - min);
   return normalized * (to - from) + from;
+}
+
+bool chance(float percent) {
+  //
+  ASSERT_MSG(0.f <= percent && percent <= 100.f,
+             "percent should be between 0.f and 100.f");
+
+  return math::randomf(0.f, 100.f) <= percent;
 }
 
 } // namespace math
