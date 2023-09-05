@@ -76,12 +76,36 @@ bool UI::btn(size_t id, const std::string &str, size_t char_size,
   const sf::Vector2f pos = l->available_pos();
   const sf::Vector2f size = {float(char_size * str.size()), float(char_size)};
   bool click = false;
-  bool hovering = false;
-  // bool hovering;
+  sf::FloatRect btn_rect{pos, size};
+  bool hovering = btn_rect.contains(d_ptr->mpos());
   if (active_id == id) {
+    if (d_ptr->m_released(MB::Left)) {
+      active_id = -1;
+      if (hovering)
+        click = true;
+    }
   } else {
+    if (hovering && d_ptr->m_pressed(MB::Left)) {
+      active_id = (int)id;
+    }
   }
-  return false;
+
+  sf::Color fill_col = col;
+  fill_col.a = 0;
+  if (active_id == id) {
+    fill_col.a = 100;
+  } else if (hovering) {
+    fill_col.a = 50;
+  }
+
+  // draw rect
+  d_ptr->draw_rect(pos, size, fill_col);
+  // draw text
+  d_ptr->draw_text(pos + size / 2.f, str, CenterCenter, (int)char_size);
+
+  l->push_widget(size);
+
+  return click;
 }
 
 void UI::end() {
@@ -123,7 +147,9 @@ void UI::Layout::push_widget(const sf::Vector2f &_size) {
 int main(int argc, char *argv[]) {
   //  global
   Data d;
-  d.init(1280, 720, 2, "sfml-helper");
+  d.init(1280, 720, 1, "sfml-helper");
+
+  UI ui(d);
 
   // game loop
   while (d.win.isOpen()) {
@@ -137,6 +163,7 @@ int main(int argc, char *argv[]) {
     sf::Event e;
     d.update_mouse();
     d.update_key();
+
     while (d.win.pollEvent(e)) {
       d.handle_close(e);
       d.update_mouse_event(e);
@@ -149,7 +176,16 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
+    ui.begin({0.f, 0.f});
 
+    if (ui.btn(0, "button")) {
+      std::cout << "Button Pressed!\n";
+    }
+    if (ui.btn(1, "button2")) {
+      std::cout << "Button2 Pressed!\n";
+    }
+
+    ui.end();
     // display
     d.display();
   }
