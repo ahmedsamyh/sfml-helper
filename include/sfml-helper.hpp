@@ -1620,6 +1620,8 @@ float UI::slider(size_t id, float val, float min, float max,
                    slider_pos.y + text_size.y / 2.f},
       float(char_size / 2.f), col, col);
 
+  l->push_widget(size);
+
   return val;
 }
 
