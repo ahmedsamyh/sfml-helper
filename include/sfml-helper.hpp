@@ -1570,6 +1570,7 @@ bool UI::btn(size_t id, const std::string &str, size_t char_size,
 
 void UI::end() {
   ///
+  layouts.pop_back();
 }
 
 UI::Layout::Layout() : pos(0.f, 0.f), size(0.f, 0.f), padding(4.f, 4.f) {}

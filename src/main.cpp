@@ -6,6 +6,8 @@ int main(int argc, char *argv[]) {
   Data d;
   d.init(1280, 720, 1, "sfml-helper");
 
+  UI ui(d);
+
   // game loop
   while (d.win.isOpen()) {
     // calculate delta time
@@ -31,6 +33,22 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
+    ui.begin({10.f, 10.f});
+
+    if (ui.btn(0, "Button 1")) {
+      std::cout << "Button 1 Pressed!\n";
+    }
+
+    ui.end();
+
+    ui.begin({200.f, 10.f});
+
+    if (ui.btn(1, "Button 2")) {
+      std::cout << "Button 2 Pressed!\n";
+    }
+
+    ui.end();
+
     // display
     d.display();
   }
