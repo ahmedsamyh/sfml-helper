@@ -8,6 +8,8 @@ int main(int argc, char *argv[]) {
 
   UI ui(d);
 
+  sf::Uint8 r = 0;
+
   // game loop
   while (d.win.isOpen()) {
     // calculate delta time
@@ -28,7 +30,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clear
-    d.clear();
+    d.clear(sf::Color{r, 0, 0, 255});
 
     // update
 
@@ -39,13 +41,7 @@ int main(int argc, char *argv[]) {
       std::cout << "Button 1 Pressed!\n";
     }
 
-    ui.end();
-
-    ui.begin({200.f, 10.f});
-
-    if (ui.btn(1, "Button 2")) {
-      std::cout << "Button 2 Pressed!\n";
-    }
+    r = static_cast<sf::Uint8>(ui.slider(1, float(r), 0.f, 255.f, "Red:"));
 
     ui.end();
 

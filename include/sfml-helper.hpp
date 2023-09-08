@@ -136,6 +136,9 @@ struct UI {
   bool btn(size_t id, const std::string &str,
            size_t char_size = DEFAULT_CHAR_SIZE,
            sf::Color col = sf::Color::White);
+  float slider(size_t id, float val, float min, float max,
+               const std::string &text, size_t char_size = DEFAULT_CHAR_SIZE,
+               float size = 100.f, sf::Color col = sf::Color::White);
   void end();
 };
 
@@ -1566,6 +1569,49 @@ bool UI::btn(size_t id, const std::string &str, size_t char_size,
   l->push_widget(size);
 
   return click;
+}
+
+float UI::slider(size_t id, float val, float min, float max,
+                 const std::string &text, size_t char_size, float slider_width,
+                 sf::Color col) {
+
+  Layout *l = top_layout();
+  ASSERT(l != nullptr);
+
+  const sf::Vector2f pos = l->available_pos();
+
+  const float padding_between_text_and_slider = 10.f;
+  const sf::Vector2f text_size = d_ptr->get_text_size(text, char_size);
+  const sf::Vector2f size{text_size.x + padding_between_text_and_slider +
+                              slider_width,
+                          text_size.y};
+  const sf::Vector2f slider_pos{
+      pos.x + text_size.x + padding_between_text_and_slider, pos.y};
+  const sf::FloatRect slider_rect{slider_pos, {slider_width, size.y}};
+  bool hovering = slider_rect.contains(d_ptr->mpos());
+  if (active_id != id) {
+    if (hovering && d_ptr->m_pressed(MB::Left)) {
+      active_id = (int)id;
+    }
+  } else {
+    if (hovering && d_ptr->m_held(MB::Left)) {
+      float val_pos = d_ptr->mpos().x - slider_pos.x;
+      val = math::map(val_pos, 0.f, slider_width, min, max);
+    }
+  }
+
+  d_ptr->draw_text(pos, text, TopLeft, int(char_size));
+
+  d_ptr->draw_rect(
+      slider_pos + sf::Vector2f{0.f, (text_size.y / 2.f) - text_size.y / 4.f},
+      {slider_width, text_size.y / 2.f}, col, col);
+
+  d_ptr->draw_circle(
+      sf::Vector2f{slider_pos.x + math::map(val, min, max, 0.f, slider_width),
+                   slider_pos.y + text_size.y / 2.f},
+      float(char_size / 2.f), col, col);
+
+  return val;
 }
 
 void UI::end() {
