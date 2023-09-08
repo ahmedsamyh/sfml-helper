@@ -420,6 +420,11 @@ struct Data {
   void camera_view();
   float &camera_zoom();
   void default_view();
+
+  // text functions
+  sf::Vector2f get_text_size(const std::string &text,
+                             size_t char_size = DEFAULT_CHAR_SIZE,
+                             const sf::Vector2f &padding = {});
 };
 
 // math -------------------------
@@ -1359,6 +1364,17 @@ float &Data::camera_zoom() { return _camera_zoom; }
 void Data::camera_view() { ren_tex.setView(_camera_view); }
 
 void Data::default_view() { ren_tex.setView(ren_tex.getDefaultView()); }
+
+sf::Vector2f Data::get_text_size(const std::string &text, size_t char_size,
+                                 const sf::Vector2f &padding) {
+  //
+  sf::Text t;
+  t.setFont(res_man.get_font(DEFAULT_FONT_NAME));
+  t.setString(text);
+  t.setCharacterSize(static_cast<unsigned int>(char_size));
+
+  return t.getLocalBounds().getSize() + padding;
+}
 
 // resource_manager --------------------------------------------------
 bool Resource_manager::load_all_textures() {
