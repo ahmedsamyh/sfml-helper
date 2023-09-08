@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
-    ui.begin({0.f, 0.f});
+    ui.begin({10.f, 10.f});
 
     if (ui.btn(0, "button")) {
       std::cout << "Button Pressed!\n";

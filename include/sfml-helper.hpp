@@ -1532,8 +1532,9 @@ bool UI::btn(size_t id, const std::string &str, size_t char_size,
   Layout *l = top_layout();
   ASSERT(l != nullptr);
 
-  const sf::Vector2f pos = l->available_pos();
-  const sf::Vector2f size = {float(char_size * str.size()), float(char_size)};
+  const sf::Vector2f padding{10.f, 10.f};
+  const sf::Vector2f pos = l->available_pos() + (padding / 2.f);
+  const sf::Vector2f size = d_ptr->get_text_size(str, char_size, padding);
   bool click = false;
   sf::FloatRect btn_rect{pos, size};
   bool hovering = btn_rect.contains(d_ptr->mpos());
@@ -1558,9 +1559,9 @@ bool UI::btn(size_t id, const std::string &str, size_t char_size,
   }
 
   // draw rect
-  d_ptr->draw_rect(pos, size, fill_col);
+  d_ptr->draw_rect(pos - (padding / 2.f), size, fill_col);
   // draw text
-  d_ptr->draw_text(pos + size / 2.f, str, CenterCenter, (int)char_size);
+  d_ptr->draw_text(pos, str, TopLeft, (int)char_size);
 
   l->push_widget(size);
 
