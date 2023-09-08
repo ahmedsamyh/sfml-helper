@@ -1096,7 +1096,7 @@ void Data::draw_circle(const sf::Vector2f &pos, float radius,
     return;
   circle.setPosition(pos);
   circle.setOrigin({radius, radius});
-  circle.setRadius(radius - out_thic);
+  circle.setRadius(radius);
   circle.setFillColor(fill_col);
   circle.setOutlineColor(out_col);
   circle.setOutlineThickness(out_thic);
