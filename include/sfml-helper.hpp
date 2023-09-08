@@ -13,6 +13,9 @@
 namespace fs = std::filesystem;
 
 // macros ==================================================
+#define DEFAULT_FONT_NAME "res/font/PressStart2P-Regular.ttf"
+#define DEFAULT_CHAR_SIZE 16
+
 #define VAR(name) std::cout << #name << ": " << name << "\n"
 #define VAR_STR(name) std::format("{}: {}", #name, name)
 #define NL() std::cout << "\n"
@@ -130,7 +133,8 @@ struct UI {
   void end_layout();
 
   void begin(const sf::Vector2f &pos, Layout::Kind kind = Layout::Kind::Vert);
-  bool btn(size_t id, const std::string &str, size_t char_size = 16,
+  bool btn(size_t id, const std::string &str,
+           size_t char_size = DEFAULT_CHAR_SIZE,
            sf::Color col = sf::Color::White);
   void end();
 };
@@ -1032,7 +1036,7 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   }
 
   // load default font
-  text.setFont(res_man.load_font("res/font/PressStart2P-Regular.ttf"));
+  text.setFont(res_man.load_font(DEFAULT_FONT_NAME));
 
   return res_man.load_all_textures();
 }
