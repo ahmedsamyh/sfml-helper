@@ -1030,8 +1030,11 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
     prev_mouse_pressed[i] = false;
   }
 
-  // init keys
+  // init camera view
+  _camera_view.setSize(float(width), float(height));
+  _camera_view.setCenter(ss() / 2.f);
 
+  // init keys
   for (size_t i = 0; i < static_cast<size_t>(Key::KeyCount); ++i) {
     _keys[i].pressed = false;
     _keys[i].just_pressed = false;
@@ -1096,7 +1099,7 @@ void Data::draw_circle(const sf::Vector2f &pos, float radius,
     return;
   circle.setPosition(pos);
   circle.setOrigin({radius, radius});
-  circle.setRadius(radius - out_thic);
+  circle.setRadius(radius);
   circle.setFillColor(fill_col);
   circle.setOutlineColor(out_col);
   circle.setOutlineThickness(out_thic);
