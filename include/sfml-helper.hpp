@@ -107,6 +107,19 @@ struct Resource_manager {
   sf::Font &get_font(const std::string &filename);
 };
 
+enum Align {
+  TopLeft,
+  TopCenter,
+  TopRight,
+  CenterLeft,
+  CenterCenter,
+  CenterRight,
+  BottomLeft,
+  BottomCenter,
+  BottomRight,
+  AlignCount
+};
+
 // UI --------------------------------------------------
 struct Data;
 struct UI {
@@ -133,9 +146,11 @@ struct UI {
   void end_layout();
 
   void begin(const sf::Vector2f &pos, Layout::Kind kind = Layout::Kind::Vert);
-  bool btn(const std::string &str, size_t char_size = DEFAULT_CHAR_SIZE,
+  bool btn(const std::string &str, const Align &align = TopLeft,
+           size_t char_size = DEFAULT_CHAR_SIZE,
            sf::Color col = sf::Color::White);
   float slider(float val, float min, float max, const std::string &text,
+               const Align &align = TopLeft,
                size_t char_size = DEFAULT_CHAR_SIZE, float size = 100.f,
                sf::Color col = sf::Color::White);
   void end();
@@ -172,19 +187,6 @@ struct Alarm : Timer {
             float _time = 0.f);
 
   bool on_alarm();
-};
-
-// text_aligment --------------------------------------------------
-enum Align {
-  TopLeft,
-  TopCenter,
-  TopRight,
-  CenterLeft,
-  CenterCenter,
-  CenterRight,
-  BottomLeft,
-  BottomCenter,
-  BottomRight
 };
 
 // mouse --------------------------------------------------
@@ -1535,15 +1537,59 @@ void UI::begin(const sf::Vector2f &pos, Layout::Kind kind) {
   layouts.push_back(l);
 }
 
-bool UI::btn(const std::string &str, size_t char_size, sf::Color col) {
+bool UI::btn(const std::string &str, const Align &align, size_t char_size,
+             sf::Color col) {
   ///
   Layout *l = top_layout();
   ASSERT(l != nullptr);
   int id = current_id++;
 
-  const sf::Vector2f padding{10.f, 10.f};
-  const sf::Vector2f pos = l->available_pos() + (padding / 2.f);
-  const sf::Vector2f size = d_ptr->get_text_size(str, char_size, padding);
+  sf::Vector2f padding{10.f, 10.f};
+  sf::Vector2f pos = l->available_pos() + (padding / 2.f);
+  sf::Vector2f size = d_ptr->get_text_size(str, char_size, padding);
+  sf::Vector2f size_to_push{size};
+
+  switch (align) {
+  case TopLeft:
+    break;
+  case TopCenter:
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case TopRight:
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case CenterLeft:
+    pos.y -= size.y / 2.f;
+    // size_to_push.y /= 2.f;
+    break;
+  case CenterCenter:
+    pos -= size / 2.f;
+    // size_to_push /= 2.f;
+    break;
+  case CenterRight:
+    pos.y -= size.y / 2.f;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case BottomLeft:
+    pos.y -= size.y;
+    break;
+  case BottomCenter:
+    pos.y -= size.y;
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case BottomRight:
+    pos.y -= size.y;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  default:
+    ASSERT_MSG(0, "Unreachable state reached in `draw_text`");
+  }
+
   bool click = false;
   sf::FloatRect btn_rect{pos, size};
   bool hovering = btn_rect.contains(d_ptr->mpos());
@@ -1572,28 +1618,73 @@ bool UI::btn(const std::string &str, size_t char_size, sf::Color col) {
   // draw text
   d_ptr->draw_text(pos, str, TopLeft, (int)char_size);
 
-  l->push_widget(size);
+  l->push_widget(size_to_push);
 
   return click;
 }
 
 float UI::slider(float val, float min, float max, const std::string &text,
-                 size_t char_size, float slider_width, sf::Color col) {
+                 const Align &align, size_t char_size, float slider_width,
+                 sf::Color col) {
 
   Layout *l = top_layout();
   ASSERT(l != nullptr);
   int id = current_id++;
 
-  const sf::Vector2f pos = l->available_pos();
-
-  const float padding_between_text_and_slider = 10.f;
   const sf::Vector2f text_size = d_ptr->get_text_size(text, char_size);
-  const sf::Vector2f size{text_size.x + padding_between_text_and_slider +
-                              slider_width,
-                          text_size.y};
+
+  sf::Vector2f padding{10.f, 10.f};
+  float padding_between_text_and_slider = 10.f;
+  sf::Vector2f pos = l->available_pos() + (padding / 2.f);
+  sf::Vector2f size{text_size.x + padding_between_text_and_slider +
+                        slider_width,
+                    text_size.y};
+  sf::Vector2f size_to_push{size};
+  switch (align) {
+  case TopLeft:
+    break;
+  case TopCenter:
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case TopRight:
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case CenterLeft:
+    pos.y -= size.y / 2.f;
+    // size_to_push.y /= 2.f;
+    break;
+  case CenterCenter:
+    pos -= size / 2.f;
+    // size_to_push /= 2.f;
+    break;
+  case CenterRight:
+    pos.y -= size.y / 2.f;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case BottomLeft:
+    pos.y -= size.y;
+    break;
+  case BottomCenter:
+    pos.y -= size.y;
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case BottomRight:
+    pos.y -= size.y;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  default:
+    ASSERT_MSG(0, "Unreachable state reached in `draw_text`");
+  }
+
   const sf::Vector2f slider_pos{
       pos.x + text_size.x + padding_between_text_and_slider, pos.y};
   const sf::FloatRect slider_rect{slider_pos, {slider_width, size.y}};
+
   bool hovering = slider_rect.contains(d_ptr->mpos());
 
   if (active_id != id) {
@@ -1623,7 +1714,7 @@ float UI::slider(float val, float min, float max, const std::string &text,
                    slider_pos.y + text_size.y / 2.f},
       float(char_size / 2.f), col, col);
 
-  l->push_widget(size);
+  l->push_widget(size_to_push);
 
   return val;
 }
