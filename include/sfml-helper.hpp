@@ -113,18 +113,18 @@ struct UI {
   struct Layout {
     enum class Kind { Horz, Vert };
     Kind kind;
-    sf::Vector2f pos;
-    sf::Vector2f size;
-    sf::Vector2f padding;
+    sf::Vector2f pos{};
+    sf::Vector2f size{};
+    sf::Vector2f padding{};
     Layout();
 
     sf::Vector2f available_pos() const;
     void push_widget(const sf::Vector2f &size);
   };
 
-  int active_id;
+  int active_id{0}, current_id{0};
   std::vector<Layout> layouts;
-  Data *d_ptr;
+  Data *d_ptr{nullptr};
 
   UI(Data &d);
 
@@ -133,12 +133,11 @@ struct UI {
   void end_layout();
 
   void begin(const sf::Vector2f &pos, Layout::Kind kind = Layout::Kind::Vert);
-  bool btn(size_t id, const std::string &str,
-           size_t char_size = DEFAULT_CHAR_SIZE,
+  bool btn(const std::string &str, size_t char_size = DEFAULT_CHAR_SIZE,
            sf::Color col = sf::Color::White);
-  float slider(size_t id, float val, float min, float max,
-               const std::string &text, size_t char_size = DEFAULT_CHAR_SIZE,
-               float size = 100.f, sf::Color col = sf::Color::White);
+  float slider(float val, float min, float max, const std::string &text,
+               size_t char_size = DEFAULT_CHAR_SIZE, float size = 100.f,
+               sf::Color col = sf::Color::White);
   void end();
 };
 
@@ -1536,11 +1535,11 @@ void UI::begin(const sf::Vector2f &pos, Layout::Kind kind) {
   layouts.push_back(l);
 }
 
-bool UI::btn(size_t id, const std::string &str, size_t char_size,
-             sf::Color col) {
+bool UI::btn(const std::string &str, size_t char_size, sf::Color col) {
   ///
   Layout *l = top_layout();
   ASSERT(l != nullptr);
+  int id = current_id++;
 
   const sf::Vector2f padding{10.f, 10.f};
   const sf::Vector2f pos = l->available_pos() + (padding / 2.f);
@@ -1578,12 +1577,12 @@ bool UI::btn(size_t id, const std::string &str, size_t char_size,
   return click;
 }
 
-float UI::slider(size_t id, float val, float min, float max,
-                 const std::string &text, size_t char_size, float slider_width,
-                 sf::Color col) {
+float UI::slider(float val, float min, float max, const std::string &text,
+                 size_t char_size, float slider_width, sf::Color col) {
 
   Layout *l = top_layout();
   ASSERT(l != nullptr);
+  int id = current_id++;
 
   const sf::Vector2f pos = l->available_pos();
 
@@ -1631,6 +1630,7 @@ float UI::slider(size_t id, float val, float min, float max,
 
 void UI::end() {
   ///
+  current_id = 0;
   layouts.pop_back();
 }
 
