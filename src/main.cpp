@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     }
 
     // clear
-    d.clear(sf::Color{r, 0, 0, 255});
+    d.clear();
 
     // update
 

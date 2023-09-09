@@ -374,10 +374,12 @@ struct Data {
   void draw_circle(const sf::Vector2f &pos, float radius,
                    sf::Color fill_col = sf::Color::Transparent,
                    sf::Color out_col = sf::Color::White, float out_thic = 1);
-  void draw_text(const sf::Vector2f &pos, const std::string &str,
-                 const Text_align &align = Text_align::TopLeft,
-                 int character_size = 16, sf::Color fill_col = sf::Color::White,
-                 sf::Color out_col = sf::Color::White, float out_thic = 0.f);
+  sf::Vector2f draw_text(const sf::Vector2f &pos, const std::string &str,
+                         const Text_align &align = Text_align::TopLeft,
+                         int character_size = 16,
+                         sf::Color fill_col = sf::Color::White,
+                         sf::Color out_col = sf::Color::White,
+                         float out_thic = 0.f);
   void draw_line(const sf::Vector2f &p1, const sf::Vector2f &p2,
                  sf::Color col = sf::Color::White, float out_thic = 1.f);
   void draw_line_ex(const sf::Vector2f &p1, const sf::Vector2f &p2,
@@ -1107,9 +1109,10 @@ void Data::draw_circle(const sf::Vector2f &pos, float radius,
   draw(circle);
 }
 
-void Data::draw_text(const sf::Vector2f &pos, const std::string &str,
-                     const Text_align &align, int character_size,
-                     sf::Color fill_col, sf::Color out_col, float out_thic) {
+sf::Vector2f Data::draw_text(const sf::Vector2f &pos, const std::string &str,
+                             const Text_align &align, int character_size,
+                             sf::Color fill_col, sf::Color out_col,
+                             float out_thic) {
   text.setPosition(pos);
   text.setString(str);
   text.setCharacterSize(character_size - uint64_t(out_thic));
@@ -1152,6 +1155,7 @@ void Data::draw_text(const sf::Vector2f &pos, const std::string &str,
   }
 
   draw(text);
+  return get_text_size(str, character_size);
 }
 
 void Data::draw_line(const sf::Vector2f &p1, const sf::Vector2f &p2,
