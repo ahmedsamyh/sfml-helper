@@ -175,7 +175,7 @@ struct Alarm : Timer {
 };
 
 // text_aligment --------------------------------------------------
-enum Text_align {
+enum Align {
   TopLeft,
   TopCenter,
   TopRight,
@@ -374,7 +374,7 @@ struct Data {
                    sf::Color fill_col = sf::Color::Transparent,
                    sf::Color out_col = sf::Color::White, float out_thic = 1);
   sf::Vector2f draw_text(const sf::Vector2f &pos, const std::string &str,
-                         const Text_align &align = Text_align::TopLeft,
+                         const Align &align = Align::TopLeft,
                          int character_size = 16,
                          sf::Color fill_col = sf::Color::White,
                          sf::Color out_col = sf::Color::White,
@@ -1109,7 +1109,7 @@ void Data::draw_circle(const sf::Vector2f &pos, float radius,
 }
 
 sf::Vector2f Data::draw_text(const sf::Vector2f &pos, const std::string &str,
-                             const Text_align &align, int character_size,
+                             const Align &align, int character_size,
                              sf::Color fill_col, sf::Color out_col,
                              float out_thic) {
   text.setPosition(pos);
