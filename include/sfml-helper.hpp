@@ -372,6 +372,9 @@ struct Data {
   void draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
                  sf::Color fill_col = sf::Color::Transparent,
                  sf::Color out_col = sf::Color::White, float out_thic = 1);
+  void draw_rect(const sf::FloatRect &rect,
+                 sf::Color fill_col = sf::Color::Transparent,
+                 sf::Color out_col = sf::Color::White, float out_thic = 1);
   void draw_circle(const sf::Vector2f &pos, float radius,
                    sf::Color fill_col = sf::Color::Transparent,
                    sf::Color out_col = sf::Color::White, float out_thic = 1);
@@ -1096,6 +1099,11 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
   rect.setOutlineThickness(out_thic);
 
   draw(rect);
+}
+
+void Data::draw_rect(const sf::FloatRect &_rect, sf::Color fill_col,
+                     sf::Color out_col, float out_thic) {
+  draw_rect(_rect.getPosition(), _rect.getSize(), fill_col, out_col, out_thic);
 }
 
 void Data::draw_circle(const sf::Vector2f &pos, float radius,
