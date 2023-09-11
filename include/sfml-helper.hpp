@@ -444,6 +444,7 @@ float deg2rad(const float deg);
 float map(float val, float min, float max, float from, float to);
 bool chance(float percent);
 bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2);
+bool rect_contains_rect(const sf::FloatRect &r1, const sf::FloatRect &r2);
 } // namespace math
 
 // Vector2f --------------------------------------------------
@@ -1847,6 +1848,15 @@ bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2) {
   float r2_bottom = r2.top + r2.height;
   return (r1.left <= r2_right && r1_right >= r2.left && r1.top <= r2_bottom &&
           r1_bottom >= r2.top);
+}
+
+bool rect_contains_rect(const sf::FloatRect &r1, const sf::FloatRect &r2) {
+  float r1_right = r1.left + r1.width;
+  float r2_right = r2.left + r2.width;
+  float r1_bottom = r1.top + r1.height;
+  float r2_bottom = r2.top + r2.height;
+  return r2.left >= r1.left && r2_right <= r1_right && r2.top >= r1.top &&
+         r2_bottom <= r1_bottom;
 }
 
 } // namespace math
