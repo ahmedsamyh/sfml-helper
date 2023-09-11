@@ -443,6 +443,7 @@ float rad2deg(const float rad);
 float deg2rad(const float deg);
 float map(float val, float min, float max, float from, float to);
 bool chance(float percent);
+bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2);
 } // namespace math
 
 // Vector2f --------------------------------------------------
@@ -1836,6 +1837,16 @@ bool chance(float percent) {
              "percent should be between 0.f and 100.f");
 
   return math::randomf(0.f, 100.f) <= percent;
+}
+
+bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2) {
+  ///
+  float r1_right = r1.left + r1.width;
+  float r2_right = r2.left + r2.width;
+  float r1_bottom = r1.top + r1.height;
+  float r2_bottom = r2.top + r2.height;
+  return (r1.left <= r2_right && r1_right >= r2.left && r1.top <= r2_bottom &&
+          r1_bottom >= r2.top);
 }
 
 } // namespace math
