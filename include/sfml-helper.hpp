@@ -1224,6 +1224,9 @@ void Data::draw_point(const sf::Vector2f &p, sf::Color col, float thic) {
   q[1].position = p + sf::Vector2f((thic / 2.f), -(thic / 2.f));
   q[2].position = p + sf::Vector2f(-(thic / 2.f), (thic / 2.f));
   q[3].position = p + sf::Vector2f((thic / 2.f), (thic / 2.f));
+  for (size_t i = 0; i < 4; ++i) {
+    q[i].color = col;
+  }
 
   ren_tex.draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
