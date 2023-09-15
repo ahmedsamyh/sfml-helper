@@ -333,15 +333,16 @@ struct Data {
   sf::RenderTexture ren_tex;
   sf::RectangleShape ren_rect;
   sf::Clock clock;
-  float delta = 0.f;
-  std::string title = "sfml-helper";
+  float delta{0.f};
+  int fps{0};
+  std::string title{"sfml-helper"};
   sf::Vector2f _mpos;
-  float _mouse_scroll = 0.f;
+  float _mouse_scroll{0.f};
   Resource_manager res_man;
   int s_width, s_height, width, height, scale;
-  sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
+  sf::Vector2f camera{0.f, 0.f}, to_camera{0.f, 0.f};
   sf::View _camera_view;
-  float _camera_zoom = 1.f;
+  float _camera_zoom{1.f};
   bool mouse_pressed[sf::Mouse::Button::ButtonCount],
       mouse_held[sf::Mouse::Button::ButtonCount],
       mouse_released[sf::Mouse::Button::ButtonCount];
@@ -1368,7 +1369,7 @@ float Data::calc_delta() {
 }
 
 void Data::update_title() {
-  const int fps = int(1.f / delta);
+  fps = int(1.f / delta);
   win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
   _mouse_scroll = 0.f;
 }
