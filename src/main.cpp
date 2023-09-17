@@ -1,6 +1,8 @@
 #define SFML_HELPER_IMPLEMENTATION
 #include <sfml-helper.hpp>
 
+// TODO: Add spacing.
+
 int main(int argc, char *argv[]) {
   //  global
   Data d;

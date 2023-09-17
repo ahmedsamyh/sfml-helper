@@ -153,6 +153,9 @@ struct UI {
                const Align &align = TopLeft,
                size_t char_size = DEFAULT_CHAR_SIZE, float size = 100.f,
                sf::Color col = sf::Color::White);
+  void text(const std::string &str, const Align &align = TopLeft,
+            size_t char_size = DEFAULT_CHAR_SIZE,
+            sf::Color col = sf::Color::White);
   void end();
 };
 
@@ -1692,7 +1695,7 @@ float UI::slider(float val, float min, float max, const std::string &text,
     size_to_push.x = 0.f;
     break;
   default:
-    ASSERT_MSG(0, "Unreachable state reached in `draw_text`");
+    ASSERT(0);
   }
 
   const sf::Vector2f slider_pos{
@@ -1731,6 +1734,69 @@ float UI::slider(float val, float min, float max, const std::string &text,
   l->push_widget(size_to_push);
 
   return val;
+}
+
+void UI::text(const std::string &text, const Align &align, size_t char_size,
+              sf::Color col) {
+  Layout *l = top_layout();
+  ASSERT(l != nullptr);
+  int id = current_id++;
+
+  const sf::Vector2f text_size = d_ptr->get_text_size(text, char_size);
+  const sf::Vector2f padding{10.f, 10.f};
+  sf::Vector2f pos = l->available_pos() + (padding / 2.f);
+  sf::Vector2f size{text_size};
+
+  sf::Vector2f size_to_push{size};
+  switch (align) {
+  case TopLeft:
+    break;
+  case TopCenter:
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case TopRight:
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case CenterLeft:
+    pos.y -= size.y / 2.f;
+    // size_to_push.y /= 2.f;
+    break;
+  case CenterCenter:
+    pos -= size / 2.f;
+    // size_to_push /= 2.f;
+    break;
+  case CenterRight:
+    pos.y -= size.y / 2.f;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case BottomLeft:
+    pos.y -= size.y;
+    break;
+  case BottomCenter:
+    pos.y -= size.y;
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case BottomRight:
+    pos.y -= size.y;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  default:
+    ASSERT(0);
+  }
+
+  const sf::FloatRect text_rect{pos, size};
+  bool hovering = text_rect.contains(d_ptr->mpos());
+
+  // alignment of the text here has to be TopLeft since the alignment is already
+  // taken care of.
+  d_ptr->draw_text(pos, text, TopLeft, int(char_size), col);
+
+  l->push_widget(size_to_push);
 }
 
 void UI::end() {
