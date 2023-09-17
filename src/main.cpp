@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
     ui.begin(d.ss() / 2.f);
 
     ui.text("Main Menu", CenterCenter, 32);
+    ui.spacing({0.f, 100.f}, CenterCenter);
     ui.btn("Play", CenterCenter);
     ui.btn("Option", CenterCenter);
     if (ui.btn("Quit", CenterCenter)) {
