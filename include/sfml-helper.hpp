@@ -156,6 +156,7 @@ struct UI {
   void text(const std::string &str, const Align &align = TopLeft,
             size_t char_size = DEFAULT_CHAR_SIZE,
             sf::Color col = sf::Color::White);
+  void spacing(const sf::Vector2f &size, const Align &align = TopLeft);
   void end();
 };
 
@@ -1795,6 +1796,61 @@ void UI::text(const std::string &text, const Align &align, size_t char_size,
   // alignment of the text here has to be TopLeft since the alignment is already
   // taken care of.
   d_ptr->draw_text(pos, text, TopLeft, int(char_size), col);
+
+  l->push_widget(size_to_push);
+}
+
+
+
+void UI::spacing(const sf::Vector2f &size, const Align &align) {
+  Layout *l = top_layout();
+  ASSERT(l != nullptr);
+  int id = current_id++;
+
+  sf::Vector2f pos = l->available_pos();
+
+  sf::Vector2f size_to_push{size};
+
+  switch (align) {
+  case TopLeft:
+    break;
+  case TopCenter:
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case TopRight:
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case CenterLeft:
+    pos.y -= size.y / 2.f;
+    // size_to_push.y /= 2.f;
+    break;
+  case CenterCenter:
+    pos -= size / 2.f;
+    // size_to_push /= 2.f;
+    break;
+  case CenterRight:
+    pos.y -= size.y / 2.f;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case BottomLeft:
+    pos.y -= size.y;
+    break;
+  case BottomCenter:
+    pos.y -= size.y;
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case BottomRight:
+    pos.y -= size.y;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  default:
+    ASSERT(0);
+  }
 
   l->push_widget(size_to_push);
 }
