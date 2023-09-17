@@ -8,8 +8,6 @@ int main(int argc, char *argv[]) {
   Data d;
   d.init(1280, 720, 1, "sfml-helper");
 
-  UI ui(d);
-
   // game loop
   while (d.win.isOpen()) {
     // calculate delta time
@@ -45,7 +43,6 @@ int main(int argc, char *argv[]) {
       return 0;
     }
 
-    ui.end();
     // display
     d.display();
   }

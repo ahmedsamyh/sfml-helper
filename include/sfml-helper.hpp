@@ -337,15 +337,16 @@ struct Data {
   sf::RenderTexture ren_tex;
   sf::RectangleShape ren_rect;
   sf::Clock clock;
-  float delta = 0.f;
-  std::string title = "sfml-helper";
+  float delta{0.f};
+  int fps{0};
+  std::string title{"sfml-helper"};
   sf::Vector2f _mpos;
-  float _mouse_scroll = 0.f;
+  float _mouse_scroll{0.f};
   Resource_manager res_man;
   int s_width, s_height, width, height, scale;
-  sf::Vector2f camera = {0.f, 0.f}, to_camera = {0.f, 0.f};
+  sf::Vector2f camera{0.f, 0.f}, to_camera{0.f, 0.f};
   sf::View _camera_view;
-  float _camera_zoom = 1.f;
+  float _camera_zoom{1.f};
   bool mouse_pressed[sf::Mouse::Button::ButtonCount],
       mouse_held[sf::Mouse::Button::ButtonCount],
       mouse_released[sf::Mouse::Button::ButtonCount];
@@ -374,6 +375,9 @@ struct Data {
 
   // drawing function
   void draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
+                 sf::Color fill_col = sf::Color::Transparent,
+                 sf::Color out_col = sf::Color::White, float out_thic = 1);
+  void draw_rect(const sf::FloatRect &rect,
                  sf::Color fill_col = sf::Color::Transparent,
                  sf::Color out_col = sf::Color::White, float out_thic = 1);
   void draw_circle(const sf::Vector2f &pos, float radius,
@@ -447,6 +451,8 @@ float rad2deg(const float rad);
 float deg2rad(const float deg);
 float map(float val, float min, float max, float from, float to);
 bool chance(float percent);
+bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2);
+bool rect_contains_rect(const sf::FloatRect &r1, const sf::FloatRect &r2);
 } // namespace math
 
 // Vector2f --------------------------------------------------
@@ -1100,6 +1106,11 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
   draw(rect);
 }
 
+void Data::draw_rect(const sf::FloatRect &_rect, sf::Color fill_col,
+                     sf::Color out_col, float out_thic) {
+  draw_rect(_rect.getPosition(), _rect.getSize(), fill_col, out_col, out_thic);
+}
+
 void Data::draw_circle(const sf::Vector2f &pos, float radius,
                        sf::Color fill_col, sf::Color out_col, float out_thic) {
   if (radius <= 0.f)
@@ -1218,6 +1229,9 @@ void Data::draw_point(const sf::Vector2f &p, sf::Color col, float thic) {
   q[1].position = p + sf::Vector2f((thic / 2.f), -(thic / 2.f));
   q[2].position = p + sf::Vector2f(-(thic / 2.f), (thic / 2.f));
   q[3].position = p + sf::Vector2f((thic / 2.f), (thic / 2.f));
+  for (size_t i = 0; i < 4; ++i) {
+    q[i].color = col;
+  }
 
   ren_tex.draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
@@ -1359,7 +1373,7 @@ float Data::calc_delta() {
 }
 
 void Data::update_title() {
-  const int fps = int(1.f / delta);
+  fps = int(1.f / delta);
   win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
   _mouse_scroll = 0.f;
 }
@@ -1956,6 +1970,25 @@ bool chance(float percent) {
              "percent should be between 0.f and 100.f");
 
   return math::randomf(0.f, 100.f) <= percent;
+}
+
+bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2) {
+  ///
+  float r1_right = r1.left + r1.width;
+  float r2_right = r2.left + r2.width;
+  float r1_bottom = r1.top + r1.height;
+  float r2_bottom = r2.top + r2.height;
+  return (r1.left <= r2_right && r1_right >= r2.left && r1.top <= r2_bottom &&
+          r1_bottom >= r2.top);
+}
+
+bool rect_contains_rect(const sf::FloatRect &r1, const sf::FloatRect &r2) {
+  float r1_right = r1.left + r1.width;
+  float r2_right = r2.left + r2.width;
+  float r1_bottom = r1.top + r1.height;
+  float r2_bottom = r2.top + r2.height;
+  return r2.left >= r1.left && r2_right <= r1_right && r2.top >= r1.top &&
+         r2_bottom <= r1_bottom;
 }
 
 } // namespace math
