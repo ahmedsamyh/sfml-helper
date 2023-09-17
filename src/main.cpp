@@ -1,6 +1,8 @@
 #define SFML_HELPER_IMPLEMENTATION
 #include <sfml-helper.hpp>
 
+// TODO: Add spacing.
+
 int main(int argc, char *argv[]) {
   //  global
   Data d;
@@ -33,12 +35,13 @@ int main(int argc, char *argv[]) {
     // update
 
     // draw
-    ui.begin({10.f, 10.f});
-    if (ui.btn("Button 1")) {
-      std::cout << "Button 1 pressed\n";
-    }
-    if (ui.btn("Button 2")) {
-      std::cout << "Button 2 pressed\n";
+    ui.begin(d.ss() / 2.f);
+
+    ui.text("Main Menu", CenterCenter, 32);
+    ui.btn("Play", CenterCenter);
+    ui.btn("Option", CenterCenter);
+    if (ui.btn("Quit", CenterCenter)) {
+      return 0;
     }
 
     ui.end();
