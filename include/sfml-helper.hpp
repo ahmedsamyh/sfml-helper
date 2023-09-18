@@ -375,9 +375,10 @@ struct Data {
 
   // drawing function
   void draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
+                 const Align &align = TopLeft,
                  sf::Color fill_col = sf::Color::Transparent,
                  sf::Color out_col = sf::Color::White, float out_thic = 1);
-  void draw_rect(const sf::FloatRect &rect,
+  void draw_rect(const sf::FloatRect &rect, const Align &align = TopLeft,
                  sf::Color fill_col = sf::Color::Transparent,
                  sf::Color out_col = sf::Color::White, float out_thic = 1);
   void draw_circle(const sf::Vector2f &pos, float radius,
@@ -1094,9 +1095,43 @@ void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
 }
 
 void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
-                     sf::Color fill_col, sf::Color out_col, float out_thic) {
+                     const Align &align, sf::Color fill_col, sf::Color out_col,
+                     float out_thic) {
   if (size.x <= 0.f || size.y <= 0.f)
     return;
+  switch (align) {
+  case TopLeft: {
+
+  } break;
+  case TopCenter: {
+    rect.setOrigin(size.x / 2.f, 0.f);
+  } break;
+  case TopRight: {
+    rect.setOrigin(size.x, 0.f);
+  } break;
+  case CenterLeft: {
+    rect.setOrigin(0.f, size.y / 2.f);
+  } break;
+  case CenterCenter: {
+    rect.setOrigin(size.x / 2.f, size.y / 2.f);
+  } break;
+  case CenterRight: {
+    rect.setOrigin(size.x, size.y / 2.f);
+  } break;
+  case BottomLeft: {
+    rect.setOrigin(0.f, size.y);
+  } break;
+  case BottomCenter: {
+    rect.setOrigin(size.x / 2.f, size.y);
+  } break;
+  case BottomRight: {
+    rect.setOrigin(size.x, size.y);
+  } break;
+  default: {
+    ASSERT(0);
+  } break;
+  };
+
   rect.setPosition(pos + sf::Vector2f(out_thic, out_thic));
   rect.setSize(size - sf::Vector2f(out_thic, out_thic));
   rect.setFillColor(fill_col);
@@ -1106,9 +1141,10 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
   draw(rect);
 }
 
-void Data::draw_rect(const sf::FloatRect &_rect, sf::Color fill_col,
-                     sf::Color out_col, float out_thic) {
-  draw_rect(_rect.getPosition(), _rect.getSize(), fill_col, out_col, out_thic);
+void Data::draw_rect(const sf::FloatRect &_rect, const Align &align,
+                     sf::Color fill_col, sf::Color out_col, float out_thic) {
+  draw_rect(_rect.getPosition(), _rect.getSize(), align, fill_col, out_col,
+            out_thic);
 }
 
 void Data::draw_circle(const sf::Vector2f &pos, float radius,
@@ -1632,7 +1668,7 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
   }
 
   // draw rect
-  d_ptr->draw_rect(pos - (padding / 2.f), size, fill_col);
+  d_ptr->draw_rect(pos - (padding / 2.f), size, TopLeft, fill_col);
   // draw text
   d_ptr->draw_text(pos, str, TopLeft, (int)char_size);
 
