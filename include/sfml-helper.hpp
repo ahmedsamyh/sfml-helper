@@ -2118,17 +2118,18 @@ void Text_box::update() {
 
 void Text_box::draw() {
   //
-  d->draw_rect(pos, size, TopLeft, sf::Color::Transparent, sf::Color::White, 2);
+  d->draw_rect(pos, size, TopCenter, sf::Color::Transparent, sf::Color::White,
+               2);
 
   if (done)
     return;
   for (size_t i = 0; i < texts.size(); ++i) {
     auto &text = texts[i];
     if (!text.empty()) {
-      d->draw_text(pos + sf::Vector2f{padding.x, padding.y +
-                                                     float(i) * char_size +
-                                                     float(i) * padding.y},
-                   text, TopLeft, char_size);
+      d->draw_text(
+          pos + sf::Vector2f{padding.x / 2.f, padding.y + float(i) * char_size +
+                                                  float(i) * padding.y},
+          text, TopCenter, char_size);
       // d->draw_rect(pos, d->get_text_size(text, char_size), CenterCenter);
     }
   }
