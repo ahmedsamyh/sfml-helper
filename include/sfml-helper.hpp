@@ -429,6 +429,7 @@ struct Data {
   void handle_close(sf::Event &e);
   float calc_delta();
   void update_title();
+  int default_char_size() const;
 
   // view functions
   void camera_follow(const sf::Vector2f &pos, float rate = 1.f);
@@ -1443,6 +1444,11 @@ void Data::update_title() {
   _mouse_scroll = 0.f;
 }
 
+int Data::default_char_size() const {
+  //
+  return DEFAULT_CHAR_SIZE / scale;
+}
+
 void Data::camera_follow(const sf::Vector2f &pos, float rate) {
   camera = pos;
   to_camera += (camera - to_camera) * rate;
@@ -2014,7 +2020,7 @@ Text_box::Text_box(Data &_d, const sf::Vector2f &_pos,
                    sf::Vector2u _size_in_chars, int _char_size)
     : pos(_pos) {
   d = &_d;
-  char_size = _char_size;
+  char_size = _char_size / d->scale;
   size_in_chars = _size_in_chars;
   set_size({float(size_in_chars.x * char_size) +
                 padding.x * float(size_in_chars.x) + 1,
