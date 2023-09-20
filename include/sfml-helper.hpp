@@ -2107,7 +2107,8 @@ void Text_box::update() {
       if (current_text_id + 1 < text_buffer.size()) {
         current_text_id++;
         current_char = 0;
-        texts.back().clear();
+        texts.clear();
+        texts.push_back(std::string());
       } else {
         done = true;
       }
