@@ -1,5 +1,6 @@
-bin
-lib
-build
+bin/
+lib/
+build/
+src/
 .topdir
 *~
