@@ -442,6 +442,35 @@ struct Data {
                              const sf::Vector2f &padding = {});
 };
 
+// text_box --------------------------------------------------
+struct Text_box {
+  std::vector<std::string> texts{};
+  sf::Vector2f pos{};
+  sf::Vector2f size{}, actual_size{1280.f, 100.f};
+  Data *d{nullptr};
+  std::vector<std::string> text_buffer;
+  int current_text_id{0};
+  int current_char{0};
+  int char_size{DEFAULT_CHAR_SIZE};
+  Alarm char_alarm;
+  sf::Vector2f padding{10.f, 5.f};
+  sf::Vector2f current_text_size{};
+  sf::Vector2u size_in_chars{};
+  bool done{false};
+
+  Text_box(Data &_d, const sf::Vector2f &_pos, sf::Vector2u _size_in_chars,
+           int _char_size = DEFAULT_CHAR_SIZE);
+
+  void set_size(const sf::Vector2f &_size);
+  bool open_animate();
+  bool close_animate();
+  void push_text();
+  bool text_fully_drawn() const;
+  void update();
+  void draw();
+  void add_text(const std::string &txt);
+};
+
 // math -------------------------
 namespace math {
 #define PI 3.14159265359
@@ -1978,6 +2007,135 @@ bool Alarm::on_alarm() {
     return true;
   }
   return false;
+}
+
+// text_box --------------------------------------------------
+Text_box::Text_box(Data &_d, const sf::Vector2f &_pos,
+                   sf::Vector2u _size_in_chars, int _char_size)
+    : pos(_pos) {
+  d = &_d;
+  char_size = _char_size;
+  size_in_chars = _size_in_chars;
+  set_size({float(size_in_chars.x * char_size) +
+                padding.x * float(size_in_chars.x) + 1,
+            float(size_in_chars.y * char_size) +
+                padding.y * float(size_in_chars.y) + 1});
+  char_alarm.init(*d, 0.05f);
+  texts.push_back(std::string());
+  ///
+}
+
+void Text_box::set_size(const sf::Vector2f &_size) {
+  actual_size = _size;
+  size = {};
+}
+
+bool Text_box::open_animate() {
+  size.y += (actual_size.y - size.y) / 4.f;
+  if (abs(size.y - actual_size.y) < 1.f) {
+    size.y = actual_size.y;
+    size.x += (actual_size.x - size.x) / 10.f;
+  } else if (size.x < 10.f) {
+    size.x += (actual_size.x - size.x) / 10.f;
+  }
+  if (abs(size.x - actual_size.x) < 1.f) {
+    size.x = actual_size.x;
+  }
+  return size != actual_size;
+}
+
+bool Text_box::close_animate() {
+  size.y += (0.f - size.y) / 4.f;
+  if (abs(size.y - 0.f) < 1.f) {
+    size.y = 0.f;
+    size.x += (0.f - size.x) / 10.f;
+  } else if (size.x < 10.f) {
+    size.x += (0.f - size.x) / 10.f;
+  }
+  if (abs(size.x - 0.f) < 1.f) {
+    size.x = 0.f;
+  }
+
+  return size != sf::Vector2f{0.f, 0.f};
+}
+
+void Text_box::push_text() {
+  current_text_size = d->get_text_size(texts.back(), char_size);
+  if (current_text_size.x < size.x - (padding.x * 2.f)) {
+    texts.back().push_back(text_buffer[current_text_id][current_char]);
+    current_char++;
+  } else {
+    if (texts.size() + 1 <= size_in_chars.y) {
+      texts.push_back(std::string());
+    }
+  }
+}
+
+bool Text_box::text_fully_drawn() const {
+  return texts.back() == text_buffer.at(current_text_id);
+}
+
+void Text_box::update() {
+  ASSERT(0 <= current_text_id && current_text_id <= text_buffer.size() - 1);
+  if (text_buffer.empty())
+    return;
+
+  if (!done) {
+    if (open_animate())
+      return;
+  } else {
+    if (close_animate())
+      return;
+  }
+
+  // push text
+  if (current_char < text_buffer[current_text_id].size() &&
+      char_alarm.on_alarm()) {
+    push_text();
+  }
+
+  if (d->k_pressed(Key::Space)) {
+    size_t current_text_len = text_buffer[current_text_id].size();
+    // not fully drawn
+    if (current_char < current_text_len) {
+      while (!text_fully_drawn() && current_char < current_text_len) {
+        push_text();
+      }
+    }
+    // fully drawn
+    else {
+      if (current_text_id + 1 < text_buffer.size()) {
+        current_text_id++;
+        current_char = 0;
+        texts.back().clear();
+      } else {
+        done = true;
+      }
+    }
+  }
+}
+
+void Text_box::draw() {
+  //
+  d->draw_rect(pos, size, TopCenter, sf::Color::Transparent, sf::Color::White,
+               2);
+
+  if (done)
+    return;
+  for (size_t i = 0; i < texts.size(); ++i) {
+    auto &text = texts[i];
+    if (!text.empty()) {
+      d->draw_text(pos + sf::Vector2f{0.f, padding.y + float(i) * char_size +
+                                               float(i) * padding.y},
+                   text, TopCenter, char_size);
+      // d->draw_rect(pos, d->get_text_size(text, char_size), CenterCenter);
+    }
+  }
+}
+
+void Text_box::add_text(const std::string &txt) {
+  //
+  text_buffer.push_back(txt);
 }
 
 // math -------------------------
