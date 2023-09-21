@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -444,12 +445,18 @@ struct Data {
 };
 
 // text_box --------------------------------------------------
+struct Dialog {
+  std::string text{};
+  std::function<void()> func{nullptr};
+  bool func_called{false};
+};
+
 struct Text_box {
   std::vector<std::string> texts{};
   sf::Vector2f pos{};
   sf::Vector2f size{}, actual_size{1280.f, 100.f};
   Data *d{nullptr};
-  std::vector<std::string> text_buffer;
+  std::vector<Dialog> text_buffer;
   int current_text_id{0};
   int current_char{0};
   int char_size{DEFAULT_CHAR_SIZE};
@@ -469,7 +476,7 @@ struct Text_box {
   bool text_fully_drawn() const;
   void update();
   void draw();
-  void add_text(const std::string &txt);
+  void add_text(const std::string &txt, std::function<void()> func = nullptr);
 };
 
 // math -------------------------
@@ -2068,7 +2075,7 @@ bool Text_box::close_animate() {
 void Text_box::push_text() {
   current_text_size = d->get_text_size(texts.back(), char_size);
   if (current_text_size.x < size.x - (padding.x * 2.f)) {
-    texts.back().push_back(text_buffer[current_text_id][current_char]);
+    texts.back().push_back(text_buffer[current_text_id].text[current_char]);
     current_char++;
   } else {
     if (texts.size() + 1 <= size_in_chars.y) {
@@ -2078,7 +2085,7 @@ void Text_box::push_text() {
 }
 
 bool Text_box::text_fully_drawn() const {
-  return texts.back() == text_buffer.at(current_text_id);
+  return texts.back() == text_buffer[current_text_id].text;
 }
 
 void Text_box::update() {
@@ -2095,13 +2102,18 @@ void Text_box::update() {
   }
 
   // push text
-  if (current_char < text_buffer[current_text_id].size() &&
+  if (current_char < text_buffer[current_text_id].text.size() &&
       char_alarm.on_alarm()) {
     push_text();
   }
 
   if (d->k_pressed(Key::Space)) {
-    size_t current_text_len = text_buffer[current_text_id].size();
+    if (text_buffer[current_text_id].func &&
+        !text_buffer[current_text_id].func_called) {
+      text_buffer[current_text_id].func_called = true;
+      text_buffer[current_text_id].func();
+    }
+    size_t current_text_len = text_buffer[current_text_id].text.size();
     // not fully drawn
     if (current_char < current_text_len) {
       while (!text_fully_drawn() && current_char < current_text_len) {
@@ -2141,9 +2153,9 @@ void Text_box::draw() {
   }
 }
 
-void Text_box::add_text(const std::string &txt) {
+void Text_box::add_text(const std::string &txt, std::function<void()> func) {
   //
-  text_buffer.push_back(txt);
+  text_buffer.push_back({txt, func, false});
 }
 
 // math -------------------------
