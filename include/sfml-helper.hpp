@@ -1562,8 +1562,12 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
       ch.free();
     }
   }
-  // loading font
 
+  if (font_chunks.empty()) { // couldnt find wanted font
+    error(fmt("Could not find font `{}`", filename));
+  }
+
+  // loading font
   sf::Font font;
   auto &ch = font_chunks.back();
   if (!font.loadFromMemory(ch.data, ch.data_size)) {
