@@ -444,6 +444,11 @@ struct Data {
                              const sf::Vector2f &padding = {});
 };
 
+// color --------------------------------------------------
+namespace col {
+sf::Color inv(const sf::Color &col);
+}; // namespace col
+
 // text_box --------------------------------------------------
 struct Dialog {
   std::string text{};
@@ -2026,6 +2031,14 @@ bool Alarm::on_alarm() {
   return false;
 }
 
+// color --------------------------------------------------
+namespace col {
+sf::Color inv(const sf::Color &col) {
+  sf::Color result{sf::Uint8(255 - int(col.r)), sf::Uint8(255 - int(col.g)),
+                   sf::Uint8(255 - int(col.b)), col.a};
+  return result;
+}
+}; // namespace col
 // text_box --------------------------------------------------
 Text_box::Text_box(Data &_d, const sf::Vector2f &_pos,
                    sf::Vector2u _size_in_chars, int _char_size)
