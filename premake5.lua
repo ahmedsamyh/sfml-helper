@@ -18,6 +18,7 @@ defines {"SFML_STATIC"}
 -- sfml deps {in windows}
 links {"opengl32.lib"}
 links {"winmm.lib"}
+links {"ws2_32.lib"}
 
 -- sfml deps {ext}
 links {"lib/flac.lib"}
@@ -34,8 +35,9 @@ filter "configurations:Debug"
     links {"lib/Debug/sfml-audio-s-d.lib"}
     links {"lib/Debug/sfml-graphics-s-d.lib"}
     links {"lib/Debug/sfml-system-s-d.lib"}
+    links {"lib/Debug/sfml-network-s-d.lib"}
     links {"lib/Debug/sfml-window-s-d.lib"}
-
+    links {"lib/Debug/sfml-network-s-d.lib"}
 filter "configurations:Release"
     runtime "Release"
     defines {"NDEBUG"}
@@ -43,6 +45,7 @@ filter "configurations:Release"
     links {"lib/Release/sfml-audio-s.lib"}
     links {"lib/Release/sfml-graphics-s.lib"}
     links {"lib/Release/sfml-system-s.lib"}
+    links {"lib/Release/sfml-network-s.lib"}
     links {"lib/Release/sfml-window-s.lib"}
 
 filter {}

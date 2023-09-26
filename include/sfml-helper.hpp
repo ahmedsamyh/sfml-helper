@@ -2,6 +2,7 @@
 #define _SFML_HELPER_H_
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include <cmath>
 #include <filesystem>
 #include <format>
