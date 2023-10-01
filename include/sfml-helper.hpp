@@ -25,13 +25,10 @@ namespace fs = std::filesystem;
 #define ASSERT(condition)                                                      \
   if (!(condition)) {                                                          \
     PANIC(#condition);                                                         \
-    exit(1);                                                                   \
   }
 #define ASSERT_MSG(condition, msg)                                             \
   if (!(condition)) {                                                          \
-    std::cerr << __FILE__ << ":" << __LINE__ << ":0"                           \
-              << " ASSERTION_FAILED: " << #condition << " `" << msg << "`\n";  \
-    exit(1);                                                                   \
+    PANIC(msg);                                                                \
   }
 #define INFO(msg) std::cout << "INFO: " << msg << "\n"
 void d_info(const std::string &_msg);
