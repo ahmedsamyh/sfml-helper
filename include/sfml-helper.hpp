@@ -384,13 +384,13 @@ struct Data {
   void draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
                  const Align &align = TopLeft,
                  sf::Color fill_col = sf::Color::Transparent,
-                 sf::Color out_col = sf::Color::White, float out_thic = 1);
+                 sf::Color out_col = sf::Color::White, float out_thic = 1.f);
   void draw_rect(const sf::FloatRect &rect, const Align &align = TopLeft,
                  sf::Color fill_col = sf::Color::Transparent,
-                 sf::Color out_col = sf::Color::White, float out_thic = 1);
+                 sf::Color out_col = sf::Color::White, float out_thic = 1.f);
   void draw_circle(const sf::Vector2f &pos, float radius,
                    sf::Color fill_col = sf::Color::Transparent,
-                   sf::Color out_col = sf::Color::White, float out_thic = 1);
+                   sf::Color out_col = sf::Color::White, float out_thic = 1.f);
   sf::Vector2f draw_text(const sf::Vector2f &pos, const std::string &str,
                          const Align &align = Align::TopLeft,
                          int character_size = DEFAULT_CHAR_SIZE,
@@ -1130,7 +1130,7 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
     return;
   switch (align) {
   case TopLeft: {
-
+    rect.setOrigin(0.f, 0.f);
   } break;
   case TopCenter: {
     rect.setOrigin(size.x / 2.f, 0.f);
@@ -1202,34 +1202,35 @@ sf::Vector2f Data::draw_text(const sf::Vector2f &pos, const std::string &str,
   text.setOutlineThickness(out_thic);
 
   sf::FloatRect bound = text.getLocalBounds();
+  const sf::Vector2f &size = bound.getPosition() + bound.getSize();
 
   switch (align) {
   case TopLeft:
     text.setOrigin({0.f, 0.f});
     break;
   case TopCenter:
-    text.setOrigin({bound.width / 2.f, 0.f});
+    text.setOrigin({size.x / 2.f, 0.f});
     break;
   case TopRight:
-    text.setOrigin({bound.width, 0.f});
+    text.setOrigin({size.x, 0.f});
     break;
   case CenterLeft:
-    text.setOrigin({0.f, bound.height / 2.f});
+    text.setOrigin({0.f, size.y / 2.f});
     break;
   case CenterCenter:
-    text.setOrigin({bound.width / 2.f, bound.height / 2.f});
+    text.setOrigin({size.x / 2.f, size.y / 2.f});
     break;
   case CenterRight:
-    text.setOrigin({bound.width, bound.height / 2.f});
+    text.setOrigin({size.x, size.y / 2.f});
     break;
   case BottomLeft:
-    text.setOrigin({0.f, bound.height});
+    text.setOrigin({0.f, size.y});
     break;
   case BottomCenter:
-    text.setOrigin({bound.width / 2.f, bound.height});
+    text.setOrigin({size.x / 2.f, size.y});
     break;
   case BottomRight:
-    text.setOrigin({bound.width, bound.height});
+    text.setOrigin({size.x, size.y});
     break;
   default:
     ASSERT_MSG(0, "Unreachable state reached in `draw_text`");
@@ -1498,7 +1499,8 @@ sf::Vector2f Data::get_text_size(const std::string &text, size_t char_size,
   t.setString(text);
   t.setCharacterSize(static_cast<unsigned int>(char_size));
 
-  return t.getLocalBounds().getSize() + padding;
+  return t.getLocalBounds().getSize() + t.getLocalBounds().getPosition() +
+         padding;
 }
 
 // resource_manager --------------------------------------------------
