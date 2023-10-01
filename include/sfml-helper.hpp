@@ -39,6 +39,7 @@ template <typename T, typename... Types> void panic(T arg, Types... args) {
   panic(args...);
 }
 #define UNREACHABLE() PANIC("Uncreachable")
+#define UNIMPLEMENTED() PANIC(__func__, "() is unimplemented")
 #define WARNING(...) PANIC("WARNING: ", __VA_ARGS__)
 void print();
 template <typename T, typename... Types> void print(T arg, Types... args) {
