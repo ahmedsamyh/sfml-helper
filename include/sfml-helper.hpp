@@ -24,8 +24,7 @@ namespace fs = std::filesystem;
 #define PRINT(msg) std::cout << msg << "\n"
 #define ASSERT(condition)                                                      \
   if (!(condition)) {                                                          \
-    std::cerr << __FILE__ << ":" << __LINE__ << ":0"                           \
-              << " ASSERTION_FAILED: " << #condition << "\n";                  \
+    PANIC(#condition);                                                         \
     exit(1);                                                                   \
   }
 #define ASSERT_MSG(condition, msg)                                             \
