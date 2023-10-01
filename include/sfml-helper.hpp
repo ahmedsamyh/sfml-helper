@@ -30,19 +30,11 @@ namespace fs = std::filesystem;
   if (!(condition)) {                                                          \
     PANIC(msg);                                                                \
   }
-#define INFO(msg) std::cout << "INFO: " << msg << "\n"
-void d_info(const std::string &_msg);
-void info(const std::string &_msg, bool debug = false);
-#define WARNING(msg) std::cout << "WARNING: " << msg << "\n"
-void d_warn(const std::string &_msg);
-void warn(const std::string &_msg, bool debug = false);
 #define ERROR(...) PANIC("ERROR: ", __VA_ARGS__)
-
 #define fmt(str, ...) std::format((str), __VA_ARGS__)
 #ifndef NO_PRINT
 #define print(str, ...) std::cout << fmt(str, __VA_ARGS__)
 #endif
-
 #define PANIC(...) panic(__FILE__, ":", __LINE__, ":", __VA_ARGS__)
 void panic();
 template <typename T, typename... Types> void panic(T arg, Types... args) {
@@ -50,6 +42,7 @@ template <typename T, typename... Types> void panic(T arg, Types... args) {
   panic(args...);
 }
 #define UNREACHABLE() PANIC("Uncreachable")
+#define WARNING(...) PANIC("WARNING: ", __VA_ARGS__)
 
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound, Shader };
@@ -523,39 +516,13 @@ sf::Vector2f from_radians(float rad);
 // macro functions
 void panic() { exit(1); }
 
-void d_info(const std::string &_msg) { info(_msg, true); }
-
-void info(const std::string &_msg, bool debug) {
-  if (debug) {
-#ifdef DEBUG
-    INFO(_msg);
-#endif
-  } else {
-    INFO(_msg);
-  }
-}
-
-void d_warn(const std::string &_msg) { warn(_msg, true); }
-
-void warn(const std::string &_msg, bool debug) {
-#ifndef NO_WARNING
-  if (debug) {
-#ifdef DEBUG
-    WARNING(_msg);
-#endif
-  } else {
-    WARNING(_msg);
-  }
-#endif
-}
-
 // data.dat --------------------------------------------------
 void Data_chunk::free() {
   type = Data_type::None;
   data_size = 0;
   name_size = 0;
 #ifdef LOG_DATA_CHUNK_FREE
-  d_info(std::format("Chunk `{}` freed!", name));
+  // d_info(std::format("Chunk `{}` freed!", name));
 #endif
   name.resize(0);
   if (data != nullptr) {
@@ -567,7 +534,7 @@ void Data_chunk::free() {
 
 void Data_chunk::allocate(size_t size) {
   if (data != nullptr) {
-    d_warn("data is already allocated!");
+    WARNING("data is already allocated!");
     return;
   }
   data = new char[size];
@@ -698,7 +665,7 @@ bool remove_chunk_from_data(const std::string &_name) {
     found |= name == _name;
   }
   if (!found) {
-    d_warn(std::format("Chunk named `{}` doesn't exist!", _name));
+    WARNING(std::format("Chunk named `{}` doesn't exist!", _name));
     return true;
   }
 
@@ -810,7 +777,7 @@ bool remove_chunk_from_data(const std::string &_name) {
       // output new data to data.dat
       if (new_data_file != nullptr) {
 
-        d_warn("Overwriting the data.dat file!");
+        WARNING("Overwriting the data.dat file!");
         std::ofstream ofs;
         ofs.open("data.dat", std::ios::binary);
         if (ofs.is_open()) {
@@ -820,9 +787,9 @@ bool remove_chunk_from_data(const std::string &_name) {
           delete new_data_file;
           delete previous_data_file;
 
-          d_info(std::format(
-              "Successfully removed `{}` ({} bytes) from `data.dat`", _name,
-              found_size));
+          // d_info(std::format(
+          // "Successfully removed `{}` ({} bytes) from `data.dat`", _name,
+          // found_size));
           return true;
           ofs.close();
         } else {
@@ -847,7 +814,7 @@ bool remove_all_chunks_from_data() {
     ERROR("Could not open `data.dat` for output");
     return false;
   }
-  d_warn("`data.dat` cleared");
+  WARNING("`data.dat` cleared");
   ofs.close();
   return true;
 }
@@ -855,7 +822,7 @@ bool remove_all_chunks_from_data() {
 bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
   for (auto &name : list_of_names_in_data()) {
     if (name == filename) {
-      d_warn(std::format("Trying to add duplicate data `{}`", filename));
+      WARNING(std::format("Trying to add duplicate data `{}`", filename));
       return true;
     }
   }
@@ -913,8 +880,8 @@ bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
     ofs.write((char *)data, data_size);
     bytes_written += data_size;
 
-    d_info(std::format("Successfully written `{}` ({} bytes) to `data.dat`",
-                       filename, bytes_written));
+    // d_info(std::format("Successfully written `{}` ({} bytes) to `data.dat`",
+    // filename, bytes_written));
     return true;
     ofs.close();
   } else {
@@ -1007,8 +974,9 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
     ERROR(std::format("Could not find {} `{}` in `data.dat`", type_str, name));
     return false;
   } else {
-    d_info(std::format("Successfully read {} `{}` ({} bytes) from `data.dat`",
-                       type_str, name, chunk.total_size()));
+    // d_info(std::format("Successfully read {} `{}` ({}
+    // bytes) from `data.dat`",
+    // type_str, name, chunk.total_size()));
     return true;
   }
 }
@@ -1034,7 +1002,8 @@ bool chunk_exists_in_data(const std::string &filename) {
   bool found = false;
 
   if (chunks.empty()) {
-    d_info(std::format("Chunk `{}` doesn't exist!", filename));
+    // d_info(std::format("Chunk `{}` doesn't exist!",
+    // filename));
     return found;
   }
 
@@ -1044,7 +1013,7 @@ bool chunk_exists_in_data(const std::string &filename) {
   }
 
   if (found) {
-    d_info(std::format("Chunk `{}` exist!", filename));
+    // d_info(std::format("Chunk `{}` exist!", filename));
   }
 
   return found;
@@ -1548,7 +1517,7 @@ bool Resource_manager::load_all_textures() {
     textures[ch.name] = tex;
   }
 
-  d_info(std::format("Loaded {} textures", texture_chunks.size()));
+  // d_info(std::format("Loaded {} textures", texture_chunks.size()));
   return true;
 }
 
@@ -1579,7 +1548,7 @@ bool Resource_manager::load_all_fonts() {
     fonts[ch.name] = font;
   }
 
-  d_info(std::format("Loaded {} Fonts", font_chunks.size()));
+  // d_info(std::format("Loaded {} Fonts", font_chunks.size()));
   return true;
 }
 
@@ -1613,7 +1582,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
   }
   fonts[ch.name] = font;
 
-  d_info(std::format("Loaded font `{}`", font_chunks.back().name));
+  // d_info(std::format("Loaded font `{}`", font_chunks.back().name));
   return fonts[ch.name];
 }
 
@@ -2198,7 +2167,8 @@ void Text_box::draw() {
           pos + sf::Vector2f{padding.x / 2.f, padding.y + float(i) * char_size +
                                                   float(i) * padding.y},
           text, TopCenter, char_size);
-      // d->draw_rect(pos, d->get_text_size(text, char_size), CenterCenter);
+      // d->draw_rect(pos, d->get_text_size(text, char_size),
+      // CenterCenter);
     }
   }
 }
