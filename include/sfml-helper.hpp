@@ -43,11 +43,17 @@ void warn(const std::string &_msg, bool debug = false);
 #define error(msg, ...)                                                        \
   std::cerr << std::format("ERROR: {}:{}:0 {}\n", __FILE__, __LINE__, msg);    \
   exit(1)
-
 #define fmt(str, ...) std::format((str), __VA_ARGS__)
 #ifndef NO_PRINT
 #define print(str, ...) std::cout << fmt(str, __VA_ARGS__)
 #endif
+
+#define PANIC(...) panic(__FILE__, ":", __LINE__, ":", __VA_ARGS__)
+void panic();
+template <typename T, typename... Types> void panic(T arg, Types... args) {
+  std::cerr << arg;
+  panic(args...);
+}
 
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound, Shader };
@@ -519,6 +525,8 @@ sf::Vector2f from_radians(float rad);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SFML_HELPER_IMPLEMENTATION
 // macro functions
+void panic() { exit(1); }
+
 void d_info(const std::string &_msg) { info(_msg, true); }
 
 void info(const std::string &_msg, bool debug) {
