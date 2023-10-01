@@ -18,10 +18,9 @@ namespace fs = std::filesystem;
 #define DEFAULT_FONT_NAME "res/font/iosevka-extended.ttf"
 #define DEFAULT_CHAR_SIZE 24
 
-#define VAR(name) std::cout << #name << ": " << name << "\n"
+#define VAR(name) print(#name, ": ", name, "\n")
 #define VAR_STR(name) std::format("{}: {}", #name, name)
-#define NL() std::cout << "\n"
-#define PRINT(msg) std::cout << msg << "\n"
+#define NL() print("\n")
 #define ASSERT(condition)                                                      \
   if (!(condition)) {                                                          \
     PANIC(#condition);                                                         \
