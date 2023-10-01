@@ -37,9 +37,15 @@ template <typename T, typename... Types> void panic(T arg, Types... args) {
   std::cerr << arg;
   panic(args...);
 }
+#define LOG(...) log(__VA_ARGS__)
+void log();
+template <typename T, typename... Types> void log(T arg, Types... args) {
+  std::cout << arg;
+  log(args...);
+}
 #define UNREACHABLE() PANIC("Uncreachable")
 #define UNIMPLEMENTED() PANIC(__func__, "() is unimplemented")
-#define WARNING(...) PANIC("WARNING: ", __VA_ARGS__)
+#define WARNING(...) LOG("WARNING: ", __VA_ARGS__)
 void _print();
 template <typename T, typename... Types> void _print(T arg, Types... args) {
   std::cout << arg;
@@ -518,6 +524,7 @@ sf::Vector2f from_radians(float rad);
 #ifdef SFML_HELPER_IMPLEMENTATION
 // macro functions
 void panic() { exit(1); }
+void log() {}
 void _print() {}
 
 // data.dat --------------------------------------------------
