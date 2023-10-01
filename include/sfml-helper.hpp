@@ -1665,9 +1665,9 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
   int id = current_id++;
 
   sf::Vector2f padding{10.f, 10.f};
-  sf::Vector2f pos = l->available_pos() + (padding / 2.f);
+  sf::Vector2f pos = l->available_pos();
   sf::Vector2f size = d_ptr->get_text_size(str, char_size, padding);
-  sf::Vector2f size_to_push{size};
+  sf::Vector2f size_to_push{size + padding};
 
   switch (align) {
   case TopLeft:
@@ -1734,7 +1734,8 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
   }
 
   // draw rect
-  d_ptr->draw_rect(pos - (padding / 2.f), size, TopLeft, fill_col);
+  d_ptr->draw_rect(pos - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
+                   fill_col);
   // draw text
   d_ptr->draw_text(pos, str, TopLeft, (int)char_size);
 
