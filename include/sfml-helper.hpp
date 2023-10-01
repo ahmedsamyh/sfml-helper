@@ -15,8 +15,9 @@
 namespace fs = std::filesystem;
 
 // macros ==================================================
-#define DEFAULT_FONT_NAME "res/font/iosevka-extended.ttf"
-#define DEFAULT_CHAR_SIZE 24
+// #define DEFAULT_FONT_NAME "res/font/IosevkaNerdFontMono-Regular.ttf"
+#define DEFAULT_FONT_NAME "res/font/consola.ttf"
+#define DEFAULT_CHAR_SIZE 32
 
 #define VAR(name) print(#name, ": ", name, "\n")
 #define VAR_STR(name) std::format("{}: {}", #name, name)
