@@ -31,10 +31,7 @@ namespace fs = std::filesystem;
     PANIC(msg);                                                                \
   }
 #define ERROR(...) PANIC("ERROR: ", __VA_ARGS__)
-#define fmt(str, ...) std::format((str), __VA_ARGS__)
-#ifndef NO_PRINT
-#define print(str, ...) std::cout << fmt(str, __VA_ARGS__)
-#endif
+#define FMT(str, ...) std::format((str), __VA_ARGS__)
 #define PANIC(...) panic(__FILE__, ":", __LINE__, ":", __VA_ARGS__)
 void panic();
 template <typename T, typename... Types> void panic(T arg, Types... args) {
@@ -1570,7 +1567,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
   }
 
   if (font_chunks.empty()) { // couldnt find wanted font
-    ERROR(fmt("Could not find font `{}`", filename));
+    ERROR(FMT("Could not find font `{}`", filename));
   }
 
   // loading font
