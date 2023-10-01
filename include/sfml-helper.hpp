@@ -14,6 +14,7 @@
 
 namespace fs = std::filesystem;
 
+namespace sh {
 #ifndef NO_TYPEDEFS
 typedef int8_t i8;
 typedef int16_t i16;
@@ -532,11 +533,12 @@ sf::Vector2f limit(const sf::Vector2f &v, float min, float max);
 sf::Vector2f from_degrees(float deg);
 sf::Vector2f from_radians(float rad);
 } // namespace v2f
-
+} // namespace sh
 #endif /* _SFML-HELPER_H_ */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SFML_HELPER_IMPLEMENTATION
+namespace sh {
 // macro functions
 void panic() { exit(1); }
 void log() {}
@@ -2322,5 +2324,5 @@ sf::Vector2f from_radians(float rad) {
 }
 
 } // namespace v2f
-
+} // namespace sh
 #endif
