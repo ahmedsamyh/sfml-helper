@@ -50,6 +50,7 @@ template <typename T, typename... Types> void panic(T arg, Types... args) {
   std::cerr << arg;
   panic(args...);
 }
+#define UNREACHABLE() PANIC("Uncreachable")
 
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound, Shader };
@@ -999,7 +1000,7 @@ bool read_chunk_from_data(Data_chunk &chunk, const std::string &name,
     type_str = "shader";
     break;
   default:
-    ASSERT(0);
+    UNREACHABLE();
     break;
   }
 
@@ -1176,7 +1177,7 @@ void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
     rect.setOrigin(size.x, size.y);
   } break;
   default: {
-    ASSERT(0);
+    UNREACHABLE();
   } break;
   };
 
@@ -1815,7 +1816,7 @@ float UI::slider(float val, float min, float max, const std::string &text,
     size_to_push.x = 0.f;
     break;
   default:
-    ASSERT(0);
+    UNREACHABLE();
   }
 
   const sf::Vector2f slider_pos{
@@ -1906,7 +1907,7 @@ void UI::text(const std::string &text, const Align &align, size_t char_size,
     size_to_push.x = 0.f;
     break;
   default:
-    ASSERT(0);
+    UNREACHABLE();
   }
 
   const sf::FloatRect text_rect{pos, size};
@@ -1966,7 +1967,7 @@ void UI::spacing(const sf::Vector2f &size, const Align &align) {
     size_to_push.x = 0.f;
     break;
   default:
-    ASSERT(0);
+    UNREACHABLE();
   }
 
   l->push_widget(size_to_push);
@@ -1988,10 +1989,11 @@ sf::Vector2f UI::Layout::available_pos() const {
   case Kind::Vert:
     return sf::Vector2f(pos.x, pos.y + size.y + padding.y);
     break;
-  default:
-    ASSERT(0);
-    break;
-  };
+  default: {
+    UNREACHABLE();
+  } break;
+  }
+  return {};
 }
 
 void UI::Layout::push_widget(const sf::Vector2f &_size) {
@@ -2005,7 +2007,7 @@ void UI::Layout::push_widget(const sf::Vector2f &_size) {
     size.y += _size.y + padding.y;
     break;
   default:
-    ASSERT(0);
+    UNREACHABLE();
     break;
   }
 }
