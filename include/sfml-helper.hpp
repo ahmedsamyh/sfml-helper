@@ -44,8 +44,8 @@ template <typename T, typename... Types> void log(T arg, Types... args) {
   std::cout << arg;
   log(args...);
 }
-#define UNREACHABLE() PANIC("Uncreachable")
-#define UNIMPLEMENTED() PANIC(__func__, "() is unimplemented")
+#define UNREACHABLE() PANIC("Uncreachable\n")
+#define UNIMPLEMENTED() PANIC(__func__, "() is unimplemented\n")
 #define WARNING(...) LOG("WARNING: ", __VA_ARGS__)
 void _print();
 template <typename T, typename... Types> void _print(T arg, Types... args) {
@@ -546,7 +546,7 @@ void Data_chunk::free() {
 
 void Data_chunk::allocate(size_t size) {
   if (data != nullptr) {
-    WARNING("data is already allocated!");
+    WARNING("data is already allocated!\n");
     return;
   }
   data = new char[size];
@@ -677,7 +677,7 @@ bool remove_chunk_from_data(const std::string &_name) {
     found |= name == _name;
   }
   if (!found) {
-    WARNING(std::format("Chunk named `{}` doesn't exist!", _name));
+    WARNING(FMT("Chunk named `{}` doesn't exist!\n", _name));
     return true;
   }
 
@@ -789,7 +789,7 @@ bool remove_chunk_from_data(const std::string &_name) {
       // output new data to data.dat
       if (new_data_file != nullptr) {
 
-        WARNING("Overwriting the data.dat file!");
+        WARNING("Overwriting the data.dat file!\n");
         std::ofstream ofs;
         ofs.open("data.dat", std::ios::binary);
         if (ofs.is_open()) {
@@ -826,7 +826,7 @@ bool remove_all_chunks_from_data() {
     ERROR("Could not open `data.dat` for output");
     return false;
   }
-  WARNING("`data.dat` cleared");
+  WARNING("`data.dat` cleared\n");
   ofs.close();
   return true;
 }
@@ -834,7 +834,7 @@ bool remove_all_chunks_from_data() {
 bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
   for (auto &name : list_of_names_in_data()) {
     if (name == filename) {
-      WARNING(std::format("Trying to add duplicate data `{}`", filename));
+      WARNING(FMT("Trying to add duplicate data `{}`\n", filename));
       return true;
     }
   }
