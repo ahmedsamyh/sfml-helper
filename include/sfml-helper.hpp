@@ -40,6 +40,11 @@ template <typename T, typename... Types> void panic(T arg, Types... args) {
 }
 #define UNREACHABLE() PANIC("Uncreachable")
 #define WARNING(...) PANIC("WARNING: ", __VA_ARGS__)
+void print();
+template <typename T, typename... Types> void print(T arg, Types... args) {
+  std::cout << arg;
+  print(args...);
+}
 
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound, Shader };
@@ -512,6 +517,7 @@ sf::Vector2f from_radians(float rad);
 #ifdef SFML_HELPER_IMPLEMENTATION
 // macro functions
 void panic() { exit(1); }
+void print() {}
 
 // data.dat --------------------------------------------------
 void Data_chunk::free() {
