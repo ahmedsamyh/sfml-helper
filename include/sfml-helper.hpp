@@ -30,8 +30,7 @@ typedef std::string str;
 #endif
 
 // macros ==================================================
-// #define DEFAULT_FONT_NAME "res/font/IosevkaNerdFontMono-Regular.ttf"
-#define DEFAULT_FONT_NAME "res/font/consola.ttf"
+#define DEFAULT_FONT_NAME "res/font/IosevkaNerdFontMono-Regular.ttf"
 #define DEFAULT_CHAR_SIZE 32
 
 #define VAR(name) print(#name, ": ", name, "\n")
