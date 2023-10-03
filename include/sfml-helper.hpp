@@ -170,6 +170,10 @@ struct UI {
   bool btn(const std::string &str, const Align &align = TopLeft,
            size_t char_size = DEFAULT_CHAR_SIZE,
            sf::Color col = sf::Color::White);
+  bool btn_state(bool &state, const std::string &str,
+                 const Align &align = TopLeft,
+                 size_t char_size = DEFAULT_CHAR_SIZE,
+                 sf::Color col = sf::Color::White);
   float slider(float val, float min, float max, const std::string &text,
                const Align &align = TopLeft,
                size_t char_size = DEFAULT_CHAR_SIZE, float size = 100.f,
@@ -1808,9 +1812,98 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
   sf::Color fill_col = col;
   fill_col.a = 0;
   if (active_id == id) {
-    fill_col.a = 100;
-  } else if (hovering) {
-    fill_col.a = 50;
+    fill_col.a += 100;
+  }
+  if (hovering) {
+    fill_col.a += 50;
+  }
+
+  // draw rect
+  d_ptr->draw_rect(pos - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
+                   fill_col);
+  // draw text
+  d_ptr->draw_text(pos, str, TopLeft, (int)char_size);
+
+  l->push_widget(size_to_push);
+
+  return click;
+}
+
+bool UI::btn_state(bool &state, const std::string &str, const Align &align,
+                   size_t char_size, sf::Color col) {
+  Layout *l = top_layout();
+  ASSERT(l != nullptr);
+  int id = current_id++;
+
+  sf::Vector2f padding{10.f, 10.f};
+  sf::Vector2f pos = l->available_pos();
+  sf::Vector2f size = d_ptr->get_text_size(str, char_size, padding);
+  sf::Vector2f size_to_push{size + padding};
+
+  switch (align) {
+  case TopLeft:
+    break;
+  case TopCenter:
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case TopRight:
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case CenterLeft:
+    pos.y -= size.y / 2.f;
+    // size_to_push.y /= 2.f;
+    break;
+  case CenterCenter:
+    pos -= size / 2.f;
+    // size_to_push /= 2.f;
+    break;
+  case CenterRight:
+    pos.y -= size.y / 2.f;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  case BottomLeft:
+    pos.y -= size.y;
+    break;
+  case BottomCenter:
+    pos.y -= size.y;
+    pos.x -= size.x / 2.f;
+    size_to_push.x /= 2.f;
+    break;
+  case BottomRight:
+    pos.y -= size.y;
+    pos.x -= size.x;
+    size_to_push.x = 0.f;
+    break;
+  default:
+    ASSERT_MSG(0, "Unreachable state reached in `draw_text`");
+  }
+
+  bool click = state;
+  sf::FloatRect btn_rect{pos, size};
+  bool hovering = btn_rect.contains(d_ptr->mpos());
+  if (active_id == id) {
+    if (d_ptr->m_released(MB::Left)) {
+      active_id = -1;
+      if (hovering) {
+        state = !state;
+      }
+    }
+  } else {
+    if (hovering && d_ptr->m_pressed(MB::Left)) {
+      active_id = (int)id;
+    }
+  }
+
+  sf::Color fill_col = col;
+  fill_col.a = 0;
+  if (click) {
+    fill_col.a += 100;
+  }
+  if (hovering) {
+    fill_col.a += 50;
   }
 
   // draw rect
