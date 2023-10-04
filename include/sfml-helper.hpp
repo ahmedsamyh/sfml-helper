@@ -33,7 +33,7 @@ typedef std::string str;
 #define DEFAULT_FONT_NAME "res/font/IosevkaNerdFontMono-Regular.ttf"
 #define DEFAULT_CHAR_SIZE 32
 
-#define VAR(name) print(#name, ": ", name, "\n")
+#define VAR(name) print("{}: {}\n", #name, name)
 #define VAR_STR(name) std::format("{}: {}", #name, name)
 #define NL() print("\n")
 #define ASSERT(condition)                                                      \
