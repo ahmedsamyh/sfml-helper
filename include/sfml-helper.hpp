@@ -481,20 +481,6 @@ struct Text_box {
   void add_text(const std::string &txt, std::function<void()> func = nullptr);
 };
 
-// math -------------------------
-namespace math {
-#define PI 3.14159265359
-
-float randomf(const float min, const float max);
-int randomi(const float min, const float max);
-float rad2deg(const float rad);
-float deg2rad(const float deg);
-float map(float val, float min, float max, float from, float to);
-bool chance(float percent);
-bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2);
-bool rect_contains_rect(const sf::FloatRect &r1, const sf::FloatRect &r2);
-} // namespace math
-
 // Vector2f --------------------------------------------------
 namespace v2f {
 float dist(const sf::Vector2f &vec);
@@ -2334,55 +2320,6 @@ void Text_box::add_text(const std::string &txt, std::function<void()> func) {
   //
   text_buffer.push_back({txt, func, false});
 }
-
-// math -------------------------
-namespace math {
-#define PI 3.14159265359
-
-float randomf(const float min, const float max) {
-  return (float(rand()) / float(RAND_MAX) * (max - min)) + min;
-}
-int randomi(const float min, const float max) {
-  return int((float(rand()) / float(RAND_MAX) * (max - min)) + min);
-}
-
-float rad2deg(const float rad) { return float((rad / PI) * 180.f); }
-
-float deg2rad(const float deg) { return float((deg / 180) * PI); }
-
-float map(float val, float min, float max, float from, float to) {
-  float normalized = val / (max - min);
-  return normalized * (to - from) + from;
-}
-
-bool chance(float percent) {
-  //
-  ASSERT_MSG(0.f <= percent && percent <= 100.f,
-             "percent should be between 0.f and 100.f");
-
-  return math::randomf(0.f, 100.f) <= percent;
-}
-
-bool rect_intersects_rect(const sf::FloatRect &r1, const sf::FloatRect &r2) {
-  ///
-  float r1_right = r1.left + r1.width;
-  float r2_right = r2.left + r2.width;
-  float r1_bottom = r1.top + r1.height;
-  float r2_bottom = r2.top + r2.height;
-  return (r1.left <= r2_right && r1_right >= r2.left && r1.top <= r2_bottom &&
-          r1_bottom >= r2.top);
-}
-
-bool rect_contains_rect(const sf::FloatRect &r1, const sf::FloatRect &r2) {
-  float r1_right = r1.left + r1.width;
-  float r2_right = r2.left + r2.width;
-  float r1_bottom = r1.top + r1.height;
-  float r2_bottom = r2.top + r2.height;
-  return r2.left >= r1.left && r2_right <= r1_right && r2.top >= r1.top &&
-         r2_bottom <= r1_bottom;
-}
-
-} // namespace math
 
 // Vector2f --------------------------------------------------
 namespace v2f {
