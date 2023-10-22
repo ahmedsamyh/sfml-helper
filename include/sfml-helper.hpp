@@ -1733,35 +1733,33 @@ void Sprite::animate(){
 }
 
 // sf::Sprite wrappers
-const sf::Texture *Sprite::getTexture() const { return sf_spr.getTexture(); }
-const sf::IntRect &Sprite::getTextureRect() const {
-  return sf_spr.getTextureRect();
-}
-const sf::Color &Sprite::getColor() const { return sf_spr.getColor(); }
-sf::FloatRect Sprite::getLocalBounds() const { return sf_spr.getLocalBounds(); }
+const sf::Texture *Sprite::getTexture() const { return spr.getTexture(); }
+const sf::IntRect &Sprite::getTextureRect() const { return spr.getTextureRect(); }
+const sf::Color &Sprite::getColor() const { return spr.getColor(); }
+sf::FloatRect Sprite::getLocalBounds() const { return spr.getLocalBounds(); }
 sf::FloatRect Sprite::getGlobalBounds() const {
-  return sf_spr.getGlobalBounds();
+  return spr.getGlobalBounds();
 }
-void Sprite::setPosition(float x, float y) { sf_spr.setPosition(x, y); }
+void Sprite::setPosition(float x, float y) { spr.setPosition(x, y); }
 void Sprite::setPosition(const sf::Vector2f &position) {
-  sf_spr.setPosition(position);
+  spr.setPosition(position);
 }
-void Sprite::setRotation(float angle) { sf_spr.setRotation(angle); }
+void Sprite::setRotation(float angle) { spr.setRotation(angle); }
 void Sprite::setScale(float factorX, float factorY) {
-  sf_spr.setScale(factorX, factorY);
+  spr.setScale(factorX, factorY);
 }
-void Sprite::setScale(const sf::Vector2f &factors) { sf_spr.setScale(factors); }
-void Sprite::setOrigin(float x, float y) { sf_spr.setOrigin(x, y); }
-void Sprite::setOrigin(const sf::Vector2f &origin) { sf_spr.setOrigin(origin); }
-const sf::Vector2f &Sprite::getPosition() const { return sf_spr.getPosition(); }
-float Sprite::getRotation() const { return sf_spr.getRotation(); }
-const sf::Vector2f &Sprite::getScale() const { return sf_spr.getScale(); }
-const sf::Vector2f &Sprite::getOrigin() const { return sf_spr.getOrigin(); }
-void Sprite::move(float offsetX, float offsetY) { sf_spr.move(offsetX, offsetY); }
-void Sprite::move(const sf::Vector2f &offset) { sf_spr.move(offset); }
-void Sprite::rotate(float angle) { sf_spr.rotate(angle); }
-void Sprite::scale(float factorX, float factorY) { sf_spr.scale(factorX, factorY); }
-void Sprite::scale(const sf::Vector2f &factor) { sf_spr.scale(factor); }
+void Sprite::setScale(const sf::Vector2f &factors) { spr.setScale(factors); }
+void Sprite::setOrigin(float x, float y) { spr.setOrigin(x, y); }
+void Sprite::setOrigin(const sf::Vector2f &origin) { spr.setOrigin(origin); }
+const sf::Vector2f &Sprite::getPosition() const { return spr.getPosition(); }
+float Sprite::getRotation() const { return spr.getRotation(); }
+const sf::Vector2f &Sprite::getScale() const { return spr.getScale(); }
+const sf::Vector2f &Sprite::getOrigin() const { return spr.getOrigin(); }
+void Sprite::move(float offsetX, float offsetY) { spr.move(offsetX, offsetY); }
+void Sprite::move(const sf::Vector2f &offset) { spr.move(offset); }
+void Sprite::rotate(float angle) { spr.rotate(angle); }
+void Sprite::scale(float factorX, float factorY) { spr.scale(factorX, factorY); }
+void Sprite::scale(const sf::Vector2f &factor) { spr.scale(factor); }
 
 size_t Sprite::width() const { return size.x; }
 size_t Sprite::height() const { return size.y; }
