@@ -20,6 +20,8 @@ namespace sh {
 #define DEFAULT_FONT_NAME "res/font/IosevkaNerdFontMono-Regular.ttf"
 #define DEFAULT_CHAR_SIZE 32
 
+#define TEX(tx) "res/gfx/"tx
+
 // data.dat ==================================================
 enum Data_type { None = -1, Font, Texture, Sound, Shader };
 
@@ -91,6 +93,7 @@ struct Data;
   sf::Vector2i size{};
   float time_per_frame{0.25f};
   float accumulated{0.f};
+  sf::Vector2f* bound_pos{nullptr};
 
   Sprite();
   Sprite(Data& _d, const std::string& texture, int _hframes, int _vframes = 1);
@@ -100,6 +103,8 @@ struct Data;
 
   void change_vframe(int f);
   void change_hframe(int f);
+
+  void bind_pos(sf::Vector2f& p);
   
   void animate();
   
@@ -1719,8 +1724,8 @@ void Sprite::init(Data& _d, const std::string& texture, int _hframes, int _vfram
 }
 
 void Sprite::update() {
+  if (bound_pos) pos = *bound_pos;
   spr.setPosition(pos);
-  animate();
 }
 
 void Sprite::animate(){
@@ -1799,6 +1804,10 @@ void Sprite::change_hframe(int f) {
 				 int(vframe * size.y),
 				 size.x,
 				 size.y));
+}
+
+void Sprite::bind_pos(sf::Vector2f& p){
+  bound_pos = &p;
 }
 
 // UI --------------------------------------------------
