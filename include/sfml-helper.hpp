@@ -1938,10 +1938,10 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
   }
 
   // draw rect
-  d_ptr->draw_rect(pos - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
+  d_ptr->draw_rect(pos + padding - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
                    fill_col);
   // draw text
-  d_ptr->draw_text(pos, str, TopLeft, (int)char_size);
+  d_ptr->draw_text(pos + padding, str, TopLeft, (int)char_size);
 
   l->push_widget(size_to_push);
 
