@@ -391,6 +391,7 @@ struct Data {
       prev_mouse_released[sf::Mouse::Button::ButtonCount];
   State _keys[size_t(Key::KeyCount)];
   State _prev_keys[size_t(Key::KeyCount)];
+  sf::BlendMode _blendmode{sf::BlendAlpha};
 
   // main functions
   void clear(const sf::Color &col = sf::Color(0, 0, 0, 255));
@@ -436,6 +437,7 @@ struct Data {
                   float shaft_len = 10.f);
   void draw_point(const sf::Vector2f &p, sf::Color col = sf::Color::White,
                   float thic = 1.f);
+  void set_blendmode(const sf::BlendMode& mode);
 
   // mouse functions
   void update_mouse_event(const sf::Event &e);
@@ -1126,21 +1128,29 @@ void Data::display() {
 }
 
 void Data::draw(const sf::Drawable &drawable, const sf::RenderStates &states) {
-  ren_tex.draw(drawable, states);
+  sf::RenderStates actual_states{states};
+  actual_states.blendMode = _blendmode;
+  ren_tex.draw(drawable, actual_states);
 }
 
 void Data::draw(const sf::Vertex *vertices, std::size_t vertexCount,
                 sf::PrimitiveType type, const sf::RenderStates &states) {
-  ren_tex.draw(vertices, vertexCount, type, states);
+  sf::RenderStates actual_states{states};
+  actual_states.blendMode = _blendmode;
+  ren_tex.draw(vertices, vertexCount, type, actual_states);
 }
 
 void Data::draw(const sf::VertexBuffer &vertexBuffer,
                 const sf::RenderStates &states) {
-  ren_tex.draw(vertexBuffer, states);
+  sf::RenderStates actual_states{states};
+  actual_states.blendMode = _blendmode;
+  ren_tex.draw(vertexBuffer, actual_states);
 }
 void Data::draw(const sf::VertexBuffer &vertexBuffer, std::size_t firstVertex,
                 std::size_t vertexCount, const sf::RenderStates &states) {
-  ren_tex.draw(vertexBuffer, firstVertex, vertexCount, states);
+  sf::RenderStates actual_states{states};
+  actual_states.blendMode = _blendmode;
+  ren_tex.draw(vertexBuffer, firstVertex, vertexCount, actual_states);
 }
 
 void Data::draw_rect(const sf::Vector2f &pos, const sf::Vector2f &size,
@@ -1321,6 +1331,8 @@ void Data::draw_point(const sf::Vector2f &p, sf::Color col, float thic) {
 
   ren_tex.draw(q, 4, sf::PrimitiveType::TriangleStrip);
 }
+  
+void Data::set_blendmode(const sf::BlendMode& mode){ _blendmode = mode; }
 
 void Data::update_mouse_event(const sf::Event &e) {
   if (e.type == sf::Event::MouseMoved) {
