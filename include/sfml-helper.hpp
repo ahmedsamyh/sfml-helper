@@ -169,7 +169,7 @@ struct UI {
 
   int active_id{0}, current_id{0};
   std::vector<Layout> layouts;
-  Data *d_ptr{nullptr};
+  Data *d{nullptr};
 
   UI(Data &d);
 
@@ -1823,7 +1823,7 @@ void Sprite::bind_pos(sf::Vector2f& p){
 }
 
 // UI --------------------------------------------------
-UI::UI(Data &d) : active_id(-1) { d_ptr = &d; }
+UI::UI(Data &_d) : active_id(-1) { d = &_d; }
 
 UI::Layout *UI::top_layout() {
   if (layouts.empty())
@@ -1869,7 +1869,7 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
 
   sf::Vector2f padding{10.f, 10.f};
   sf::Vector2f pos = l->available_pos();
-  sf::Vector2f size = d_ptr->get_text_size(str, char_size, padding);
+  sf::Vector2f size = d->get_text_size(str, char_size, padding);
   sf::Vector2f size_to_push{size + padding};
 
   switch (align) {
@@ -1915,15 +1915,15 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
 
   bool click = false;
   sf::FloatRect btn_rect{pos, size};
-  bool hovering = btn_rect.contains(d_ptr->mpos());
+  bool hovering = btn_rect.contains(d->mpos());
   if (active_id == id) {
-    if (d_ptr->m_released(MB::Left)) {
+    if (d->m_released(MB::Left)) {
       active_id = -1;
       if (hovering)
         click = true;
     }
   } else {
-    if (hovering && d_ptr->m_pressed(MB::Left)) {
+    if (hovering && d->m_pressed(MB::Left)) {
       active_id = (int)id;
     }
   }
@@ -1938,10 +1938,10 @@ bool UI::btn(const std::string &str, const Align &align, size_t char_size,
   }
 
   // draw rect
-  d_ptr->draw_rect(pos + padding - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
+  d->draw_rect(pos + padding - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
                    fill_col);
   // draw text
-  d_ptr->draw_text(pos + padding, str, TopLeft, (int)char_size);
+  d->draw_text(pos + padding, str, TopLeft, (int)char_size);
 
   l->push_widget(size_to_push);
 
@@ -1956,7 +1956,7 @@ bool UI::btn_state(bool &state, const std::string &str, const Align &align,
 
   sf::Vector2f padding{10.f, 10.f};
   sf::Vector2f pos = l->available_pos();
-  sf::Vector2f size = d_ptr->get_text_size(str, char_size, padding);
+  sf::Vector2f size = d->get_text_size(str, char_size, padding);
   sf::Vector2f size_to_push{size + padding};
 
   switch (align) {
@@ -2002,16 +2002,16 @@ bool UI::btn_state(bool &state, const std::string &str, const Align &align,
 
   bool click = state;
   sf::FloatRect btn_rect{pos, size};
-  bool hovering = btn_rect.contains(d_ptr->mpos());
+  bool hovering = btn_rect.contains(d->mpos());
   if (active_id == id) {
-    if (d_ptr->m_released(MB::Left)) {
+    if (d->m_released(MB::Left)) {
       active_id = -1;
       if (hovering) {
         state = !state;
       }
     }
   } else {
-    if (hovering && d_ptr->m_pressed(MB::Left)) {
+    if (hovering && d->m_pressed(MB::Left)) {
       active_id = (int)id;
     }
   }
@@ -2026,10 +2026,10 @@ bool UI::btn_state(bool &state, const std::string &str, const Align &align,
   }
 
   // draw rect
-  d_ptr->draw_rect(pos - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
+  d->draw_rect(pos - sf::Vector2f{padding.x / 2.f, 0.f}, size, TopLeft,
                    fill_col);
   // draw text
-  d_ptr->draw_text(pos, str, TopLeft, (int)char_size);
+  d->draw_text(pos, str, TopLeft, (int)char_size);
 
   l->push_widget(size_to_push);
 
@@ -2044,7 +2044,7 @@ float UI::slider(float val, float min, float max, const std::string &text,
   ASSERT(l != nullptr);
   int id = current_id++;
 
-  const sf::Vector2f text_size = d_ptr->get_text_size(text, char_size);
+  const sf::Vector2f text_size = d->get_text_size(text, char_size);
 
   sf::Vector2f padding{10.f, 10.f};
   float padding_between_text_and_slider = 10.f;
@@ -2098,31 +2098,31 @@ float UI::slider(float val, float min, float max, const std::string &text,
       pos.x + text_size.x + padding_between_text_and_slider, pos.y};
   const sf::FloatRect slider_rect{slider_pos, {slider_width, size.y}};
 
-  bool hovering = slider_rect.contains(d_ptr->mpos());
+  bool hovering = slider_rect.contains(d->mpos());
 
   if (active_id != id) {
-    if (hovering && d_ptr->m_pressed(MB::Left)) {
+    if (hovering && d->m_pressed(MB::Left)) {
       active_id = (int)id;
     }
   } else {
-    if (hovering && d_ptr->m_held(MB::Left)) {
-      float val_pos = d_ptr->mpos().x - slider_pos.x;
+    if (hovering && d->m_held(MB::Left)) {
+      float val_pos = d->mpos().x - slider_pos.x;
       val = math::map(val_pos, 0.f, slider_width, min, max);
     }
   }
 
-  d_ptr->draw_text(pos, text, TopLeft, int(char_size));
+  d->draw_text(pos, text, TopLeft, int(char_size));
 
-  d_ptr->draw_line(slider_pos + sf::Vector2f(0.f, text_size.y / 2.f),
+  d->draw_line(slider_pos + sf::Vector2f(0.f, text_size.y / 2.f),
                    slider_pos + sf::Vector2f(slider_width, text_size.y / 2.f),
                    col);
 
   col.a = hovering ? 255 : 100;
-  // d_ptr->draw_rect(
+  // d->draw_rect(
   //     slider_pos + sf::Vector2f{0.f, (text_size.y / 2.f) - text_size.y
   //     / 4.f}, {slider_width, text_size.y / 2.f}, col, col);
 
-  d_ptr->draw_circle(
+  d->draw_circle(
       sf::Vector2f{slider_pos.x + math::map(val, min, max, 0.f, slider_width),
                    slider_pos.y + text_size.y / 2.f},
       float(char_size / 2.f), col, col);
@@ -2138,7 +2138,7 @@ void UI::text(const std::string &text, const Align &align, size_t char_size,
   ASSERT(l != nullptr);
   int id = current_id++;
 
-  const sf::Vector2f text_size = d_ptr->get_text_size(text, char_size);
+  const sf::Vector2f text_size = d->get_text_size(text, char_size);
   const sf::Vector2f padding{10.f, 10.f};
   sf::Vector2f pos = l->available_pos() + (padding / 2.f);
   sf::Vector2f size{text_size};
@@ -2186,11 +2186,11 @@ void UI::text(const std::string &text, const Align &align, size_t char_size,
   }
 
   const sf::FloatRect text_rect{pos, size};
-  bool hovering = text_rect.contains(d_ptr->mpos());
+  bool hovering = text_rect.contains(d->mpos());
 
   // alignment of the text here has to be TopLeft since the alignment is already
   // taken care of.
-  d_ptr->draw_text(pos, text, TopLeft, int(char_size), col);
+  d->draw_text(pos, text, TopLeft, int(char_size), col);
 
   l->push_widget(size_to_push);
 }
