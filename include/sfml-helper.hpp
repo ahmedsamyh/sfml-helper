@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#define USE_WIN32
 #include <stdcpp.hpp>
 
 namespace fs = std::filesystem;
@@ -68,9 +69,16 @@ bool read_shader_from_data(Data_chunk &chunk, const std::string &filename);
 bool chunk_exists_in_data(const std::string &filename);
 
 // resource_manager --------------------------------------------------
+#define TEXTURE_PATH "res/gfx/" 
 struct Resource_manager {
+
+  // data.dat
   std::vector<Data_chunk> texture_chunks;
   std::vector<Data_chunk> font_chunks;
+
+  // filesystem
+  std::unordered_map<std::string, sf::Texture> texture_map;
+  
   bool load_all_textures();
   bool load_all_fonts();
 
@@ -78,7 +86,8 @@ struct Resource_manager {
 
   std::unordered_map<std::string, sf::Texture> textures;
   std::unordered_map<std::string, sf::Font> fonts;
-  sf::Texture &get_texture(const std::string &filename);
+  sf::Texture& load_texture(const std::string& name); // for loading files from the filesystem
+  sf::Texture &get_texture(const std::string &filename); // for getting loaded textures from `data.dat`
   sf::Font &get_font(const std::string &filename);
 };
 
@@ -1697,6 +1706,28 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
   return fonts[ch.name];
 }
 
+sf::Texture& Resource_manager::load_texture(const std::string &name){
+  // return texture if it already is in the texture_map
+  if (texture_map.contains(name)){
+    print("INFO: Texture `{}` is already loaded\n", name);
+    return texture_map[name];
+  }
+
+  // load texture from filesystem
+  sf::Texture tex;
+  const std::string filename{TEXTURE_PATH + name};
+  if (!tex.loadFromFile(filename)){
+    // error message will be logged by sfml (i think)
+    exit(1);
+  }
+  print("INFO: Texture `{}` loaded\n", name);
+
+  // save loaded texture to texture_map
+  texture_map[name] = tex;
+
+  return texture_map[name];
+}
+  
 sf::Texture &Resource_manager::get_texture(const std::string &filename) {
   // return the texture if it already exists
   if (!textures.contains(filename)) {
