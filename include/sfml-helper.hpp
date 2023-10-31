@@ -1136,10 +1136,14 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
     _prev_keys[i].released = false;
   }
 
+#ifndef DONT_NEED_DATA_DAT
   // load default font
   text.setFont(res_man.load_font(DEFAULT_FONT_NAME));
 
   return res_man.load_all_textures();
+#else
+  return true;
+#endif
 }
 
 void Data::display() {
