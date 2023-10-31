@@ -93,7 +93,7 @@ struct Resource_manager {
 
 // sprite --------------------------------------------------
 struct Data;
-  struct Sprite : public sf::Drawable {
+struct Sprite : public sf::Drawable {
   Data* d{nullptr};
   sf::Sprite spr{};
   sf::Vector2f pos{};
@@ -106,8 +106,10 @@ struct Data;
 
   Sprite();
   Sprite(Data& _d, const std::string& texture, int _hframes, int _vframes = 1);
+  Sprite(Data& _d, sf::Texture& texture, int _hframes, int _vframes = 1);
 
   void init(Data& _d, const std::string& texture, int _hframes, int _vframes = 1);
+  void init(Data& _d, sf::Texture& texture, int _hframes, int _vframes = 1);
   void update();
 
   void change_vframe(int f);
@@ -1752,10 +1754,27 @@ Sprite::Sprite(){}
 Sprite::Sprite(Data& _d, const std::string& texture, int _hframes, int _vframes) {
   init(_d, texture, _hframes, _vframes);
 }
+  
+Sprite::Sprite(Data& _d, sf::Texture& texture, int _hframes, int _vframes) {
+  init(_d, texture, _hframes, _vframes);
+}
 
 void Sprite::init(Data& _d, const std::string& texture, int _hframes, int _vframes) {
   d = &_d;
   spr.setTexture(d->res_man.get_texture(texture));
+  hframes = _hframes;
+  vframes = _vframes;
+
+  size.x = spr.getTexture()->getSize().x / hframes;
+  size.y = spr.getTexture()->getSize().y / vframes;
+
+  change_hframe(0);
+  change_vframe(0);
+}
+
+void Sprite::init(Data& _d, sf::Texture& texture, int _hframes, int _vframes) {
+  d = &_d;
+  spr.setTexture(texture);
   hframes = _hframes;
   vframes = _vframes;
 
