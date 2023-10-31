@@ -386,11 +386,12 @@ struct Data {
   sf::Clock clock;
   float delta{0.f};
   int fps{0};
+  bool vsync{true};
   std::string title{"sfml-helper"};
   sf::Vector2f _mpos;
   float _mouse_scroll{0.f};
   Resource_manager res_man;
-  int s_width, s_height, width, height, scale;
+  int og_s_width, og_s_height, s_width, s_height, width, height, scale;
   sf::Vector2f camera{0.f, 0.f}, to_camera{0.f, 0.f};
   sf::View _camera_view;
   float _camera_zoom{1.f};
@@ -403,6 +404,7 @@ struct Data {
   State _keys[size_t(Key::KeyCount)];
   State _prev_keys[size_t(Key::KeyCount)];
   sf::BlendMode _blendmode{sf::BlendAlpha};
+  bool _fullscreen{false};
 
   // main functions
   void clear(const sf::Color &col = sf::Color(0, 0, 0, 255));
@@ -474,6 +476,11 @@ struct Data {
   sf::Vector2i ss_i() const;
   sf::Vector2f scr_to_wrld(const sf::Vector2f &p);
   sf::Vector2f wrld_to_scr(const sf::Vector2f &p);
+  bool is_fullscreen() const;
+  void toggle_fullscreen();
+private:
+  void adjust_w_h_to_screen_size();
+public:
 
   // utility functions
   void handle_close(sf::Event &e);
@@ -1075,28 +1082,25 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   title = _title;
   s_width = s_w;
   s_height = s_h;
+  og_s_width = s_width;
+  og_s_height = s_height;
   scale = scl;
-  width = s_width / scale;
-  height = s_height / scale;
+  adjust_w_h_to_screen_size();
 
   srand(unsigned int(time(0)));
+
+  if (s_width <= 0 && s_height <= 0){
+    fprint(std::cerr, "ERROR: Sorry but you can't do fullscreen this way, use Data::toggle_fullscreen()\n");
+    exit(1);
+  }
 
   // std::cout auto-flushes on every output
   std::cout << std::unitbuf;
 
   // create window
   sf::Uint32 style = sf::Style::Close | sf::Style::Titlebar;
-  if (s_width <= 0 && s_height <= 0){
-    style = sf::Style::Fullscreen;
-  }
   win.create(sf::VideoMode(s_width, s_height), title, style);
-  if (s_width <= 0 && s_height <= 0) {
-    s_width =  int(win.getSize().x);
-    s_height = int(win.getSize().y);
-    width = s_width / scale;
-    height = s_height / scale;
-  }
-  win.setVerticalSyncEnabled(true);
+  win.setVerticalSyncEnabled(vsync);
   win.setKeyRepeatEnabled(true);
 
   // create render texture
@@ -1482,6 +1486,38 @@ sf::Vector2f Data::wrld_to_scr(const sf::Vector2f &p) {
                                ren_tex.getDefaultView());
   sf::Vector2f res = sf::Vector2f(res_i);
   return res;
+}
+
+bool Data::is_fullscreen() const{
+  return _fullscreen;
+}
+
+void Data::toggle_fullscreen() {
+  if (is_fullscreen()){
+    win.close();
+    sf::Uint32 style = sf::Style::Close | sf::Style::Titlebar;
+    win.create(sf::VideoMode(s_width, s_height), title, style);
+    win.setVerticalSyncEnabled(vsync);
+    win.setKeyRepeatEnabled(true);
+    s_width = og_s_width;
+    s_height = og_s_height;
+    adjust_w_h_to_screen_size();
+  } else {
+    win.close();
+    sf::Uint32 style = sf::Style::Fullscreen;
+    win.create(sf::VideoMode(s_width, s_height), title, style);
+    win.setVerticalSyncEnabled(vsync);
+    win.setKeyRepeatEnabled(true);
+    s_width = int(win.getSize().x);
+    s_height = int(win.getSize().y);
+    adjust_w_h_to_screen_size();
+  }
+  _fullscreen = !_fullscreen;
+}
+
+void Data::adjust_w_h_to_screen_size(){
+  width = s_width / scale;
+  height = s_height / scale;
 }
 
 void Data::handle_close(sf::Event &e) {
