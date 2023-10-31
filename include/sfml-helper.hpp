@@ -1381,6 +1381,7 @@ void Data::update_mouse() {
     mouse_pressed[i] = mouse_held[i] && !prev_mouse_held[i];
     mouse_released[i] = !mouse_held[i] && prev_mouse_held[i];
   }
+  _mouse_scroll = 0.f;
 }
 
 bool Data::m_pressed(MB btn) {
@@ -1534,7 +1535,6 @@ float Data::calc_delta() {
 void Data::update_title() {
   fps = int(1.f / delta);
   win.setTitle(std::format("{} | {:.2f}s | {}fps", title, delta, fps));
-  _mouse_scroll = 0.f;
 }
 
 int Data::default_char_size() const {
