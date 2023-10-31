@@ -144,6 +144,7 @@ struct Sprite : public sf::Drawable {
 
   size_t width() const;
   size_t height() const;
+  sf::Vector2f size() const;
   void center_origin();
 
   virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
@@ -1875,6 +1876,7 @@ void Sprite::scale(const sf::Vector2f &factor) { spr.scale(factor); }
 
 size_t Sprite::width() const { return size.x; }
 size_t Sprite::height() const { return size.y; }
+sf::Vector2f Sprite::size() const { return sf::Vector2f{float(width()), float(height())}; }
 void Sprite::center_origin() { setOrigin(width() / 2.f, height() / 2.f); }
   
 void Sprite::draw(sf::RenderTarget &target, sf::RenderStates states) const {
