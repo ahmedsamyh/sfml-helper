@@ -1085,8 +1085,17 @@ bool Data::init(int s_w, int s_h, int scl, const std::string &_title) {
   std::cout << std::unitbuf;
 
   // create window
-  win.create(sf::VideoMode(s_width, s_height), title,
-             sf::Style::Close | sf::Style::Titlebar);
+  sf::Uint32 style = sf::Style::Close | sf::Style::Titlebar;
+  if (s_width <= 0 && s_height <= 0){
+    style = sf::Style::Fullscreen;
+  }
+  win.create(sf::VideoMode(s_width, s_height), title, style);
+  if (s_width <= 0 && s_height <= 0) {
+    s_width =  int(win.getSize().x);
+    s_height = int(win.getSize().y);
+    width = s_width / scale;
+    height = s_height / scale;
+  }
   win.setVerticalSyncEnabled(true);
   win.setKeyRepeatEnabled(true);
 

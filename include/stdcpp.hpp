@@ -20,7 +20,10 @@ void wait_and_close_process(PROCESS_INFORMATION proc);
 HINSTANCE open_dir(const std::string& dir);
 HINSTANCE open_file(const std::string& file);
 std::string last_error_str();
-  
+std::vector<WIN32_FIND_DATAA> get_entries_in_dir(std::string dir);
+std::vector<std::string> get_files_in_dir(std::string dir);
+std::vector<std::string> get_dirs_in_dir(std::string dir);
+
 }; // namespace win
 #endif
 
@@ -73,13 +76,14 @@ std::string get_env(const std::string& value);
 struct Arg {
   int *argc{nullptr};
   char ***argv{nullptr};
+  bool evaluating_quote{false};
 
   Arg(int &_argc, char **&_argv);
 
-  bool has_arg() const;
+  bool empty() const;
   operator bool();
   bool operator!();
-  std::string pop_arg();
+  std::string pop();
 };
 
 
@@ -222,6 +226,43 @@ std::string last_error_str(){
   return message;
 }
 
+std::vector<WIN32_FIND_DATAA> get_entries_in_dir(std::string dir) {
+  std::vector<WIN32_FIND_DATAA> res{};
+  WIN32_FIND_DATAA fd{};
+  dir += "\\*";
+  HANDLE h = FindFirstFileA(dir.c_str(), &fd);
+  if (h == INVALID_HANDLE_VALUE){
+    fprint(std::cerr, "ERROR: {}({}) -> {}\n", __func__, dir, last_error_str());
+    return res;
+  }
+  do {
+    res.push_back(fd);
+  } while (FindNextFileA(h, &fd) != FALSE);
+
+  FindClose(h);
+  return res;
+}
+
+std::vector<std::string> get_files_in_dir(std::string dir){
+  std::vector<std::string> res{};
+  for (auto& e : get_entries_in_dir(dir)){
+    if (!(e.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
+	res.push_back(e.cFileName);
+    }
+  }
+  return res;
+}
+
+std::vector<std::string> get_dirs_in_dir(std::string dir){
+  std::vector<std::string> res{};
+  for (auto& e : get_entries_in_dir(dir)){
+    if (e.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
+	res.push_back(e.cFileName);
+    }
+  }
+  return res;
+}
+
 }; // namespace win
 
 #endif
@@ -249,20 +290,35 @@ Arg::Arg(int &_argc, char **&_argv) {
   argv = &_argv;
 }
 
-bool Arg::has_arg() const { return (*argc) > 0; }
+bool Arg::empty() const { return (*argc) <= 0; }
 
-Arg::operator bool() { return has_arg(); }
-bool Arg::operator!() { return !has_arg(); }
+Arg::operator bool() { return !empty(); }
+bool Arg::operator!() { return empty(); }
 
-std::string Arg::pop_arg() {
-  if (!has_arg()) { // return empty string if no args are available
+std::string Arg::pop() {
+  if (empty()) { // return empty string if no args are available
     return {};
   };
 
   std::string arg = *argv[0];
 
+  if (arg[0] == '\''){
+    evaluating_quote = true;
+    str::lremove(arg);
+  }
+  if (arg.back() == '\''){
+    evaluating_quote = false;
+    str::rremove(arg);
+  }
+
   *argc = *argc - 1;
   *argv = *argv + 1;
+  
+  if (evaluating_quote){
+    arg += " ";
+    arg += pop();
+  }
+  
   return arg;
 }
 
