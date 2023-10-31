@@ -1391,7 +1391,10 @@ void Data::update_mouse() {
 
 bool Data::m_pressed(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
-  if (!win.hasFocus()) {
+  // TODO: have to add the size height of the title bar to the window pos to get the correct drawing region.
+  // Maybe use sf::WindowBase::getSystemHandle() to get HWND and use WINAPI to get the title bar height?
+  sf::FloatRect win_rect{sf::Vector2f(win.getPosition()), sf::Vector2f(win.getSize())};
+  if (!win_rect.contains(sf::Vector2f(sf::Mouse::getPosition()))) {
     return false;
   }
   return mouse_pressed[static_cast<size_t>(btn)];
@@ -1399,7 +1402,8 @@ bool Data::m_pressed(MB btn) {
 
 bool Data::m_held(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
-  if (!win.hasFocus()) {
+  sf::FloatRect win_rect{sf::Vector2f(win.getPosition()), sf::Vector2f(win.getSize())};
+  if (!win_rect.contains(sf::Vector2f(sf::Mouse::getPosition()))) {
     return false;
   }
   return mouse_held[static_cast<size_t>(btn)];
@@ -1407,7 +1411,8 @@ bool Data::m_held(MB btn) {
 
 bool Data::m_released(MB btn) {
   ASSERT(size_t(btn) < size_t(MB::ButtonCount));
-  if (!win.hasFocus()) {
+  sf::FloatRect win_rect{sf::Vector2f(win.getPosition()), sf::Vector2f(win.getSize())};
+  if (!win_rect.contains(sf::Vector2f(sf::Mouse::getPosition()))) {
     return false;
   }
   return mouse_released[static_cast<size_t>(btn)];
