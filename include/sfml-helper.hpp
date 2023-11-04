@@ -1506,23 +1506,45 @@ bool Data::is_fullscreen() const{
 void Data::toggle_fullscreen() {
   if (is_fullscreen()){
     win.close();
-    sf::Uint32 style = sf::Style::Close | sf::Style::Titlebar;
-    win.create(sf::VideoMode(s_width, s_height), title, style);
-    win.setVerticalSyncEnabled(vsync);
-    win.setKeyRepeatEnabled(true);
     s_width = og_s_width;
     s_height = og_s_height;
     adjust_w_h_to_screen_size();
+    if (!ren_tex.create(width, height)) {
+      ERR("Could not create render texture!\n");
+    }
+
+    sf::Uint32 style = sf::Style::Close | sf::Style::Titlebar;
+    win.create(sf::VideoMode(s_width, s_height), title, style);
+   
+    win.setVerticalSyncEnabled(vsync);
+    win.setKeyRepeatEnabled(true);
   } else {
     win.close();
     sf::Uint32 style = sf::Style::Fullscreen;
-    win.create(sf::VideoMode(s_width, s_height), title, style);
+    sf::VideoMode vm(s_width, s_height);
+    float current_aspect_ratio = ss().x / ss().y;
+    
+    for (auto& vid_mode : sf::VideoMode::getFullscreenModes()){
+      float aspect_ratio = float(vid_mode.width) / float(vid_mode.height);
+      // print("{}/{} = {}\n", vid_mode.width, vid_mode.height, aspect_ratio);
+      if (aspect_ratio == current_aspect_ratio){
+	vm.width = vid_mode.width;
+	vm.height = vid_mode.height;
+	break;
+      }
+    }
+    
+    win.create(vm, title, style);
     win.setVerticalSyncEnabled(vsync);
     win.setKeyRepeatEnabled(true);
     s_width = int(win.getSize().x);
     s_height = int(win.getSize().y);
     adjust_w_h_to_screen_size();
+    if (!ren_tex.create(width, height)) {
+      ERR("Could not create render texture!\n");
+    }
   }
+  
   _fullscreen = !_fullscreen;
 }
 
