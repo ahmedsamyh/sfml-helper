@@ -587,7 +587,7 @@ void Data_chunk::free() {
 
 void Data_chunk::allocate(size_t size) {
   if (data != nullptr) {
-    WARNING("data is already allocated!\n");
+    print("WARNING : data is already allocated!\n");
     return;
   }
   data = new char[size];
@@ -718,7 +718,7 @@ bool remove_chunk_from_data(const std::string &_name) {
     found |= name == _name;
   }
   if (!found) {
-    WARNING(FMT("Chunk named `{}` doesn't exist!\n", _name));
+    print("WARNING: Chunk named `{}` doesn't exist!\n", _name);
     return true;
   }
 
@@ -830,7 +830,7 @@ bool remove_chunk_from_data(const std::string &_name) {
       // output new data to data.dat
       if (new_data_file != nullptr) {
 
-        WARNING("Overwriting the data.dat file!\n");
+        print("WARNING: Overwriting the data.dat file!\n");
         std::ofstream ofs;
         ofs.open("data.dat", std::ios::binary);
         if (ofs.is_open()) {
@@ -867,7 +867,7 @@ bool remove_all_chunks_from_data() {
     ERR("Could not open `data.dat` for output\n");
     return false;
   }
-  WARNING("`data.dat` cleared\n");
+  print("WARNING: `data.dat` cleared\n");
   ofs.close();
   return true;
 }
@@ -875,7 +875,7 @@ bool remove_all_chunks_from_data() {
 bool write_chunk_to_data(const Data_type &type, const std::string &filename) {
   for (auto &name : list_of_names_in_data()) {
     if (name == filename) {
-      WARNING(FMT("Trying to add duplicate data `{}`\n", filename));
+      print("WARNING: Trying to add duplicate data `{}`\n", filename);
       return true;
     }
   }
@@ -1788,7 +1788,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
 sf::Texture& Resource_manager::load_texture(const std::string &name){
   // return texture if it already is in the texture_map
   if (texture_map.contains(name)){
-    print("INFO: Texture `{}` is already loaded\n", name);
+    // print("INFO: Texture `{}` is already loaded\n", name);
     return texture_map[name];
   }
 
