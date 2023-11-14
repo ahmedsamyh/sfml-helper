@@ -16,6 +16,9 @@
 
 namespace fs = std::filesystem;
 
+// TODO: Fullscreening makes the scaling or smth not correct.
+// Try dragging and you'll see what i meant(to future me).
+
 namespace sh {
 // macros ==================================================
 #define DEFAULT_FONT_NAME "res/font/IosevkaNerdFontMono-Regular.ttf"
