@@ -72,7 +72,7 @@ bool read_shader_from_data(Data_chunk &chunk, const std::string &filename);
 bool chunk_exists_in_data(const std::string &filename);
 
 // resource_manager --------------------------------------------------
-#define TEXTURE_PATH "res/gfx/" 
+ 
 struct Resource_manager {
 
   // data.dat
@@ -89,7 +89,7 @@ struct Resource_manager {
 
   std::unordered_map<std::string, sf::Texture> textures;
   std::unordered_map<std::string, sf::Font> fonts;
-  sf::Texture& load_texture(const std::string& name); // for loading files from the filesystem
+  sf::Texture& load_texture(const std::string& name, const std::string& path="res/gfx/"); // for loading files from the filesystem
   sf::Texture &get_texture(const std::string &filename); // for getting loaded textures from `data.dat`
   sf::Font &get_font(const std::string &filename);
 };
@@ -108,11 +108,9 @@ struct Sprite : public sf::Drawable {
   sf::Vector2f* bound_pos{nullptr};
 
   Sprite();
-  Sprite(Data& _d, const std::string& texture, int _hframes, int _vframes = 1);
-  Sprite(Data& _d, sf::Texture& texture, int _hframes, int _vframes = 1);
+  Sprite(Data& _d, sf::Texture& texture, int _hframes = 1, int _vframes = 1);
 
-  void init(Data& _d, const std::string& texture, int _hframes, int _vframes = 1);
-  void init(Data& _d, sf::Texture& texture, int _hframes, int _vframes = 1);
+  void init(Data& _d, sf::Texture& texture, int _hframes = 1, int _vframes = 1);
   void update();
 
   void change_vframe(int f);
@@ -1788,7 +1786,7 @@ sf::Font &Resource_manager::load_font(const std::string &filename) {
   return fonts[ch.name];
 }
 
-sf::Texture& Resource_manager::load_texture(const std::string &name){
+sf::Texture& Resource_manager::load_texture(const std::string &name, const std::string& path){
   // return texture if it already is in the texture_map
   if (texture_map.contains(name)){
     // print("INFO: Texture `{}` is already loaded\n", name);
@@ -1797,7 +1795,7 @@ sf::Texture& Resource_manager::load_texture(const std::string &name){
 
   // load texture from filesystem
   sf::Texture tex;
-  const std::string filename{TEXTURE_PATH + name};
+  const std::string filename{path + name};
   if (!tex.loadFromFile(filename)){
     // error message will be logged by sfml (i think)
     exit(1);
@@ -1830,26 +1828,9 @@ sf::Font &Resource_manager::get_font(const std::string &filename) {
 
 // sprite --------------------------------------------------
 Sprite::Sprite(){}
-
-Sprite::Sprite(Data& _d, const std::string& texture, int _hframes, int _vframes) {
-  init(_d, texture, _hframes, _vframes);
-}
   
 Sprite::Sprite(Data& _d, sf::Texture& texture, int _hframes, int _vframes) {
   init(_d, texture, _hframes, _vframes);
-}
-
-void Sprite::init(Data& _d, const std::string& texture, int _hframes, int _vframes) {
-  d = &_d;
-  spr.setTexture(d->res_man.get_texture(texture));
-  hframes = _hframes;
-  vframes = _vframes;
-
-  size.x = spr.getTexture()->getSize().x / hframes;
-  size.y = spr.getTexture()->getSize().y / vframes;
-
-  change_hframe(0);
-  change_vframe(0);
 }
 
 void Sprite::init(Data& _d, sf::Texture& texture, int _hframes, int _vframes) {
